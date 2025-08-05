@@ -1,0 +1,39 @@
+on:
+  schedule:
+    # Run every 30 minutes from 6 AM to 6 PM (UTC)
+        # Adjust timezone as needed - this is UTC time
+    - cron: '0,30 6-17 * * 1-5'  # Weekdays only, 6 AM - 6 PM UTC
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Run sync
+      env:
+        QUOTER_API_KEY: ${{ secrets.QUOTER_API_KEY }}
+        PIPEDRIVE_API_TOKEN: ${{ secrets.PIPEDRIVE_API_TOKEN }}
+        QUOTER_CLIENT_SECRET: ${{ secrets.QUOTER_CLIENT_SECRET }}
+      run: |
+        python sync_with_date_filter.py
+        
+    - name: Upload logs
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: sync-logs
+        path: sync_log.txt
