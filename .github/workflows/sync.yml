@@ -38,4 +38,4 @@ jobs:
       if: always()
       with:
         name: sync-logs
-        path: sync_log.txt
+        path: sync_log.txt 

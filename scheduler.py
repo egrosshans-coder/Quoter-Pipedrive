@@ -8,8 +8,12 @@ import schedule
 import time
 import os
 from datetime import datetime
+from dotenv import load_dotenv
 from sync_with_date_filter import sync_since_date, get_last_sync_date
 from utils.logger import logger
+
+# Load environment variables from .env file
+load_dotenv()
 
 def run_scheduled_sync():
     """Run the sync with date filtering and log the results."""
