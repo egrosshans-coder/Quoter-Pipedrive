@@ -90,6 +90,16 @@ def sync_from_github():
             print(f"❌ Failed to pull: {result.stderr}")
             return False
         
+        # Verify the pull actually worked
+        print("🔍 Verifying sync...")
+        if not _verify_pull_sync(project_root):
+            print("⚠️  Warning: Sync verification failed - files may not have updated properly")
+            return False
+        
+        # Show what files were actually updated
+        print("📁 Verifying file changes...")
+        _verify_file_changes(project_root)
+        
         print("✅ Successfully synced from GitHub!")
         print()
         
@@ -121,6 +131,93 @@ def sync_from_github():
         
     except Exception as e:
         print(f"❌ Error during sync: {e}")
+        return False
+
+def _verify_file_changes(project_root):
+    """Show what files were actually updated during the sync."""
+    try:
+        # Get the previous commit hash (before pull)
+        # We'll use HEAD@{1} to get the previous position
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD@{1}"],
+            capture_output=True, text=True, cwd=project_root
+        )
+        
+        if result.returncode == 0:
+            previous_commit = result.stdout.strip()
+            current_commit = subprocess.run(
+                ["git", "rev-parse", "HEAD"],
+                capture_output=True, text=True, cwd=project_root
+            ).stdout.strip()
+            
+            if previous_commit != current_commit:
+                print(f"    📋 Files changed between {previous_commit[:8]} and {current_commit[:8]}:")
+                
+                # Show what files changed
+                diff_result = subprocess.run(
+                    ["git", "diff", "--name-status", f"{previous_commit}..{current_commit}"],
+                    capture_output=True, text=True, cwd=project_root
+                )
+                
+                if diff_result.returncode == 0 and diff_result.stdout.strip():
+                    for line in diff_result.stdout.strip().split('\n'):
+                        if line.strip():
+                            status, filename = line.split('\t', 1)
+                            status_icon = {
+                                'A': '🆕',  # Added
+                                'M': '✏️',  # Modified
+                                'D': '🗑️',  # Deleted
+                                'R': '🔄',  # Renamed
+                                'C': '📋'   # Copied
+                            }.get(status, '❓')
+                            print(f"       {status_icon} {filename}")
+                else:
+                    print("       No files changed")
+            else:
+                print("    ✅ No commits pulled - already up to date")
+        else:
+            print("    ℹ️  Could not determine previous commit state")
+            
+    except Exception as e:
+        print(f"    ⚠️  Could not verify file changes: {e}")
+
+def _verify_pull_sync(project_root):
+    """Verify that the pull from GitHub actually worked by comparing local and remote."""
+    try:
+        # Get local commit hash
+        local_result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            capture_output=True, text=True, cwd=project_root
+        )
+        if local_result.returncode != 0:
+            print(f"    ❌ Failed to get local commit: {local_result.stderr}")
+            return False
+        
+        local_commit = local_result.stdout.strip()
+        
+        # Get remote commit hash
+        remote_result = subprocess.run(
+            ["git", "rev-parse", "origin/main"],
+            capture_output=True, text=True, cwd=project_root
+        )
+        if remote_result.returncode != 0:
+            print(f"    ❌ Failed to get remote commit: {remote_result.stderr}")
+            return False
+        
+        remote_commit = remote_result.stdout.strip()
+        
+        # Compare commits
+        if local_commit == remote_commit:
+            print(f"    ✅ Sync verified: Local and remote commits match ({local_commit[:8]})")
+            return True
+        else:
+            print(f"    ❌ Sync verification failed:")
+            print(f"       Local:  {local_commit[:8]}")
+            print(f"       Remote: {remote_commit[:8]}")
+            return False
+            
+    except Exception as e:
+        print(f"    ❌ Verification error: {e}")
         return False
 
 def main():
