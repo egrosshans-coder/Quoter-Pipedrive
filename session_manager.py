@@ -218,11 +218,65 @@ class SessionManager:
                 print(f"❌ Failed to push: {result.stderr}")
                 return False
             
+            # Verify the transfer worked
+            print("  🔍 Verifying transfer...")
+            if not self._verify_github_sync():
+                print("⚠️  Warning: Transfer verification failed - files may not have synced properly")
+                return False
+            
             print("✅ Successfully synced to GitHub!")
             return True
             
         except Exception as e:
             print(f"❌ Error syncing to GitHub: {e}")
+            return False
+    
+    def _verify_github_sync(self):
+        """Verify that the GitHub sync actually worked by comparing local and remote."""
+        try:
+            # Fetch latest remote info
+            result = subprocess.run(
+                ["git", "fetch", "origin"],
+                capture_output=True, text=True, cwd=self.project_root
+            )
+            if result.returncode != 0:
+                print(f"    ❌ Failed to fetch for verification: {result.stderr}")
+                return False
+            
+            # Get local commit hash
+            local_result = subprocess.run(
+                ["git", "rev-parse", "HEAD"],
+                capture_output=True, text=True, cwd=self.project_root
+            )
+            if local_result.returncode != 0:
+                print(f"    ❌ Failed to get local commit: {local_result.stderr}")
+                return False
+            
+            local_commit = local_result.stdout.strip()
+            
+            # Get remote commit hash
+            remote_result = subprocess.run(
+                ["git", "rev-parse", "origin/main"],
+                capture_output=True, text=True, cwd=self.project_root
+            )
+            if remote_result.returncode != 0:
+                print(f"    ❌ Failed to get remote commit: {remote_result.stderr}")
+                return False
+            
+            remote_commit = remote_result.stdout.strip()
+            
+            # Compare commits
+            if local_commit == remote_commit:
+                print(f"    ✅ Transfer verified: Local and remote commits match ({local_commit[:8]})")
+                return True
+            else:
+                print(f"    ❌ Transfer verification failed:")
+                print(f"       Local:  {local_commit[:8]}")
+                print(f"       Remote: {remote_commit[:8]}")
+                return False
+                
+        except Exception as e:
+            print(f"    ❌ Verification error: {e}")
             return False
     
     def pull_from_github(self):
