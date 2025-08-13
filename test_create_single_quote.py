@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Test script to verify template selection and quote creation for Blue Owl Capital-2096.
-This tests the complete workflow with the "test" template.
+Test script to create a single quote for organization 3465.
+This will test the complete quote creation workflow.
 """
 
 from pipedrive import get_organization_by_id
@@ -12,11 +12,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def test_template_selection_and_quote():
+def create_single_quote():
     """
-    Test template selection and quote creation for Blue Owl Capital-2096.
+    Create a single quote for organization 3465.
     """
-    print("🧪 Testing Template Selection and Quote Creation")
+    print("🎯 Creating Single Quote for Organization 3465")
     print("=" * 60)
     
     # Check if we have the required environment variables
@@ -33,9 +33,9 @@ def test_template_selection_and_quote():
     print("✅ Environment variables configured")
     print()
     
-    # Test with specific organization: Blue Owl Capital-2096
-    org_id = 3465  # Blue Owl Capital-2096
-    print(f"🔍 Testing with organization ID: {org_id}")
+    # Test with specific organization ID: 3465
+    org_id = 3465
+    print(f"🔍 Working with organization ID: {org_id}")
     print("-" * 50)
     
     # Get organization data directly
@@ -56,52 +56,19 @@ def test_template_selection_and_quote():
     
     if str(qbo_status) != "289" or not deal_id:
         print("❌ Organization not ready for quotes")
-        print("   QBO Status should be 289 (QBO-SubCust)")
-        print("   Deal ID should be present")
         return
     
     print("✅ Organization is ready for quote creation")
     print()
     
-    # Extract deal ID from org name
-    if "-" in org_name:
-        extracted_deal_id = org_name.split("-")[-1]
-        print(f"📋 Extracted deal ID from name: {extracted_deal_id}")
-        
-        try:
-            int(extracted_deal_id)  # Validate it's a number
-            print(f"✅ Deal ID validation: PASSED")
-        except ValueError:
-            print(f"❌ Deal ID validation: FAILED - '{extracted_deal_id}' is not a valid number")
-            return
-    else:
-        print(f"❌ Organization name format invalid: {org_name}")
-        print("   Expected format: 'CompanyName-1234'")
-        return
-    
-    print()
-    print("🎯 Ready to test quote creation with 'test' template!")
-    print()
-    print("⚠️  This will create an ACTUAL quote in Quoter")
-    print("   Template: 'test' (not 'Managed Service Proposal')")
-    print("   Organization: Blue Owl Capital-2096")
-    print("   Deal ID: 2096")
-    print()
-    
-    # Confirm before proceeding
-    confirm = input("Do you want to proceed with creating the quote? (y/N): ")
-    if confirm.lower() != 'y':
-        print("❌ Quote creation cancelled")
-        return
-    
     # Now create the actual quote
-    print("🚀 Creating quote in Quoter with 'test' template...")
+    print("🚀 Creating quote in Quoter...")
     print("   This will:")
-    print("   1. Select 'test' template (not 'Managed Service Proposal')")
-    print("   2. Extract deal ID from org name")
-    print("   3. Get deal info from Pipedrive")
-    print("   4. Extract contact information")
-    print("   5. Create quote in Quoter with 'test' template")
+    print("   1. Extract deal ID from org name")
+    print("   2. Get deal info from Pipedrive")
+    print("   3. Extract contact information")
+    print("   4. Create quote in Quoter")
+    print("   5. Quoter will auto-populate contact/org/deal info")
     print()
     
     try:
@@ -115,9 +82,8 @@ def test_template_selection_and_quote():
             print()
             print("✅ Next steps:")
             print("   1. Check Quoter dashboard for the new quote")
-            print("   2. Verify 'test' template is being used")
-            print("   3. Verify contact information is populated")
-            print("   4. Verify organization and deal details are correct")
+            print("   2. Verify contact information is populated")
+            print("   3. Verify organization and deal details are correct")
         else:
             print("❌ FAILED! Quote creation failed")
             print("   Check the logs above for error details")
@@ -128,10 +94,10 @@ def test_template_selection_and_quote():
 
 def main():
     """
-    Main function to test template selection and quote creation.
+    Main function to create a single quote.
     """
     try:
-        test_template_selection_and_quote()
+        create_single_quote()
     except Exception as e:
         print(f"❌ Test failed with error: {e}")
         raise

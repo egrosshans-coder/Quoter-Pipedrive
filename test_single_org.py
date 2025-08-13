@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Test script to verify template selection and quote creation for Blue Owl Capital-2096.
-This tests the complete workflow with the "test" template.
+Test script for quote creation with a single sub-organization (3465).
+Tests the complete workflow without fetching all organizations.
 """
 
-from pipedrive import get_organization_by_id
+from pipedrive import get_organization_by_id, get_deal_by_id
 from quoter import create_quote_from_pipedrive_org
 from utils.logger import logger
 import os
@@ -12,11 +12,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def test_template_selection_and_quote():
+def test_single_organization_quote():
     """
-    Test template selection and quote creation for Blue Owl Capital-2096.
+    Test quote creation for a single organization (ID: 3465).
     """
-    print("🧪 Testing Template Selection and Quote Creation")
+    print("🧪 Testing Single Organization Quote Creation")
     print("=" * 60)
     
     # Check if we have the required environment variables
@@ -33,8 +33,8 @@ def test_template_selection_and_quote():
     print("✅ Environment variables configured")
     print()
     
-    # Test with specific organization: Blue Owl Capital-2096
-    org_id = 3465  # Blue Owl Capital-2096
+    # Test with specific organization ID: 3465
+    org_id = 3465
     print(f"🔍 Testing with organization ID: {org_id}")
     print("-" * 50)
     
@@ -80,58 +80,39 @@ def test_template_selection_and_quote():
         return
     
     print()
-    print("🎯 Ready to test quote creation with 'test' template!")
+    print("🎯 Ready to test quote creation!")
     print()
-    print("⚠️  This will create an ACTUAL quote in Quoter")
-    print("   Template: 'test' (not 'Managed Service Proposal')")
-    print("   Organization: Blue Owl Capital-2096")
-    print("   Deal ID: 2096")
+    print("⚠️  This is a DRY RUN - no actual quotes will be created")
+    print("   To create actual quotes, run: python quote_monitor.py")
     print()
     
-    # Confirm before proceeding
-    confirm = input("Do you want to proceed with creating the quote? (y/N): ")
-    if confirm.lower() != 'y':
-        print("❌ Quote creation cancelled")
-        return
+    # Show what would happen
+    print("📋 What would happen when creating the quote:")
+    print(f"   1. Extract deal ID: {extracted_deal_id}")
+    print(f"   2. Get deal info from Pipedrive")
+    print(f"   3. Extract contact information")
+    print(f"   4. Create quote in Quoter with:")
+    print(f"      - Quote number: PD-{extracted_deal_id}")
+    print(f"      - Organization: {org_name}")
+    print(f"      - Contact details from Pipedrive")
+    print(f"      - Deal information linked")
+    print(f"   5. Quoter automatically populates contact/org/deal info")
     
-    # Now create the actual quote
-    print("🚀 Creating quote in Quoter with 'test' template...")
-    print("   This will:")
-    print("   1. Select 'test' template (not 'Managed Service Proposal')")
-    print("   2. Extract deal ID from org name")
-    print("   3. Get deal info from Pipedrive")
-    print("   4. Extract contact information")
-    print("   5. Create quote in Quoter with 'test' template")
     print()
-    
-    try:
-        quote_data = create_quote_from_pipedrive_org(org_data)
-        
-        if quote_data:
-            print("🎉 SUCCESS! Quote created successfully!")
-            print(f"   Quote ID: {quote_data.get('id')}")
-            print(f"   Quote Number: {quote_data.get('quote_number', 'N/A')}")
-            print(f"   URL: {quote_data.get('url', 'N/A')}")
-            print()
-            print("✅ Next steps:")
-            print("   1. Check Quoter dashboard for the new quote")
-            print("   2. Verify 'test' template is being used")
-            print("   3. Verify contact information is populated")
-            print("   4. Verify organization and deal details are correct")
-        else:
-            print("❌ FAILED! Quote creation failed")
-            print("   Check the logs above for error details")
-            
-    except Exception as e:
-        print(f"❌ ERROR during quote creation: {e}")
-        raise
+    print("=" * 60)
+    print("🎯 Single Organization Test Complete!")
+    print()
+    print("Next steps:")
+    print("1. Run 'python quote_monitor.py' to create actual quotes")
+    print("2. Check Quoter dashboard for new draft quotes")
+    print("3. Verify contact information is properly populated")
 
 def main():
     """
-    Main function to test template selection and quote creation.
+    Main function to run the single organization test.
     """
     try:
-        test_template_selection_and_quote()
+        test_single_organization_quote()
     except Exception as e:
         print(f"❌ Test failed with error: {e}")
         raise
