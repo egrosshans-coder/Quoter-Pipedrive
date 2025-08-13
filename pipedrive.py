@@ -229,3 +229,170 @@ def update_quoter_supplier_sku(quoter_item_id, pipedrive_product_id):
     # 1. OAuth access token
     # 2. PATCH request to https://api.quoter.com/v1/items/{quoter_item_id}
     # 3. Request body: {"supplier_sku": pipedrive_product_id} 
+
+def get_sub_organizations_ready_for_quotes():
+    """
+    Get sub-organizations that are ready for quote creation.
+    Searches ALL organizations with pagination, not just specific owners.
+    
+    Returns:
+        list: List of organizations with HID-QBO-Status = "QBO-SubCust"
+    """
+    if not API_TOKEN:
+        logger.error("PIPEDRIVE_API_TOKEN not found in environment variables")
+        return []
+    
+    headers = {"Content-Type": "application/json"}
+    
+    try:
+        all_organizations = []
+        page = 1
+        limit = 100
+        
+        # Get all organizations with pagination
+        while True:
+            # Add pagination parameters
+            params = {
+                "api_token": API_TOKEN,
+                "limit": limit,
+                "start": (page - 1) * limit  # Pipedrive uses 'start' parameter
+            }
+            
+            logger.info(f"Fetching organizations page {page} (start: {params['start']})")
+            
+            response = requests.get(
+                f"{BASE_URL}/organizations",
+                headers=headers,
+                params=params,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                organizations = data.get("data", [])
+                
+                all_organizations.extend(organizations)
+                
+                # Debug: Check if we're getting unique organizations
+                unique_ids = set(org.get('id') for org in all_organizations)
+                logger.info(f"Retrieved {len(organizations)} organizations (page: {page}, total so far: {len(all_organizations)}, unique IDs: {len(unique_ids)})")
+                
+                # Check if we're getting the same organizations repeatedly
+                if len(all_organizations) != len(unique_ids):
+                    logger.warning(f"⚠️  Duplicate organizations detected! Total: {len(all_organizations)}, Unique: {len(unique_ids)}")
+                    # Remove duplicates and continue
+                    all_organizations = list({org.get('id'): org for org in all_organizations}.values())
+                    logger.info(f"Removed duplicates, now have {len(all_organizations)} unique organizations")
+                
+                # Check if there are more organizations
+                # If we got exactly the limit, there might be more
+                if len(organizations) < limit:
+                    logger.info(f"Got {len(organizations)} organizations (less than limit {limit}), stopping pagination")
+                    break
+                
+                # Safety check: if we're getting the same organizations repeatedly, stop
+                if len(all_organizations) > 5000:  # Allow more organizations
+                    logger.warning(f"⚠️  Stopping pagination at {len(all_organizations)} organizations to prevent endless loop")
+                    break
+                    
+                page += 1
+            else:
+                logger.error(f"❌ API request failed with status {response.status_code}: {response.text}")
+                break
+        
+        # Filter for sub-organizations ready for quotes (any owner)
+        ready_orgs = []
+        for org in all_organizations:
+            # Check if has the right status (QBO-SubCust) regardless of owner
+            # HID-QBO-Status field key: 454a3767bce03a880b31d78a38c480d6870e0f1b
+            # Note: Pipedrive returns custom field values as strings, so compare as strings
+            if str(org.get("454a3767bce03a880b31d78a38c480d6870e0f1b")) == "289":  # 289 = QBO-SubCust
+                # Also check if it has an associated deal ID
+                if org.get("15034cf07d05ceb15f0a89dcbdcc4f596348584e"):  # Deal_ID field
+                    ready_orgs.append(org)
+                    owner_name = org.get("owner_id", {}).get("name", "Unknown")
+                    logger.debug(f"Found ready organization {org.get('id')} ({org.get('name')}) owned by {owner_name}")
+        
+        logger.info(f"✅ Successfully retrieved {len(all_organizations)} total organizations from Pipedrive")
+        logger.info(f"Found {len(ready_orgs)} organizations ready for quote creation (all owners)")
+        return ready_orgs
+            
+    except requests.exceptions.RequestException as e:
+        logger.error(f"❌ Error connecting to Pipedrive API: {e}")
+        return []
+
+def get_deal_by_id(deal_id):
+    """
+    Get deal information by ID.
+    
+    Args:
+        deal_id (int): Deal ID
+        
+    Returns:
+        dict: Deal data if found, None otherwise
+    """
+    if not API_TOKEN:
+        logger.error("PIPEDRIVE_API_TOKEN not found in environment variables")
+        return None
+    
+    headers = {"Content-Type": "application/json"}
+    params = {"api_token": API_TOKEN}
+    
+    try:
+        response = requests.get(
+            f"{BASE_URL}/deals/{deal_id}",
+            headers=headers,
+            params=params
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("data")
+        elif response.status_code == 404:
+            logger.warning(f"Deal {deal_id} not found")
+            return None
+        else:
+            logger.error(f"Error getting deal {deal_id}: {response.status_code}")
+            return None
+            
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error getting deal {deal_id}: {e}")
+        return None
+
+def get_organization_by_id(org_id):
+    """
+    Get organization information by ID.
+    
+    Args:
+        org_id (int): Organization ID
+        
+    Returns:
+        dict: Organization data if found, None otherwise
+    """
+    if not API_TOKEN:
+        logger.error("PIPEDRIVE_API_TOKEN not found in environment variables")
+        return None
+    
+    headers = {"Content-Type": "application/json"}
+    params = {"api_token": API_TOKEN}
+    
+    try:
+        response = requests.get(
+            f"{BASE_URL}/organizations/{org_id}",
+            headers=headers,
+            params=params
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("data")
+        elif response.status_code == 404:
+            logger.warning(f"Organization {org_id} not found")
+            return None
+        else:
+            logger.error(f"Error getting organization {org_id}: {response.status_code}")
+            return None
+            
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error getting organization {org_id}: {e}")
+        return None 

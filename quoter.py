@@ -193,3 +193,573 @@ def update_quoter_sku(quoter_item_id, pipedrive_product_id):
     except requests.exceptions.RequestException as e:
         logger.error(f"❌ Error updating Quoter item {quoter_item_id}: {e}")
         return False 
+
+def create_or_find_contact_in_quoter(contact_name, contact_email=None, contact_phone=None, pipedrive_contact_id=None, organization_name=None):
+    """
+    Create a new contact in Quoter or find existing one based on email and organization.
+    
+    Args:
+        contact_name (str): Contact name
+        contact_email (str, optional): Contact email
+        contact_phone (str, optional): Contact phone
+        pipedrive_contact_id (str, optional): Pipedrive person ID
+        organization_name (str, optional): Organization name for better matching
+        
+    Returns:
+        str: Contact ID if created/found, None otherwise
+    """
+    access_token = get_access_token()
+    if not access_token:
+        logger.error("Failed to get OAuth token for contact creation")
+        return None
+    
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+    
+    # First, try to find existing contact by email
+    if contact_email:
+        try:
+            response = requests.get(
+                "https://api.quoter.com/v1/contacts",
+                headers=headers,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                contacts = data.get("data", [])
+                
+                # Look for existing contact with matching email
+                for contact in contacts:
+                    contact_emails = contact.get("email", [])
+                    if isinstance(contact_emails, list):
+                        for email_item in contact_emails:
+                            if email_item.get("value") == contact_email:
+                                logger.info(f"✅ Found existing contact: {contact.get('first_name')} {contact.get('last_name')} "
+                                          f"(ID: {contact.get('id')}) - reusing existing contact")
+                                return contact.get("id")
+                    elif isinstance(contact_emails, str) and contact_emails == contact_email:
+                        logger.info(f"✅ Found existing contact: {contact.get('first_name')} {contact.get('last_name')} "
+                                  f"(ID: {contact.get('id')}) - reusing existing contact")
+                        return contact.get("id")
+                
+                logger.info(f"📧 No existing contact found with email {contact_email} - will create new one")
+                    
+        except Exception as e:
+            logger.warning(f"Error searching for existing contact: {e}")
+    
+    # If no existing contact found, create a new one
+    try:
+        # Parse first and last name from contact_name
+        name_parts = contact_name.split(" ", 1)
+        first_name = name_parts[0] if name_parts else contact_name
+        last_name = name_parts[1] if len(name_parts) > 1 else ""
+        
+        # Create contact with all required fields
+        contact_data = {
+            "first_name": first_name,
+            "last_name": last_name,
+            "organization": organization_name,  # Use the organization name from the quote
+            "billing_country_iso": "US"  # Default to US for now
+        }
+        
+        # Add email if available
+        if contact_email:
+            contact_data["email"] = contact_email
+        
+        # Add phone if available
+        if contact_phone:
+            contact_data["phone"] = contact_phone
+        
+        # Add Pipedrive reference if available
+        if pipedrive_contact_id:
+            contact_data["pipedrive_contact_id"] = str(pipedrive_contact_id)
+        
+        logger.info(f"Creating new contact in Quoter: {contact_name}")
+        
+        response = requests.post(
+            "https://api.quoter.com/v1/contacts",
+            json=contact_data,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code == 200 or response.status_code == 201:
+            data = response.json()
+            contact_id = data.get("id")
+            
+            if contact_id:
+                logger.info(f"✅ Successfully created contact {contact_id} in Quoter")
+                return contact_id
+            else:
+                logger.error(f"❌ No contact ID in response: {data}")
+                return None
+        else:
+            logger.error(f"❌ Failed to create contact: {response.status_code} - {response.text}")
+            return None
+            
+    except requests.exceptions.RequestException as e:
+        logger.error(f"❌ Error creating contact: {e}")
+        return None
+
+def create_quote_from_pipedrive_org(organization_data):
+    """
+    Create a quote in Quoter using native Pipedrive integration.
+    This function uses the Deal_ID custom field to get deal info and create the quote.
+    
+    Args:
+        organization_data (dict): Organization data from Pipedrive
+        
+    Returns:
+        dict: Quote data if created successfully, None otherwise
+    """
+    from pipedrive import get_deal_by_id
+    
+    org_name = organization_data.get("name", "")
+    org_id = organization_data.get("id")
+    
+    if not org_name:
+        logger.error(f"Organization {org_id} has no name")
+        return None
+    
+    # Get deal ID from the custom field (much more reliable than parsing org name)
+    # Custom field key: 15034cf07d05ceb15f0a89dcbdcc4f596348584e
+    deal_id = organization_data.get("15034cf07d05ceb15f0a89dcbdcc4f596348584e")
+    
+    if not deal_id:
+        logger.error(f"Organization {org_id} has no Deal_ID custom field")
+        return None
+    
+    logger.info(f"Found deal ID '{deal_id}' from custom field for organization '{org_name}'")
+    
+    # Get deal information from Pipedrive
+    deal_data = get_deal_by_id(deal_id)
+    if not deal_data:
+        logger.error(f"Could not find deal {deal_id} for organization {org_name}")
+        return None
+    
+    deal_title = deal_data.get("title", f"Deal {deal_id}")
+    logger.info(f"Found deal: {deal_title}")
+    
+    # Get contact information from the deal
+    person_data = deal_data.get("person_id", {})
+    if not person_data:
+        logger.error(f"No contact found in deal {deal_id}")
+        return None
+    
+    # Handle both single contact and multiple contacts
+    if isinstance(person_data, list):
+        contacts = person_data
+    else:
+        contacts = [person_data]
+    
+    if not contacts:
+        logger.error(f"No valid contacts found in deal {deal_id}")
+        return None
+    
+    # Use the first contact (primary contact)
+    primary_contact = contacts[0]
+    contact_name = primary_contact.get("name", "Unknown Contact")
+    contact_id = primary_contact.get("value")  # This is the Pipedrive person ID
+    
+    # Extract email and phone from contact data
+    email = None
+    phone = None
+    
+    if primary_contact.get("email"):
+        email_data = primary_contact["email"]
+        if isinstance(email_data, list) and email_data:
+            # Find primary email or use first one
+            for email_item in email_data:
+                if email_item.get("primary", False) or not email:
+                    email = email_item.get("value")
+    
+    if primary_contact.get("phone"):
+        phone_data = primary_contact["phone"]
+        if isinstance(phone_data, list) and phone_data:
+            # Find primary phone or use first one
+            for phone_item in phone_data:
+                if phone_item.get("primary", False) or not phone:
+                    phone = phone_item.get("value")
+    
+    logger.info(f"Primary contact: {contact_name} (ID: {contact_id})")
+    if email:
+        logger.info(f"Contact email: {email}")
+    if phone:
+        logger.info(f"Contact phone: {phone}")
+    
+    # Get clean organization name (without deal ID suffix) for display
+    # Look for parent organization or clean the current name
+    clean_org_name = org_name
+    if "-" in org_name:
+        clean_org_name = org_name.split("-")[0].strip()
+    
+    logger.info(f"Using clean organization name: '{clean_org_name}'")
+    
+    # Now create the quote using native Quoter-Pipedrive integration
+    return create_draft_quote_with_contact(
+        deal_id=deal_id,
+        organization_name=clean_org_name,
+        deal_title=deal_title,
+        contact_name=contact_name,
+        contact_email=email,
+        contact_phone=phone,
+        pipedrive_contact_id=contact_id
+    )
+
+def create_draft_quote_with_contact(deal_id, organization_name, deal_title, 
+                                   contact_name, contact_email=None, contact_phone=None, 
+                                   pipedrive_contact_id=None):
+    """
+    Create a draft quote in Quoter that will automatically pull Pipedrive data.
+    Quoter handles the contact/org/deal population after quote creation.
+    
+    Args:
+        deal_id (str): Pipedrive deal ID
+        organization_name (str): Organization name
+        deal_title (str): Deal title
+        contact_name (str): Primary contact name (for logging only)
+        contact_email (str, optional): Primary contact email (for logging only)
+        contact_phone (str, optional): Primary contact phone (for logging only)
+        pipedrive_contact_id (str, optional): Pipedrive person ID (for logging only)
+        
+    Returns:
+        dict: Quote data if created successfully, None otherwise
+    """
+    # First get OAuth access token
+    access_token = get_access_token()
+    if not access_token:
+        logger.error("Failed to get OAuth token for quote creation")
+        return None
+    
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+    
+    # Get required fields for quote creation (template and currency)
+    required_fields = get_quote_required_fields(access_token)
+    if not required_fields:
+        logger.error("Failed to get required fields for quote creation")
+        return None
+    
+    # Get a default contact ID (Quoter will replace this with actual Pipedrive contact)
+    default_contact_id = get_default_contact_id(access_token)
+    if not default_contact_id:
+        logger.error("Failed to get default contact ID")
+        return None
+    
+    # Create or find the contact in Quoter first
+    logger.info(f"Creating/finding contact in Quoter: {contact_name}")
+    contact_id = create_or_find_contact_in_quoter(
+        contact_name=contact_name,
+        contact_email=contact_email,
+        contact_phone=contact_phone,
+        pipedrive_contact_id=pipedrive_contact_id,
+        organization_name=organization_name
+    )
+    
+    if not contact_id:
+        logger.error("Failed to create/find contact in Quoter")
+        return None
+    
+    logger.info(f"✅ Using contact ID: {contact_id}")
+    
+    # Prepare quote data with the real contact and organization data
+    quote_data = {
+        "contact_id": contact_id,  # Use the real contact, not a default placeholder
+        "template_id": required_fields["template_id"],
+        "currency_abbr": required_fields["currency_abbr"],
+        "number": f"PD-{deal_id}",  # Use 'number' field (not 'quote_number')
+        "pipedrive_deal_id": str(deal_id),  # Include Pipedrive deal ID
+        "name": f"Quote for {organization_name}",  # Use the clean organization name passed in
+        "status": "draft"
+    }
+    
+    try:
+        logger.info(f"Creating draft quote for deal {deal_id}")
+        logger.info(f"Organization: {organization_name}")
+        logger.info(f"Contact: {contact_name}")
+        logger.info(f"Quote number: PD-{deal_id}")
+        logger.info("Note: Quoter will automatically populate contact/org/deal info from Pipedrive")
+        
+        logger.info(f"📤 Sending API request to Quoter:")
+        logger.info(f"   URL: https://api.quoter.com/v1/quotes")
+        logger.info(f"   Headers: {headers}")
+        logger.info(f"   Data: {quote_data}")
+        
+        response = requests.post(
+            "https://api.quoter.com/v1/quotes",
+            json=quote_data,
+            headers=headers,
+            timeout=10
+        )
+        
+        logger.info(f"📥 API Response:")
+        logger.info(f"   Status: {response.status_code}")
+        logger.info(f"   Response: {response.text}")
+        
+        if response.status_code == 200 or response.status_code == 201:
+            data = response.json()
+            quote_id = data.get("id")
+            
+            if quote_id:
+                logger.info(f"✅ Successfully created draft quote {quote_id}")
+                logger.info(f"   Quote number: PD-{deal_id}")
+                logger.info(f"   Pipedrive deal ID: {deal_id}")
+                logger.info(f"   Organization: {organization_name}")
+                logger.info(f"   Title: Quote for {organization_name} - Deal {deal_id}")
+                logger.info(f"   Quoter should now pull Pipedrive data automatically")
+                logger.info(f"   URL: {data.get('url', 'N/A')}")
+                return data
+            else:
+                logger.error(f"❌ No quote ID in response: {data}")
+                return None
+        else:
+            logger.error(f"❌ Failed to create quote: {response.status_code} - {response.text}")
+            return None
+            
+    except requests.exceptions.RequestException as e:
+        logger.error(f"❌ Error creating quote: {e}")
+        return None
+
+def update_quote_after_creation(quote_id, deal_id, organization_name, contact_name):
+    """
+    Update a quote after creation with the correct merge fields and Pipedrive data.
+    
+    Args:
+        quote_id (str): The quote ID returned from creation
+        deal_id (str): Pipedrive deal ID
+        organization_name (str): Organization name
+        contact_name (str): Contact name
+        
+    Returns:
+        bool: True if update successful, False otherwise
+    """
+    # Get OAuth access token
+    access_token = get_access_token()
+    if not access_token:
+        logger.error("Failed to get OAuth token for quote update")
+        return False
+
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+
+    # Update data with merge fields
+    update_data = {
+        "quote_number": f"##PD-{deal_id}##",  # Use merge field format
+        "organization_name": organization_name,
+        "contact_name": contact_name
+    }
+    
+    try:
+        logger.info(f"Updating quote {quote_id} with merge fields:")
+        logger.info(f"   Quote number: ##PD-{deal_id}##")
+        logger.info(f"   Organization: {organization_name}")
+        logger.info(f"   Contact: {contact_name}")
+        
+        response = requests.patch(
+            f"https://api.quoter.com/v1/quotes/{quote_id}",
+            json=update_data,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            logger.info(f"✅ Successfully updated quote {quote_id}")
+            return True
+        else:
+            logger.error(f"❌ Failed to update quote {quote_id}: {response.status_code} - {response.text}")
+            return False
+            
+    except requests.exceptions.RequestException as e:
+        logger.error(f"❌ Error updating quote {quote_id}: {e}")
+        return False
+
+def create_draft_quote(deal_id, organization_name, deal_title=None):
+    """
+    Create a draft quote in Quoter for the given deal and organization.
+    
+    Args:
+        deal_id (str): Pipedrive deal ID
+        organization_name (str): Organization name
+        deal_title (str, optional): Deal title
+        
+    Returns:
+        dict: Quote data if created successfully, None otherwise
+    """
+    # First get OAuth access token
+    access_token = get_access_token()
+    if not access_token:
+        logger.error("Failed to get OAuth token for quote creation")
+        return None
+    
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+    
+    # Get required fields for quote creation
+    required_fields = get_quote_required_fields(access_token)
+    if not required_fields:
+        logger.error("Failed to get required fields for quote creation")
+        return None
+    
+    # Get a default contact ID (Quoter will replace this with actual Pipedrive contact)
+    default_contact_id = get_default_contact_id(access_token)
+    if not default_contact_id:
+        logger.error("Failed to get default contact ID")
+        return None
+    
+    # Prepare quote data with custom numbering
+    quote_data = {
+        "contact_id": default_contact_id,  # Use the created contact
+        "template_id": required_fields["template_id"],
+        "currency_abbr": required_fields["currency_abbr"],
+        "title": deal_title or f"Quote for {organization_name} - Deal {deal_id}",
+        "quote_number": f"PD-{deal_id}",  # Custom quote number using deal ID
+        "pipedrive_deal_id": str(deal_id),
+        "organization_name": organization_name
+    }
+    
+    try:
+        logger.info(f"Creating draft quote for deal {deal_id} and organization {organization_name}")
+        logger.info(f"Using quote number: PD-{deal_id}")
+        
+        response = requests.post(
+            "https://api.quoter.com/v1/quotes",
+            json=quote_data,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code == 200 or response.status_code == 201:
+            data = response.json()
+            quote_id = data.get("id")  # Direct ID access based on our testing
+            
+            if quote_id:
+                logger.info(f"✅ Successfully created draft quote {quote_id} for deal {deal_id}")
+                logger.info(f"   Quote number: PD-{deal_id}")
+                logger.info(f"   URL: {data.get('url', 'N/A')}")
+                return data
+            else:
+                logger.error(f"❌ No quote ID in response: {data}")
+                return None
+        else:
+            logger.error(f"❌ Failed to create quote: {response.status_code} - {response.text}")
+            return None
+            
+    except requests.exceptions.RequestException as e:
+        logger.error(f"❌ Error creating quote: {e}")
+        return None
+
+def get_quote_required_fields(access_token):
+    """
+    Get the required fields for quote creation (template and currency only).
+    Contact ID is now created separately for each quote.
+    
+    Args:
+        access_token (str): OAuth access token
+        
+    Returns:
+        dict: Required fields (template_id, currency_abbr) or None
+    """
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+    
+    # Get specific template by name (prefer "Managed Service Proposal" over "test")
+    try:
+        response = requests.get(
+            "https://api.quoter.com/v1/quote_templates",  # Correct endpoint we discovered
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            templates = data.get("data", [])
+            if templates:
+                # Look for the "Managed Service Proposal" template first
+                preferred_template = None
+                fallback_template = None
+                
+                for template in templates:
+                    title = template.get("title", "")
+                    if "Managed Service Proposal" in title:
+                        preferred_template = template
+                        break
+                    elif title and title != "test":  # Use any non-test template as fallback
+                        fallback_template = template
+                
+                # Use preferred template, fallback, or first available
+                if preferred_template:
+                    template_id = preferred_template.get("id")
+                    logger.info(f"Found preferred template: {preferred_template.get('title')} (ID: {template_id})")
+                elif fallback_template:
+                    template_id = fallback_template.get("id")
+                    logger.info(f"Using fallback template: {fallback_template.get('title')} (ID: {template_id})")
+                else:
+                    template_id = templates[0].get("id")
+                    logger.info(f"Using first available template: {templates[0].get('title', 'N/A')} (ID: {template_id})")
+            else:
+                logger.error("No templates found")
+                return None
+        else:
+            logger.error(f"Failed to get templates: {response.status_code}")
+            return None
+            
+    except Exception as e:
+        logger.error(f"Error getting templates: {e}")
+        return None
+    
+    return {
+        "template_id": template_id,
+        "currency_abbr": "USD"  # Default currency
+    } 
+
+def get_default_contact_id(access_token):
+    """
+    Get a default contact ID from Quoter for quote creation.
+    Quoter will replace this with the actual Pipedrive contact after creation.
+    
+    Args:
+        access_token (str): OAuth access token
+        
+    Returns:
+        str: Default contact ID if found, None otherwise
+    """
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+    
+    try:
+        response = requests.get(
+            "https://api.quoter.com/v1/contacts",
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            contacts = data.get("data", [])
+            if contacts:
+                contact_id = contacts[0].get("id")
+                logger.info(f"Using default contact ID: {contact_id}")
+                return contact_id
+            else:
+                logger.error("No contacts found in Quoter")
+                return None
+        else:
+            logger.error(f"Failed to get contacts: {response.status_code}")
+            return None
+            
+    except Exception as e:
+        logger.error(f"Error getting default contact: {e}")
+        return None 
