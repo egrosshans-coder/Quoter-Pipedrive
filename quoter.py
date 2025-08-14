@@ -304,6 +304,207 @@ def create_or_find_contact_in_quoter(contact_name, contact_email=None, contact_p
         logger.error(f"❌ Error creating contact: {e}")
         return None
 
+def create_comprehensive_contact_from_pipedrive(pipedrive_contact_data, pipedrive_org_data):
+    """
+    Create or find a contact in Quoter with comprehensive data mapping from Pipedrive.
+    
+    This function extracts ALL available data from Pipedrive and maps it to standard
+    Quoter contact fields, creating rich, complete contact information.
+    
+    Args:
+        pipedrive_contact_data (dict): Person data from Pipedrive
+        pipedrive_org_data (dict): Organization data from Pipedrive
+        
+    Returns:
+        str: Contact ID if created/found, None otherwise
+    """
+    access_token = get_access_token()
+    if not access_token:
+        logger.error("Failed to get OAuth token for comprehensive contact creation")
+        return None
+    
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+    
+    # Extract contact information
+    contact_name = pipedrive_contact_data.get("name", "Unknown Contact")
+    contact_email = None
+    contact_phone = None
+    contact_mobile = None
+    
+    # Extract email (handle both list and direct formats)
+    emails = pipedrive_contact_data.get("email", [])
+    if isinstance(emails, list):
+        for email_item in emails:
+            if email_item.get("primary", False):
+                contact_email = email_item.get("value")
+                break
+        if not contact_email and emails:
+            contact_email = emails[0].get("value")
+    elif isinstance(emails, str):
+        contact_email = emails
+    
+    # Extract phone numbers (handle both list and direct formats)
+    phones = pipedrive_contact_data.get("phone", [])
+    if isinstance(phones, list):
+        for phone_item in phones:
+            if phone_item.get("label") == "work":
+                contact_phone = phone_item.get("value")
+            elif phone_item.get("label") == "mobile":
+                contact_mobile = phone_item.get("value")
+        if not contact_phone and phones:
+            contact_phone = phones[0].get("value")
+    elif isinstance(phones, str):
+        contact_phone = phones
+    
+    # Extract organization information
+    org_name = pipedrive_org_data.get("name", "")
+    org_website = pipedrive_org_data.get("website", "")
+    
+    # Extract address information from organization
+    org_address = pipedrive_org_data.get("address", "")
+    org_address2 = pipedrive_org_data.get("address2", "")
+    org_city = pipedrive_org_data.get("city", "")
+    org_state = pipedrive_org_data.get("state", "")
+    org_zip = pipedrive_org_data.get("postal_code", "") or pipedrive_org_data.get("zip", "")
+    org_country = pipedrive_org_data.get("country", "US")  # Default to US
+    
+    # First, try to find existing contact by email
+    if contact_email:
+        try:
+            response = requests.get(
+                "https://api.quoter.com/v1/contacts",
+                headers=headers,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                contacts = data.get("data", [])
+                
+                # Look for existing contact with matching email
+                for contact in contacts:
+                    contact_emails = contact.get('email', [])
+                    if isinstance(contact_emails, list):
+                        for email_item in contact_emails:
+                            if email_item.get('value') == contact_email:
+                                logger.info(f"✅ Found existing contact: {contact.get('first_name')} {contact.get('last_name')} "
+                                          f"(ID: {contact.get('id')}) - reusing existing contact")
+                                return contact.get("id")
+                    elif isinstance(contact_emails, str) and contact_emails == contact_email:
+                        logger.info(f"✅ Found existing contact: {contact.get('first_name')} {contact.get('last_name')} "
+                                  f"(ID: {contact.get('id')}) - reusing existing contact")
+                        return contact.get("id")
+                
+                logger.info(f"📧 No existing contact found with email {contact_email} - will create new one with comprehensive data")
+                    
+        except Exception as e:
+            logger.warning(f"Error searching for existing contact: {e}")
+    
+    # If no existing contact found, create a new one with comprehensive data
+    try:
+        # Parse first and last name from contact_name
+        name_parts = contact_name.split(" ", 1)
+        first_name = name_parts[0] if name_parts else contact_name
+        last_name = name_parts[1] if len(name_parts) > 1 else ""
+        
+        # Create comprehensive contact data using standard Quoter fields
+        contact_data = {
+            "first_name": first_name,
+            "last_name": last_name,
+            "organization": org_name,
+            "billing_country_iso": org_country,
+            "shipping_country_iso": org_country,
+        }
+        
+        # Add email if available
+        if contact_email:
+            contact_data["email"] = contact_email
+        
+        # Add phone information
+        if contact_phone:
+            contact_data["work_phone"] = contact_phone
+        if contact_mobile:
+            contact_data["mobile_phone"] = contact_mobile
+        elif contact_phone:  # Use work phone as mobile if no mobile specified
+            contact_data["mobile_phone"] = contact_phone
+        
+        # Add website if available
+        if org_website:
+            contact_data["website"] = org_website
+        
+        # Add comprehensive billing address
+        if org_address:
+            contact_data["billing_address"] = org_address
+        if org_address2:
+            contact_data["billing_address2"] = org_address2
+        if org_city:
+            contact_data["billing_city"] = org_city
+        if org_state:
+            contact_data["billing_region_iso"] = org_state
+        if org_zip:
+            contact_data["billing_postal_code"] = org_zip
+        
+        # Add comprehensive shipping address (same as billing for now)
+        if org_address:
+            contact_data["shipping_address"] = org_address
+        if org_address2:
+            contact_data["shipping_address2"] = org_address2
+        if org_city:
+            contact_data["shipping_city"] = org_city
+        if org_state:
+            contact_data["shipping_region_iso"] = org_state
+        if org_zip:
+            contact_data["shipping_postal_code"] = org_zip
+        if contact_email:
+            contact_data["shipping_email"] = contact_email
+        if first_name:
+            contact_data["shipping_first_name"] = first_name
+        if last_name:
+            contact_data["shipping_last_name"] = last_name
+        if org_name:
+            contact_data["shipping_organization"] = org_name
+        if contact_phone:
+            contact_data["shipping_phone"] = contact_phone
+        
+        # Add shipping label
+        if first_name and last_name:
+            contact_data["shipping_label"] = f"Ship to {first_name} {last_name}"
+        
+        logger.info(f"Creating comprehensive contact in Quoter: {contact_name}")
+        logger.info(f"   Organization: {org_name}")
+        logger.info(f"   Email: {contact_email}")
+        logger.info(f"   Phone: {contact_phone}")
+        logger.info(f"   Address: {org_address}, {org_city}, {org_state} {org_zip}")
+        
+        response = requests.post(
+            "https://api.quoter.com/v1/contacts",
+            json=contact_data,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code == 200 or response.status_code == 201:
+            data = response.json()
+            contact_id = data.get("id")
+            
+            if contact_id:
+                logger.info(f"✅ Successfully created comprehensive contact {contact_id} in Quoter")
+                logger.info(f"   Mapped {len(contact_data)} fields from Pipedrive")
+                return contact_id
+            else:
+                logger.error(f"❌ No contact ID in response: {data}")
+                return None
+        else:
+            logger.error(f"❌ Failed to create comprehensive contact: {response.status_code} - {response.text}")
+            return None
+            
+    except Exception as e:
+        logger.error(f"❌ Error creating comprehensive contact: {e}")
+        return None
+
 def create_quote_from_pipedrive_org(organization_data):
     """
     Create a quote in Quoter using native Pipedrive integration.
@@ -685,16 +886,16 @@ def get_quote_required_fields(access_token):
             data = response.json()
             templates = data.get("data", [])
             if templates:
-                # Look for the "Managed Service Proposal" template first
+                # Look for the "test" template first, then "Managed Service Proposal" as fallback
                 preferred_template = None
                 fallback_template = None
                 
                 for template in templates:
                     title = template.get("title", "")
-                    if "Managed Service Proposal" in title:
+                    if title == "test":  # Look for exact "test" template first
                         preferred_template = template
                         break
-                    elif title and title != "test":  # Use any non-test template as fallback
+                    elif "Managed Service Proposal" in title:  # Use as fallback
                         fallback_template = template
                 
                 # Use preferred template, fallback, or first available
@@ -762,4 +963,145 @@ def get_default_contact_id(access_token):
             
     except Exception as e:
         logger.error(f"Error getting default contact: {e}")
+        return None 
+
+def create_comprehensive_quote_from_pipedrive(organization_data):
+    """
+    Create a comprehensive draft quote in Quoter with maximum data mapping from Pipedrive.
+    
+    This function extracts ALL available data from Pipedrive and creates a rich draft quote
+    that includes comprehensive contact information and organization details.
+    
+    Args:
+        organization_data (dict): Organization data from Pipedrive
+        
+    Returns:
+        dict: Quote data if created successfully, None otherwise
+    """
+    access_token = get_access_token()
+    if not access_token:
+        logger.error("Failed to get OAuth token for comprehensive quote creation")
+        return None
+    
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+    
+    # Get required fields for quote creation
+    required_fields = get_quote_required_fields(access_token)
+    if not required_fields:
+        logger.error("Failed to get required fields for quote creation")
+        return None
+    
+    # Extract organization information
+    org_name = organization_data.get("name", "Unknown Organization")
+    org_id = organization_data.get("id")
+    
+    # Extract deal ID from custom field
+    deal_id = organization_data.get("15034cf07d05ceb15f0a89dcbdcc4f596348584e")
+    if not deal_id:
+        logger.error(f"❌ No deal ID found in organization {org_id}")
+        return None
+    
+    logger.info(f"🎯 Creating comprehensive quote for organization: {org_name}")
+    logger.info(f"   Organization ID: {org_id}")
+    logger.info(f"   Deal ID: {deal_id}")
+    
+    # Get deal information from Pipedrive
+    from pipedrive import get_deal_by_id
+    deal_data = get_deal_by_id(deal_id)
+    if not deal_data:
+        logger.error(f"❌ Failed to get deal {deal_id} from Pipedrive")
+        return None
+    
+    logger.info(f"📋 Deal found: {deal_data.get('title', 'Unknown Deal')}")
+    
+    # Extract person/contact information from deal
+    person_data = deal_data.get("person_id", {})
+    if not person_data:
+        logger.error(f"❌ No person data found in deal {deal_id}")
+        return None
+    
+    # Handle both list and direct person data formats
+    if isinstance(person_data, list):
+        if person_data:
+            primary_contact = person_data[0]
+        else:
+            logger.error(f"❌ Empty person list in deal {deal_id}")
+            return None
+    else:
+        primary_contact = person_data
+    
+    contact_id = primary_contact.get("value")
+    if not contact_id:
+        logger.error(f"❌ No contact ID found in person data")
+        return None
+    
+    # Get full person data from Pipedrive
+    from pipedrive import get_person_by_id
+    contact_data = get_person_by_id(contact_id)
+    if not contact_data:
+        logger.error(f"❌ Failed to get person {contact_id} from Pipedrive")
+        return None
+    
+    logger.info(f"👤 Contact found: {contact_data.get('name', 'Unknown Contact')}")
+    
+    # Create comprehensive contact in Quoter
+    contact_id = create_comprehensive_contact_from_pipedrive(
+        contact_data, 
+        organization_data
+    )
+    
+    if not contact_id:
+        logger.error("❌ Failed to create comprehensive contact in Quoter")
+        return None
+    
+    logger.info(f"✅ Contact created/updated in Quoter: {contact_id}")
+    
+    # Prepare simple, clean quote data
+    quote_data = {
+        "contact_id": contact_id,
+        "template_id": required_fields["template_id"],
+        "currency_abbr": required_fields["currency_abbr"],
+        "name": f"Quote for {org_name}"
+    }
+    
+    try:
+        logger.info(f"📝 Creating comprehensive draft quote...")
+        logger.info(f"   Template: {required_fields['template_id']}")
+        logger.info(f"   Currency: {required_fields['currency_abbr']}")
+        logger.info(f"   Contact: {contact_id}")
+        
+        response = requests.post(
+            "https://api.quoter.com/v1/quotes",
+            json=quote_data,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code == 200 or response.status_code == 201:
+            data = response.json()
+            quote_id = data.get("id")
+            
+            if quote_id:
+                logger.info(f"🎉 SUCCESS! Comprehensive draft quote created:")
+                logger.info(f"   Quote ID: {quote_id}")
+                logger.info(f"   Name: {data.get('name', 'N/A')}")
+                logger.info(f"   URL: {data.get('url', 'N/A')}")
+                logger.info(f"   Contact ID: {contact_id}")
+                
+                logger.info(f"📊 Quote created with comprehensive contact data")
+                logger.info(f"   Sales rep can now use Quoter's native dropdowns to link person/org/deal")
+                
+                return data
+            else:
+                logger.error(f"❌ No quote ID in response: {data}")
+                return None
+        else:
+            logger.error(f"❌ Failed to create comprehensive quote: {response.status_code} - {response.text}")
+            return None
+            
+    except Exception as e:
+        logger.error(f"❌ Error creating comprehensive quote: {e}")
         return None 
