@@ -371,6 +371,10 @@ def create_comprehensive_contact_from_pipedrive(pipedrive_contact_data, pipedriv
     org_zip = pipedrive_org_data.get("postal_code", "") or pipedrive_org_data.get("zip", "")
     org_country = pipedrive_org_data.get("country", "US")  # Default to US
     
+    # Extract organization contact information
+    org_phone = pipedrive_org_data.get("phone", "")
+    org_email = pipedrive_org_data.get("email", "")
+    
     # First, try to find existing contact by email
     if contact_email:
         try:
@@ -419,6 +423,12 @@ def create_comprehensive_contact_from_pipedrive(pipedrive_contact_data, pipedriv
             "shipping_country_iso": org_country,
         }
         
+        # Add job title if available (Pipedrive title field = job title)
+        contact_title = pipedrive_contact_data.get("title", "")
+        if contact_title:
+            contact_data["title"] = contact_title
+            logger.info(f"   Job Title: {contact_title}")
+        
         # Add email if available
         if contact_email:
             contact_data["email"] = contact_email
@@ -435,7 +445,13 @@ def create_comprehensive_contact_from_pipedrive(pipedrive_contact_data, pipedriv
         if org_website:
             contact_data["website"] = org_website
         
-        # Add comprehensive billing address
+        # Add organization contact information if available
+        if org_phone:
+            contact_data["work_phone"] = org_phone  # Use org phone as work phone if no contact phone
+        if org_email:
+            contact_data["email"] = org_email  # Use org email if no contact email
+        
+        # Add comprehensive billing address from organization data
         if org_address:
             contact_data["billing_address"] = org_address
         if org_address2:
@@ -446,8 +462,10 @@ def create_comprehensive_contact_from_pipedrive(pipedrive_contact_data, pipedriv
             contact_data["billing_region_iso"] = org_state
         if org_zip:
             contact_data["billing_postal_code"] = org_zip
+        if org_country:
+            contact_data["billing_country_iso"] = org_country
         
-        # Add comprehensive shipping address (same as billing for now)
+        # Add comprehensive shipping address from organization data (same as billing for now)
         if org_address:
             contact_data["shipping_address"] = org_address
         if org_address2:
@@ -458,6 +476,10 @@ def create_comprehensive_contact_from_pipedrive(pipedrive_contact_data, pipedriv
             contact_data["shipping_region_iso"] = org_state
         if org_zip:
             contact_data["shipping_postal_code"] = org_zip
+        if org_country:
+            contact_data["shipping_country_iso"] = org_country
+        
+        # Add shipping contact details
         if contact_email:
             contact_data["shipping_email"] = contact_email
         if first_name:
@@ -475,9 +497,12 @@ def create_comprehensive_contact_from_pipedrive(pipedrive_contact_data, pipedriv
         
         logger.info(f"Creating comprehensive contact in Quoter: {contact_name}")
         logger.info(f"   Organization: {org_name}")
-        logger.info(f"   Email: {contact_email}")
-        logger.info(f"   Phone: {contact_phone}")
+        logger.info(f"   Email: {contact_email or org_email}")
+        logger.info(f"   Phone: {contact_phone or org_phone}")
         logger.info(f"   Address: {org_address}, {org_city}, {org_state} {org_zip}")
+        logger.info(f"   Website: {org_website}")
+        logger.info(f"   Country: {org_country}")
+        logger.info(f"   Total fields to map: {len(contact_data)}")
         
         response = requests.post(
             "https://api.quoter.com/v1/contacts",
@@ -924,6 +949,8 @@ def get_quote_required_fields(access_token):
         "currency_abbr": "USD"  # Default currency
     } 
 
+
+
 def get_default_contact_id(access_token):
     """
     Get a default contact ID from Quoter for quote creation.
@@ -1059,7 +1086,7 @@ def create_comprehensive_quote_from_pipedrive(organization_data):
     
     logger.info(f"✅ Contact created/updated in Quoter: {contact_id}")
     
-    # Prepare simple, clean quote data
+    # Prepare comprehensive quote data (quote number will be assigned by Quoter after publication)
     quote_data = {
         "contact_id": contact_id,
         "template_id": required_fields["template_id"],
@@ -1091,7 +1118,52 @@ def create_comprehensive_quote_from_pipedrive(organization_data):
                 logger.info(f"   URL: {data.get('url', 'N/A')}")
                 logger.info(f"   Contact ID: {contact_id}")
                 
-                logger.info(f"📊 Quote created with comprehensive contact data")
+                # Step 2: Add the existing instructional line item
+                logger.info(f"📋 Adding instructional line item to quote...")
+                
+                # Use the existing instructional item from Quoter
+                existing_item_id = "item_31IIdw4C1GHIwU05yhnZ2B88S2B"
+                
+                # Get the full item details to include description and pricing
+                item_response = requests.get(f'https://api.quoter.com/v1/items/{existing_item_id}', headers=headers)
+                if item_response.status_code == 200:
+                    item_data = item_response.json()
+                    item_name = item_data.get('name', '01-Draft Quote-Instructions (delete before sending quote)')
+                    item_category = item_data.get('category', 'DJ')
+                    item_description = item_data.get('description', '')
+                    
+                    logger.info(f"📋 Retrieved instructional item details:")
+                    logger.info(f"   Name: {item_name}")
+                    logger.info(f"   Category: {item_category}")
+                    logger.info(f"   Description length: {len(item_description)} characters")
+                    
+                    # Add the instructional line item
+                    line_item_data = {
+                        "quote_id": quote_id,
+                        "item_id": existing_item_id,
+                        "name": item_name,
+                        "category": item_category,
+                        "description": item_description,
+                        "quantity": 1,
+                        "unit_price": 1.00
+                    }
+                    
+                    line_item_response = requests.post('https://api.quoter.com/v1/line_items', 
+                                                    headers=headers, json=line_item_data)
+                    
+                    if line_item_response.status_code in [200, 201]:
+                        line_item_result = line_item_response.json()
+                        line_item_id = line_item_result.get('id')
+                        logger.info(f"✅ Instructional line item added successfully:")
+                        logger.info(f"   Line Item ID: {line_item_id}")
+                        logger.info(f"   Name: {item_name}")
+                    else:
+                        logger.warning(f"⚠️ Failed to add instructional line item: {line_item_response.status_code}")
+                        logger.warning(f"   Error: {line_item_response.text[:200]}")
+                else:
+                    logger.warning(f"⚠️ Failed to get instructional item details: {item_response.status_code}")
+                
+                logger.info(f"📊 Quote created with comprehensive contact data and instructional line item")
                 logger.info(f"   Sales rep can now use Quoter's native dropdowns to link person/org/deal")
                 
                 return data

@@ -8,7 +8,7 @@ import json
 import os
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
-from quoter import create_draft_quote
+from quoter import create_draft_quote, create_comprehensive_quote_from_pipedrive
 from pipedrive import get_deal_by_id, get_organization_by_id
 from notification import send_quote_created_notification
 from utils.logger import logger
@@ -70,12 +70,8 @@ def handle_organization_webhook():
         
         deal_title = deal_data.get("title", f"Deal {deal_id}")
         
-        # Create draft quote
-        quote_data = create_draft_quote(
-            deal_id=deal_id,
-            organization_name=organization_name,
-            deal_title=deal_title
-        )
+        # Create comprehensive draft quote using our enhanced function
+        quote_data = create_comprehensive_quote_from_pipedrive(organization_data)
         
         if quote_data:
             # Send notification
@@ -94,6 +90,68 @@ def handle_organization_webhook():
             
     except Exception as e:
         logger.error(f"❌ Error processing webhook: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/webhook/quoter/quote-published', methods=['POST'])
+def handle_quoter_quote_published():
+    """
+    Handle webhook events from Quoter when quotes are published.
+    Updates Pipedrive with quote information and completes the quote lifecycle.
+    """
+    try:
+        # Verify webhook authenticity (optional but recommended)
+        # TODO: Add webhook signature verification
+        
+        data = request.get_json()
+        logger.info(f"Received Quoter quote published webhook: {json.dumps(data, indent=2)}")
+        
+        # Extract quote data
+        quote_data = data.get('data', {})
+        quote_id = quote_data.get('id')
+        quote_status = quote_data.get('status')
+        
+        if not quote_id:
+            logger.error("No quote ID in webhook data")
+            return jsonify({"error": "No quote ID"}), 400
+        
+        # Only process published quotes
+        if quote_status != 'published':
+            logger.info(f"Quote {quote_id} not published (status: {quote_status})")
+            return jsonify({"status": "ignored", "reason": "not_published"}), 200
+        
+        logger.info(f"Processing published quote: {quote_id}")
+        
+        # Extract quote details
+        quote_name = quote_data.get('name', 'Unknown Quote')
+        quote_number = quote_data.get('number', 'No Number')
+        quote_total = quote_data.get('total', 0)
+        contact_id = quote_data.get('contact_id')
+        
+        # Get contact information to find Pipedrive organization
+        if contact_id:
+            # TODO: Implement contact lookup to get Pipedrive organization ID
+            # This will require additional Quoter API calls or storing the mapping
+            logger.info(f"Quote {quote_id} published for contact: {contact_id}")
+            
+            # Update Pipedrive deal with quote information
+            # TODO: Implement update_deal_with_quote_info function
+            logger.info(f"Quote {quote_id} published successfully - Pipedrive update pending")
+            
+            # Send notification
+            # TODO: Implement send_quote_published_notification function
+            logger.info(f"Quote {quote_id} published - notification pending")
+            
+            return jsonify({
+                "status": "success",
+                "quote_id": quote_id,
+                "message": "Quote published successfully - Pipedrive update pending"
+            }), 200
+        else:
+            logger.error(f"Quote {quote_id} has no contact ID")
+            return jsonify({"error": "No contact ID"}), 400
+            
+    except Exception as e:
+        logger.error(f"❌ Error processing Quoter webhook: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/health', methods=['GET'])
