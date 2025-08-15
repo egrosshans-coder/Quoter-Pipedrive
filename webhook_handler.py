@@ -9,7 +9,7 @@ import os
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 from quoter import create_draft_quote, create_comprehensive_quote_from_pipedrive
-from pipedrive import get_deal_by_id, get_organization_by_id
+from pipedrive import get_deal_by_id, get_organization_by_id, update_deal_with_quote_info
 from notification import send_quote_created_notification
 from utils.logger import logger
 
@@ -114,41 +114,73 @@ def handle_quoter_quote_published():
             logger.error("No quote ID in webhook data")
             return jsonify({"error": "No quote ID"}), 400
         
-        # Only process published quotes
-        if quote_status != 'published':
-            logger.info(f"Quote {quote_id} not published (status: {quote_status})")
-            return jsonify({"status": "ignored", "reason": "not_published"}), 200
+        # Process quotes that are ready for Pipedrive updates (pending or published)
+        if quote_status not in ['pending', 'published']:
+            logger.info(f"Quote {quote_id} not ready for Pipedrive update (status: {quote_status})")
+            return jsonify({"status": "ignored", "reason": "not_ready_for_update"}), 200
         
         logger.info(f"Processing published quote: {quote_id}")
         
         # Extract quote details
         quote_name = quote_data.get('name', 'Unknown Quote')
         quote_number = quote_data.get('number', 'No Number')
-        quote_total = quote_data.get('total', 0)
-        contact_id = quote_data.get('contact_id')
+        quote_total = quote_data.get('total', {})
+        contact_data = quote_data.get('person', {})
+        contact_id = contact_data.get('public_id')
+        
+        # Extract deal ID from organization name (e.g., "Blue Owl Capital-2096" -> "2096")
+        organization_name = contact_data.get('organization', '')
+        deal_id = None
+        if organization_name and '-' in organization_name:
+            deal_id = organization_name.split('-')[-1]
+            logger.info(f"Extracted deal ID: {deal_id} from organization: {organization_name}")
+        
+        # Extract total amount
+        total_amount = quote_total.get('upfront', '0') if isinstance(quote_total, dict) else str(quote_total)
         
         # Get contact information to find Pipedrive organization
-        if contact_id:
-            # TODO: Implement contact lookup to get Pipedrive organization ID
-            # This will require additional Quoter API calls or storing the mapping
-            logger.info(f"Quote {quote_id} published for contact: {contact_id}")
+        if contact_id and deal_id:
+            logger.info(f"Quote {quote_id} ready for Pipedrive update:")
+            logger.info(f"   Contact: {contact_id}")
+            logger.info(f"   Deal ID: {deal_id}")
+            logger.info(f"   Amount: ${total_amount}")
+            logger.info(f"   Status: {quote_status}")
             
             # Update Pipedrive deal with quote information
-            # TODO: Implement update_deal_with_quote_info function
-            logger.info(f"Quote {quote_id} published successfully - Pipedrive update pending")
-            
-            # Send notification
-            # TODO: Implement send_quote_published_notification function
-            logger.info(f"Quote {quote_id} published - notification pending")
-            
-            return jsonify({
-                "status": "success",
-                "quote_id": quote_id,
-                "message": "Quote published successfully - Pipedrive update pending"
-            }), 200
+            try:
+                # Update Pipedrive deal with quote information
+                update_result = update_deal_with_quote_info(
+                    deal_id=deal_id,
+                    quote_id=quote_id,
+                    quote_number=quote_number,
+                    quote_amount=total_amount,
+                    quote_status=quote_status,
+                    contact_data=contact_data
+                )
+                
+                if update_result:
+                    logger.info(f"✅ Successfully updated Pipedrive deal {deal_id} with quote {quote_id}")
+                else:
+                    logger.warning(f"⚠️ Pipedrive update for deal {deal_id} may have failed")
+                
+                # Send notification
+                # TODO: Implement send_quote_published_notification function
+                logger.info(f"Quote {quote_id} - notification pending")
+                
+                return jsonify({
+                    "status": "success",
+                    "quote_id": quote_id,
+                    "deal_id": deal_id,
+                    "amount": total_amount,
+                    "message": f"Quote ready for Pipedrive update to deal {deal_id}"
+                }), 200
+                
+            except Exception as e:
+                logger.error(f"Error updating Pipedrive for quote {quote_id}: {e}")
+                return jsonify({"error": f"Pipedrive update failed: {str(e)}"}), 500
         else:
-            logger.error(f"Quote {quote_id} has no contact ID")
-            return jsonify({"error": "No contact ID"}), 400
+            logger.error(f"Quote {quote_id} missing required data: contact_id={contact_id}, deal_id={deal_id}")
+            return jsonify({"error": "Missing contact_id or deal_id"}), 400
             
     except Exception as e:
         logger.error(f"❌ Error processing Quoter webhook: {e}")
@@ -161,6 +193,7 @@ def health_check():
 
 if __name__ == '__main__':
     # Run the webhook server
-    port = int(os.environ.get('PORT', 5000))
+    port = int(os.environ.get('PORT', 8000))
+    debug_mode = os.environ.get('FLASK_ENV') == 'development'
     logger.info(f"🚀 Starting webhook server on port {port}")
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)

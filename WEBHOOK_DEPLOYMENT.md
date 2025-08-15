@@ -18,11 +18,11 @@ Pipedrive Automation → Webhook → Our Server → Quoter API → Quote Created
 # Install Flask
 pip install flask
 
-# Run webhook server
-python webhook_handler.py
+# Run webhook server (using port 8000 to avoid conflicts)
+PORT=8000 python webhook_handler.py
 
-# Server runs on http://localhost:5000
-# Webhook endpoint: http://localhost:5000/webhook/pipedrive/organization
+# Server runs on http://localhost:8000
+# Webhook endpoint: http://localhost:8000/webhook/pipedrive/organization
 ```
 
 ### Option 2: Cloud Deployment (Production)
@@ -76,7 +76,7 @@ NOTIFICATION_EMAILS=email1@example.com,email2@example.com
 ### Test Webhook Endpoint
 ```bash
 # Test the webhook locally
-curl -X POST http://localhost:5000/webhook/pipedrive/organization \
+curl -X POST http://localhost:8000/webhook/pipedrive/organization \
   -H "Content-Type: application/json" \
   -d '{
     "data": {

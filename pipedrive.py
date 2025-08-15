@@ -434,3 +434,75 @@ def get_organization_by_id(org_id):
     except requests.exceptions.RequestException as e:
         logger.error(f"Error getting organization {org_id}: {e}")
         return None 
+
+def update_deal_with_quote_info(deal_id, quote_id, quote_number, quote_amount, quote_status, contact_data):
+    """
+    Update Pipedrive deal with quote information when a quote is published.
+    
+    Args:
+        deal_id (str): Deal ID from organization name (e.g., "2096")
+        quote_id (str): Quoter quote ID
+        quote_number (str): Quote number assigned by Quoter
+        quote_amount (str): Total quote amount
+        quote_status (str): Quote status (pending, published, etc.)
+        contact_data (dict): Contact information from Quoter
+        
+    Returns:
+        bool: True if update successful, False otherwise
+    """
+    if not API_TOKEN:
+        logger.error("PIPEDRIVE_API_TOKEN not found in environment variables")
+        return False
+    
+    try:
+        # Convert deal_id to integer for Pipedrive API
+        deal_id_int = int(deal_id)
+        
+        # Prepare update data
+        update_data = {
+            "title": f"Quote #{quote_number} - {contact_data.get('organization', 'Unknown')}",
+            "value": float(quote_amount.replace(',', '').replace('$', '')),
+            "status": "presented" if quote_status == "pending" else "presented"
+        }
+        
+        # Add custom fields if they exist
+        # Note: You'll need to map these to your actual Pipedrive custom field IDs
+        custom_fields = {}
+        
+        # Example custom field mappings (update these with your actual field IDs)
+        # custom_fields["quote_number"] = quote_number
+        # custom_fields["quote_id"] = quote_id
+        # custom_fields["quote_status"] = quote_status
+        
+        if custom_fields:
+            update_data.update(custom_fields)
+        
+        headers = {"Content-Type": "application/json"}
+        params = {"api_token": API_TOKEN}
+        
+        logger.info(f"Updating Pipedrive deal {deal_id_int} with quote data:")
+        logger.info(f"   Title: {update_data['title']}")
+        logger.info(f"   Value: ${update_data['value']}")
+        logger.info(f"   Status: {update_data['status']}")
+        
+        response = requests.put(
+            f"{BASE_URL}/deals/{deal_id_int}",
+            headers=headers,
+            params=params,
+            json=update_data,
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            logger.info(f"✅ Successfully updated Pipedrive deal {deal_id_int}")
+            return True
+        else:
+            logger.error(f"❌ Failed to update deal {deal_id_int}: {response.status_code} - {response.text}")
+            return False
+            
+    except ValueError as e:
+        logger.error(f"❌ Invalid deal ID format: {deal_id} - {e}")
+        return False
+    except Exception as e:
+        logger.error(f"❌ Error updating Pipedrive deal {deal_id}: {e}")
+        return False 
