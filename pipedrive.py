@@ -458,14 +458,33 @@ def update_deal_with_quote_info(deal_id, quote_id, quote_number, quote_amount, q
         # Convert deal_id to integer for Pipedrive API
         deal_id_int = int(deal_id)
         
-        # Prepare update data
+        # First, get the current deal to preserve the original title
+        headers = {"Content-Type": "application/json"}
+        params = {"api_token": API_TOKEN}
+        
+        # Get current deal info
+        deal_response = requests.get(
+            f"{BASE_URL}/deals/{deal_id_int}",
+            headers=headers,
+            params=params,
+            timeout=10
+        )
+        
+        if deal_response.status_code != 200:
+            logger.error(f"❌ Failed to get deal {deal_id_int}: {deal_response.status_code}")
+            return False
+            
+        current_deal = deal_response.json().get("data", {})
+        original_title = current_deal.get("title", "")
+        
+        # Prepare update data - preserve original title, only update value and status
         update_data = {
-            "title": f"Quote #{quote_number} - {contact_data.get('organization', 'Unknown')}",
+            "title": original_title,  # Keep original deal name
             "value": float(quote_amount.replace(',', '').replace('$', '')),
             "status": "presented" if quote_status == "pending" else "presented"
         }
         
-        # Add custom fields if they exist
+        # Add quote info to custom fields instead of overwriting title
         # Note: You'll need to map these to your actual Pipedrive custom field IDs
         custom_fields = {}
         
@@ -477,14 +496,12 @@ def update_deal_with_quote_info(deal_id, quote_id, quote_number, quote_amount, q
         if custom_fields:
             update_data.update(custom_fields)
         
-        headers = {"Content-Type": "application/json"}
-        params = {"api_token": API_TOKEN}
-        
         logger.info(f"Updating Pipedrive deal {deal_id_int} with quote data:")
-        logger.info(f"   Title: {update_data['title']}")
+        logger.info(f"   Title: {update_data['title']} (preserved)")
         logger.info(f"   Value: ${update_data['value']}")
         logger.info(f"   Status: {update_data['status']}")
         
+        # Update the deal
         response = requests.put(
             f"{BASE_URL}/deals/{deal_id_int}",
             headers=headers,
@@ -495,6 +512,13 @@ def update_deal_with_quote_info(deal_id, quote_id, quote_number, quote_amount, q
         
         if response.status_code == 200:
             logger.info(f"✅ Successfully updated Pipedrive deal {deal_id_int}")
+            
+            # Now update the contact's address information
+            if update_contact_address(contact_data):
+                logger.info(f"✅ Successfully updated contact address information")
+            else:
+                logger.warning(f"⚠️ Failed to update contact address information")
+            
             return True
         else:
             logger.error(f"❌ Failed to update deal {deal_id_int}: {response.status_code} - {response.text}")
@@ -505,4 +529,117 @@ def update_deal_with_quote_info(deal_id, quote_id, quote_number, quote_amount, q
         return False
     except Exception as e:
         logger.error(f"❌ Error updating Pipedrive deal {deal_id}: {e}")
+        return False
+
+def update_contact_address(contact_data):
+    """
+    Update contact address information in Pipedrive.
+    
+    Args:
+        contact_data (dict): Contact information from Quoter
+        
+    Returns:
+        bool: True if update successful, False otherwise
+    """
+    if not API_TOKEN:
+        logger.error("PIPEDRIVE_API_TOKEN not found in environment variables")
+        return False
+    
+    try:
+        # Extract contact information
+        first_name = contact_data.get('first_name', '')
+        last_name = contact_data.get('last_name', '')
+        email = contact_data.get('email_address', '')
+        organization = contact_data.get('organization', '')
+        
+        if not email:
+            logger.warning("No email address found in contact data")
+            return False
+        
+        # Search for the contact by email
+        headers = {"Content-Type": "application/json"}
+        params = {"api_token": API_TOKEN}
+        
+        search_response = requests.get(
+            f"{BASE_URL}/persons/search",
+            headers=headers,
+            params={**params, "term": email},
+            timeout=10
+        )
+        
+        if search_response.status_code != 200:
+            logger.error(f"❌ Failed to search for contact: {search_response.status_code}")
+            return False
+        
+        search_results = search_response.json().get("data", {}).get("items", [])
+        
+        if not search_results:
+            logger.warning(f"No contact found with email: {email}")
+            return False
+        
+        # Get the first matching contact
+        contact = search_results[0].get("item", {})
+        contact_id = contact.get("id")
+        
+        if not contact_id:
+            logger.error("No contact ID found in search results")
+            return False
+        
+        # Prepare address update data
+        addresses = contact_data.get('addresses', {})
+        billing_address = addresses.get('billing', {})
+        
+        if not billing_address:
+            logger.warning("No billing address found in contact data")
+            return False
+        
+        # Build single address string (like Google Maps format)
+        address_parts = []
+        
+        # Add street address
+        if billing_address.get('line1'):
+            address_parts.append(billing_address['line1'])
+        if billing_address.get('line2'):
+            address_parts.append(billing_address['line2'])
+        
+        # Add city, state, postal code
+        if billing_address.get('city'):
+            address_parts.append(billing_address['city'])
+        if billing_address.get('state', {}).get('code'):
+            address_parts.append(billing_address['state']['code'])
+        if billing_address.get('postal_code'):
+            address_parts.append(billing_address['postal_code'])
+        
+        # Combine into single address string
+        full_address = ", ".join(filter(None, address_parts))
+        
+        # Update contact with new address information
+        update_data = {
+            "name": f"{first_name} {last_name}".strip(),
+            "org_name": organization,
+            "email": [{"value": email, "primary": True, "label": "work"}],
+            "phone": [{"value": contact_data.get('telephone_numbers', {}).get('work', ''), "label": "work"}],
+            "address": [{"value": full_address, "label": "billing"}]
+        }
+        
+        logger.info(f"Updating contact {contact_id} with address: {full_address}")
+        
+        # Update the contact
+        update_response = requests.put(
+            f"{BASE_URL}/persons/{contact_id}",
+            headers=headers,
+            params=params,
+            json=update_data,
+            timeout=10
+        )
+        
+        if update_response.status_code == 200:
+            logger.info(f"✅ Successfully updated contact {contact_id} address")
+            return True
+        else:
+            logger.error(f"❌ Failed to update contact {contact_id}: {update_response.status_code} - {update_response.text}")
+            return False
+            
+    except Exception as e:
+        logger.error(f"❌ Error updating contact address: {e}")
         return False 
