@@ -109,8 +109,12 @@ def handle_quoter_quote_published():
             # Try to parse raw JSON data even without Content-Type header
             try:
                 raw_data = request.get_data(as_text=True)
-                data = json.loads(raw_data) if raw_data else {}
-                logger.info(f"Parsed JSON without Content-Type header: {raw_data}")
+                if not raw_data or raw_data.strip() == '':
+                    logger.warning("Received empty request body from Quoter")
+                    data = {}
+                else:
+                    data = json.loads(raw_data)
+                    logger.info(f"Parsed JSON without Content-Type header: {raw_data}")
             except json.JSONDecodeError as e:
                 logger.error(f"Failed to parse JSON data: {e}")
                 return jsonify({"error": "Invalid JSON data"}), 400
@@ -123,8 +127,8 @@ def handle_quoter_quote_published():
         quote_status = quote_data.get('status')
         
         if not quote_id:
-            logger.error("No quote ID in webhook data")
-            return jsonify({"error": "No quote ID"}), 400
+            logger.warning(f"Received webhook with no quote data: {json.dumps(data, indent=2)}")
+            return jsonify({"status": "ignored", "reason": "no_quote_data"}), 200
         
         # Process quotes that are ready for Pipedrive updates (pending or published)
         if quote_status not in ['pending', 'published']:
