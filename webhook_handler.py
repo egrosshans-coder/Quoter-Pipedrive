@@ -102,7 +102,19 @@ def handle_quoter_quote_published():
         # Verify webhook authenticity (optional but recommended)
         # TODO: Add webhook signature verification
         
-        data = request.get_json()
+        # Handle both Content-Type: application/json and raw JSON
+        if request.content_type == 'application/json':
+            data = request.get_json()
+        else:
+            # Try to parse raw JSON data even without Content-Type header
+            try:
+                raw_data = request.get_data(as_text=True)
+                data = json.loads(raw_data) if raw_data else {}
+                logger.info(f"Parsed JSON without Content-Type header: {raw_data}")
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse JSON data: {e}")
+                return jsonify({"error": "Invalid JSON data"}), 400
+        
         logger.info(f"Received Quoter quote published webhook: {json.dumps(data, indent=2)}")
         
         # Extract quote data
@@ -181,7 +193,7 @@ def handle_quoter_quote_published():
         else:
             logger.error(f"Quote {quote_id} missing required data: contact_id={contact_id}, deal_id={deal_id}")
             return jsonify({"error": "Missing contact_id or deal_id"}), 400
-            
+                
     except Exception as e:
         logger.error(f"❌ Error processing Quoter webhook: {e}")
         return jsonify({"error": str(e)}), 500
