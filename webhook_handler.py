@@ -102,11 +102,11 @@ def handle_quoter_quote_published():
         # Verify webhook authenticity (optional but recommended)
         # TODO: Add webhook signature verification
         
-        # Handle both Content-Type: application/json and raw JSON
+        # Handle different content types from Quoter
         if request.content_type == 'application/json':
             data = request.get_json()
         else:
-            # Try to parse raw JSON data even without Content-Type header
+            # Quoter sends URL-encoded form data with JSON in the 'data' field
             try:
                 raw_data = request.get_data(as_text=True)
                 logger.info(f"Raw webhook data received: '{raw_data}' (length: {len(raw_data) if raw_data else 0})")
@@ -115,11 +115,23 @@ def handle_quoter_quote_published():
                     logger.warning("Received empty request body from Quoter")
                     data = {}
                 else:
-                    data = json.loads(raw_data)
-                    logger.info(f"Successfully parsed JSON: {json.dumps(data, indent=2)}")
-            except json.JSONDecodeError as e:
-                logger.error(f"Failed to parse JSON data: '{raw_data}' - Error: {e}")
-                return jsonify({"error": "Invalid JSON data"}), 400
+                    # Parse URL-encoded form data
+                    from urllib.parse import parse_qs, unquote
+                    form_data = parse_qs(raw_data)
+                    
+                    # Extract the 'data' field which contains URL-encoded JSON
+                    if 'data' in form_data and form_data['data']:
+                        encoded_json = form_data['data'][0]
+                        decoded_json = unquote(encoded_json)
+                        data = json.loads(decoded_json)
+                        logger.info(f"Successfully parsed URL-encoded JSON: {json.dumps(data, indent=2)}")
+                    else:
+                        logger.warning("No 'data' field found in form data")
+                        data = {}
+                        
+            except (json.JSONDecodeError, KeyError, ValueError) as e:
+                logger.error(f"Failed to parse webhook data: '{raw_data}' - Error: {e}")
+                return jsonify({"error": "Invalid webhook data format"}), 400
         
         logger.info(f"Received Quoter quote published webhook: {json.dumps(data, indent=2)}")
         
