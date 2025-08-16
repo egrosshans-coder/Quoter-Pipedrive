@@ -144,12 +144,36 @@ def handle_quoter_quote_published():
             logger.warning(f"Received webhook with no quote data: {json.dumps(data, indent=2)}")
             return jsonify({"status": "ignored", "reason": "no_quote_data"}), 200
         
+        # Check if this is a revision or original quote
+        is_revision = quote_data.get('parent_quote_id') is not None
+        parent_quote_id = quote_data.get('parent_quote_id')
+        revision_number = quote_data.get('revision')
+        
+        if is_revision:
+            logger.info(f"Processing revision {revision_number} of quote {parent_quote_id}")
+        else:
+            logger.info(f"Processing original quote {quote_id}")
+        
         # Process quotes that are ready for Pipedrive updates (pending or published)
         if quote_status not in ['pending', 'published']:
             logger.info(f"Quote {quote_id} not ready for Pipedrive update (status: {quote_status})")
             return jsonify({"status": "ignored", "reason": "not_ready_for_update"}), 200
         
-        logger.info(f"Processing published quote: {quote_id}")
+        # Check if we've already processed this specific quote/revision
+        processed_quotes_file = "processed_quotes.txt"
+        quote_key = f"{quote_id}:{revision_number or 'original'}"
+        
+        try:
+            with open(processed_quotes_file, 'r') as f:
+                processed_quotes = f.read().splitlines()
+        except FileNotFoundError:
+            processed_quotes = []
+        
+        if quote_key in processed_quotes:
+            logger.info(f"Quote {quote_id} (revision {revision_number or 'original'}) already processed, skipping")
+            return jsonify({"status": "ignored", "reason": "already_processed"}), 200
+        
+        logger.info(f"Processing {'revision' if is_revision else 'original'} quote: {quote_id}")
         
         # Extract quote details
         quote_name = quote_data.get('name', 'Unknown Quote')
@@ -171,6 +195,10 @@ def handle_quoter_quote_published():
         # Get contact information to find Pipedrive organization
         if contact_id and deal_id:
             logger.info(f"Quote {quote_id} ready for Pipedrive update:")
+            logger.info(f"   Type: {'Revision' if is_revision else 'Original'}")
+            if is_revision:
+                logger.info(f"   Parent Quote: {parent_quote_id}")
+                logger.info(f"   Revision: {revision_number}")
             logger.info(f"   Contact: {contact_id}")
             logger.info(f"   Deal ID: {deal_id}")
             logger.info(f"   Amount: ${total_amount}")
@@ -190,6 +218,15 @@ def handle_quoter_quote_published():
                 
                 if update_result:
                     logger.info(f"✅ Successfully updated Pipedrive deal {deal_id} with quote {quote_id}")
+                    
+                    # Mark this quote/revision as processed
+                    try:
+                        with open(processed_quotes_file, 'a') as f:
+                            f.write(f"{quote_key}\n")
+                        logger.info(f"✅ Marked quote {quote_id} (revision {revision_number or 'original'}) as processed")
+                    except Exception as e:
+                        logger.warning(f"⚠️ Failed to mark quote as processed: {e}")
+                    
                 else:
                     logger.warning(f"⚠️ Pipedrive update for deal {deal_id} may have failed")
                 
@@ -201,8 +238,9 @@ def handle_quoter_quote_published():
                     "status": "success",
                     "quote_id": quote_id,
                     "deal_id": deal_id,
+                    "type": "revision" if is_revision else "original",
                     "amount": total_amount,
-                    "message": f"Quote ready for Pipedrive update to deal {deal_id}"
+                    "message": f"{'Revision' if is_revision else 'Original'} quote ready for Pipedrive update to deal {deal_id}"
                 }), 200
                 
             except Exception as e:
@@ -216,9 +254,30 @@ def handle_quoter_quote_published():
         logger.error(f"❌ Error processing Quoter webhook: {e}")
         return jsonify({"error": str(e)}), 500
 
+def cleanup_old_processed_quotes():
+    """Clean up old processed quotes to prevent file from growing indefinitely."""
+    processed_quotes_file = "processed_quotes.txt"
+    try:
+        with open(processed_quotes_file, 'r') as f:
+            processed_quotes = f.read().splitlines()
+        
+        # Keep only the last 1000 processed quotes
+        if len(processed_quotes) > 1000:
+            processed_quotes = processed_quotes[-1000:]
+            with open(processed_quotes_file, 'w') as f:
+                f.write('\n'.join(processed_quotes) + '\n')
+            logger.info(f"🧹 Cleaned up processed quotes file, kept last 1000 entries")
+            
+    except FileNotFoundError:
+        pass
+    except Exception as e:
+        logger.warning(f"⚠️ Failed to cleanup processed quotes: {e}")
+
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint."""
+    # Clean up old processed quotes on health check
+    cleanup_old_processed_quotes()
     return jsonify({"status": "healthy", "service": "quote-automation-webhook"}), 200
 
 if __name__ == '__main__':
