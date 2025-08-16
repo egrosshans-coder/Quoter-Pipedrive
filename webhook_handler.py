@@ -109,14 +109,16 @@ def handle_quoter_quote_published():
             # Try to parse raw JSON data even without Content-Type header
             try:
                 raw_data = request.get_data(as_text=True)
+                logger.info(f"Raw webhook data received: '{raw_data}' (length: {len(raw_data) if raw_data else 0})")
+                
                 if not raw_data or raw_data.strip() == '':
                     logger.warning("Received empty request body from Quoter")
                     data = {}
                 else:
                     data = json.loads(raw_data)
-                    logger.info(f"Parsed JSON without Content-Type header: {raw_data}")
+                    logger.info(f"Successfully parsed JSON: {json.dumps(data, indent=2)}")
             except json.JSONDecodeError as e:
-                logger.error(f"Failed to parse JSON data: {e}")
+                logger.error(f"Failed to parse JSON data: '{raw_data}' - Error: {e}")
                 return jsonify({"error": "Invalid JSON data"}), 400
         
         logger.info(f"Received Quoter quote published webhook: {json.dumps(data, indent=2)}")
