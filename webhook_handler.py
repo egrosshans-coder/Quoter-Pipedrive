@@ -135,8 +135,8 @@ def handle_quoter_quote_published():
         
         logger.info(f"Received Quoter quote published webhook: {json.dumps(data, indent=2)}")
         
-        # Extract quote data
-        quote_data = data.get('data', {})
+        # Extract quote data (Quoter sends it directly at root level)
+        quote_data = data  # The entire data IS the quote data
         quote_id = quote_data.get('id')
         quote_status = quote_data.get('status')
         
