@@ -33,7 +33,7 @@ def update_quote_with_sequential_number(quote_id, deal_id):
         # Generate sequential quote number
         from quoter import generate_sequential_quote_number
         quote_number = generate_sequential_quote_number(deal_id)
-        logger.info(f"🎯 Updating quote {quote_id} with sequential number: {quote_number}")
+        logger.info(f"🎯 Updating quote {quote_id} with custom_number: {quote_number}")
         
         # Get access token
         from quoter import get_access_token
@@ -67,7 +67,7 @@ def update_quote_with_sequential_number(quote_id, deal_id):
             return False
             
     except Exception as e:
-        logger.error(f"❌ Error updating quote {quote_id} with sequential number: {e}")
+        logger.error(f"❌ Error updating quote {quote_id} with custom_number: {e}")
         return False
 
 @app.route('/webhook/pipedrive/organization', methods=['POST'])
