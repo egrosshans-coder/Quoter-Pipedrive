@@ -621,13 +621,21 @@ def update_contact_address(contact_data):
         # Combine into single address string
         full_address = ", ".join(filter(None, address_parts))
         
-        # Update contact with new address information
+        # Update contact with new address information - populate all individual fields for QuickBooks integration
         update_data = {
             "name": f"{first_name} {last_name}".strip(),
             "org_name": organization,
             "email": [{"value": email, "primary": True, "label": "work"}],
             "phone": [{"value": contact_data.get('telephone_numbers', {}).get('work', ''), "label": "work"}],
-            "address": [{"value": full_address, "label": "billing"}]
+            # Populate all individual address fields for QuickBooks integration
+            "postal_address": full_address,
+            "postal_address_subpremise": billing_address.get('line2', ''),  # Apartment/suite number
+            "postal_address_street_number": billing_address.get('line1', '').split()[0] if billing_address.get('line1') else '',
+            "postal_address_route": ' '.join(billing_address.get('line1', '').split()[1:]) if billing_address.get('line1') else '',
+            "postal_address_locality": billing_address.get('city', ''),
+            "postal_address_admin_area_level_1": billing_address.get('state', {}).get('code', ''),
+            "postal_address_postal_code": billing_address.get('postal_code', ''),
+            "postal_address_country": billing_address.get('country', {}).get('code', '')
         }
         
         logger.info(f"Updating contact {contact_id} with address: {full_address}")
