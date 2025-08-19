@@ -235,6 +235,12 @@ def handle_quoter_quote_published():
         contact_data = quote_data.get('person', {})
         contact_id = contact_data.get('public_id')
         
+        # Debug logging for contact_data
+        logger.info(f"🔍 DEBUG: Raw person data from quote: {quote_data.get('person', {})}")
+        logger.info(f"🔍 DEBUG: Constructed contact_data: {contact_data}")
+        logger.info(f"🔍 DEBUG: contact_data type: {type(contact_data)}")
+        logger.info(f"🔍 DEBUG: contact_data keys: {list(contact_data.keys()) if isinstance(contact_data, dict) else 'Not a dict'}")
+        
         # Extract deal ID from organization name (e.g., "Blue Owl Capital-2096" -> "2096")
         organization_name = contact_data.get('organization', '')
         deal_id = None
@@ -256,6 +262,7 @@ def handle_quoter_quote_published():
             logger.info(f"   Deal ID: {deal_id}")
             logger.info(f"   Amount: ${total_amount}")
             logger.info(f"   Status: {quote_status}")
+            logger.info(f"🔍 DEBUG: About to call update_deal_with_quote_info with contact_data: {contact_data}")
             
             # Update Pipedrive deal with quote information
             try:

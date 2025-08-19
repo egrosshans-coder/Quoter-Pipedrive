@@ -546,14 +546,22 @@ def update_contact_address(contact_data):
         return False
     
     try:
+        # Debug logging to see what data we're receiving
+        logger.info(f"🔍 DEBUG: Received contact_data: {contact_data}")
+        logger.info(f"🔍 DEBUG: contact_data type: {type(contact_data)}")
+        logger.info(f"🔍 DEBUG: contact_data keys: {list(contact_data.keys()) if isinstance(contact_data, dict) else 'Not a dict'}")
+        
         # Extract contact information
         first_name = contact_data.get('first_name', '')
         last_name = contact_data.get('last_name', '')
         email = contact_data.get('email_address', '')
         organization = contact_data.get('organization', '')
         
+        logger.info(f"🔍 DEBUG: Extracted values - first_name: '{first_name}', last_name: '{last_name}', email: '{email}', organization: '{organization}'")
+        
         if not email:
             logger.warning("No email address found in contact data")
+            logger.warning(f"🔍 DEBUG: Available fields in contact_data: {list(contact_data.keys()) if isinstance(contact_data, dict) else 'Not a dict'}")
             return False
         
         # Search for the contact by email
