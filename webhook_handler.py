@@ -49,7 +49,7 @@ def update_quote_with_sequential_number(quote_id, deal_id):
         
         # Update the quote with our sequential numbering
         update_data = {
-            "number": quote_number
+            "custom_number": quote_number
         }
         
         response = requests.put(
@@ -60,7 +60,7 @@ def update_quote_with_sequential_number(quote_id, deal_id):
         )
         
         if response.status_code in [200, 201]:
-            logger.info(f"✅ Successfully updated quote {quote_id} with number: {quote_number}")
+            logger.info(f"✅ Successfully updated quote {quote_id} with custom_number: {quote_number}")
             return True
         else:
             logger.error(f"❌ Failed to update quote {quote_id}: {response.status_code} - {response.text}")
