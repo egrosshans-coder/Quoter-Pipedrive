@@ -354,11 +354,36 @@ def health_check():
     """Health check endpoint."""
     # Clean up old processed quotes on health check
     cleanup_old_processed_quotes()
-    return jsonify({"status": "healthy", "service": "quote-automation-webhook"}), 200
+    
+    return jsonify({
+        "service": "quote-automation-webhook",
+        "status": "healthy",
+        "endpoints": {
+            "health": "/health",
+            "pipedrive_webhook": "/webhook/pipedrive/organization",
+            "quoter_webhook": "/webhook/quoter/quote-published"
+        }
+    })
 
-if __name__ == '__main__':
-    # Run the webhook server
-    port = int(os.environ.get('PORT', 8000))
-    debug_mode = os.environ.get('FLASK_ENV') == 'development'
-    logger.info(f"🚀 Starting webhook server on port {port}")
-    app.run(host='0.0.0.0', port=port, debug=debug_mode)
+@app.route('/', methods=['GET'])
+def root():
+    """Root endpoint providing information about the webhook server."""
+    return jsonify({
+        "service": "Quote Automation Webhook Server",
+        "description": "Handles webhooks from Pipedrive and Quoter for automated quote creation and updates",
+        "status": "running",
+        "endpoints": {
+            "health": "/health",
+            "pipedrive_webhook": "/webhook/pipedrive/organization (POST)",
+            "quoter_webhook": "/webhook/quoter/quote-published (POST)"
+        },
+        "usage": {
+            "pipedrive": "Send organization updates to trigger quote creation",
+            "quoter": "Send quote published events to update Pipedrive deals"
+        }
+    })
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    logger.info(f"🚀 Starting Quote Automation Webhook Server on port {port}")
+    app.run(host="0.0.0.0", port=port, debug=False)
