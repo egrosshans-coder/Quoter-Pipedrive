@@ -1,255 +1,145 @@
 # Quoter Webhook Field Analysis
 
-## 📊 **Overview**
+This document analyzes the fields captured by Quoter's webhook when quotes are published. This analysis is crucial for understanding what data is available for Stage 3 implementation (quote number formatting and Pipedrive updates).
 
-This document analyzes the fields captured by Quoter's Zapier webhook when quotes are published. This analysis is crucial for understanding what data is available for Stage 3 implementation (quote number formatting and Pipedrive updates).
+## **📋 Webhook Data Structure**
 
-## 🎯 **Webhook Source**
-
-**Source**: Quoter → Zapier webhook  
-**Trigger**: Quote published event  
-**Data Format**: Structured field mapping with "Data" prefix
-
-## 📋 **Complete Field Mapping**
-
-### **🏷️ Quote Core Data**
+### **Quote Information**
 | Field | Value | Type | Description |
-|-------|-------|------|-------------|
-| `Data Id` | `7196454` | Integer | Quote ID in Quoter system |
-| `Data Parent Quote Id` | - | String | Parent quote ID for revisions |
-| `Data Revision` | `2` | Integer | Revision number |
-| `Data Number` | `2` | Integer | Quote number (not our xxxxx-nn format) |
-| `Data Internal Notes` | - | String | Internal notes |
-| `Data Uuid` | `2778-182601d3-32d8-4c7a-9812-3766b85bccca` | String | Unique quote identifier |
-| `Data Pdf Link` | `https://tlciscreative.quoter.com/quote/download/...` | URL | PDF download link |
-| `Data Expiry Date` | `2025-09-09 07:00:00` | DateTime | Quote expiration |
-| `Data Grace Period` | `0` | Integer | Grace period in days |
-| `Data Recurring Time Period` | `1` | Integer | Recurring billing period |
-| `Data Status` | `pending` | String | Quote status (draft, pending, published, etc.) |
-| `Data Discount` | `total` | String | Discount type |
-| `Data Total Upfront` | `1,000.00` | Decimal | Total upfront payment |
-| `Data Total Recurring` | - | Decimal | Total recurring payment |
-| `Data Upfront Payments` | `0` | Integer | Number of upfront payments |
-| `Data Shipping` | `0.00` | Decimal | Shipping cost |
-| `Data Taxes` | - | String | Tax information |
-| `Data Tax 1` | - | String | First tax field |
-| `Data Tax 2` | - | String | Second tax field |
+|-------|--------|------|-------------|
+| `Data ID` | `7228156` | String | Quote ID in Quoter |
+| `Data Number` | `7` | Integer | Quote number (not our xxxxx-nn format) |
+| `Data Name` | `Quote for Blue Owl Capital-2096` | String | Quote name with organization and deal ID |
+| `Data Status` | `pending` | String | Quote status (pending/published) |
+| `Data UUID` | `2778-ec1b0c16-4cf0-4e45-8daf-f4848450521d` | String | Unique identifier |
+| `Data Expiry Date` | `2025-09-14 07:00:00` | String | Quote expiration date |
+| `Data Parent Quote ID` | `null` | String | Parent quote ID for revisions |
+| `Data Revision` | `null` | String | Revision number |
 
-### **👤 Person/Contact Data**
+### **Person/Contact Information**
 | Field | Value | Type | Description |
-|-------|-------|------|-------------|
-| `Data Person Id` | `2559270` | Integer | **PIPEDRIVE PERSON ID** ⭐ |
-| `Data Person Public Id` | `cont_316ubQWzpHB8Y97ZurW4oBQX9jx` | String | Quoter contact ID |
+|-------|--------|------|-------------|
+| `Data Person ID` | `1725219` | String | Contact ID in Quoter |
+| `Data Person Public ID` | `cont_31IMDsmHdlYFe4Y1mK6oninSGge` | String | Public contact identifier |
 | `Data Person First Name` | `Robert` | String | Contact first name |
 | `Data Person Last Name` | `Lee` | String | Contact last name |
-| `Data Person Organization` | `Blue Owl Capital-2096` | String | **ORGANIZATION WITH EMBEDDED DEAL ID** ⭐ |
-| `Data Person Title` | - | String | Job title |
+| `Data Person Organization` | `Blue Owl Capital-2096` | String | Organization name with deal ID suffix |
+| `Data Person Title` | `` | String | Job title (empty in this case) |
+| `Data Person Email` | `robert.lee@blueowl.com` | String | Contact email address |
+| `Data Person Work Phone` | `212-970-6981` | String | Work phone number |
+| `Data Person Mobile Phone` | `212-970-6981` | String | Mobile phone number |
 
-### **🏠 Address Information**
-
-#### **Billing Address**
+### **Address Information**
 | Field | Value | Type | Description |
-|-------|-------|------|-------------|
-| `Data Person Addresses Billing Line 1` | `464 W 39th St` | String | Billing address line 1 |
-| `Data Person Addresses Billing Line 2` | - | String | Billing address line 2 |
-| `Data Person Addresses Billing City` | `Los Angeles` | String | Billing city |
-| `Data Person Addresses Billing State Code` | `CA` | String | Billing state code |
-| `Data Person Addresses Billing State Name` | `California` | String | Billing state name |
-| `Data Person Addresses Billing Country Code` | `US` | String | Billing country code |
-| `Data Person Addresses Billing Country Name` | `United States` | String | Billing country name |
-| `Data Person Addresses Billing Postal Code` | `90731` | String | Billing postal code |
+|-------|--------|------|-------------|
+| `Data Person Billing Address Line1` | `464 W 39th St` | String | Street address |
+| `Data Person Billing Address City` | `Los Angeles` | String | City |
+| `Data Person Billing Address State Code` | `CA` | String | State abbreviation |
+| `Data Person Billing Address State Name` | `California` | String | Full state name |
+| `Data Person Billing Address Country Code` | `US` | String | Country abbreviation |
+| `Data Person Billing Address Postal Code` | `90731` | String | ZIP code |
 
-#### **Shipping Address**
+### **Financial Information**
 | Field | Value | Type | Description |
-|-------|-------|------|-------------|
-| `Data Person Addresses Shipping` | - | String | Shipping address details |
+|-------|--------|------|-------------|
+| `Data Total Upfront` | `2,575.00` | String | Total upfront cost |
+| `Data Total Recurring` | `null` | String | Recurring cost (none in this case) |
+| `Data Total Margin Dollars` | `1,545.00` | String | Total margin in dollars |
+| `Data Total Margin Percent` | `60.00` | String | Total margin percentage |
+| `Data Shipping` | `0.00` | String | Shipping cost |
+| `Data Currency Code` | `USD` | String | Currency abbreviation |
 
-### **📞 Contact Information**
+### **Quote Owner Information**
 | Field | Value | Type | Description |
-|-------|-------|------|-------------|
-| `Data Person Telephone Numbers Work` | `212-970-6981` | String | Work phone |
-| `Data Person Telephone Numbers Mobile` | - | String | Mobile phone |
-| `Data Person Telephone Numbers Fax` | - | String | Fax number |
-| `Data Person Email Address` | `robert.lee@blueowl.com` | String | Email address |
-| `Data Person Website` | - | String | Website |
+|-------|--------|------|-------------|
+| `Data Quote Owner ID` | `136185` | String | Quote owner ID |
+| `Data Quote Owner Name` | `Eric Grosshans` | String | Quote owner full name |
+| `Data Quote Owner Email` | `eric@tlciscreative.com` | String | Quote owner email |
 
-### **👨‍💼 Quote Owner**
+### **Form Information**
 | Field | Value | Type | Description |
-|-------|-------|------|-------------|
-| `Data Quote Owner Id` | `136185` | Integer | Quote owner ID |
-| `Data Quote Owner First Name` | `Eric` | String | Owner first name |
-| `Data Quote Owner Last Name` | `Grosshans` | String | Owner last name |
-| `Data Quote Owner Full Name` | `Eric Grosshans` | String | Owner full name |
-| `Data Quote Owner Email` | `eric@tlciscreative.com` | String | Owner email |
+|-------|--------|------|-------------|
+| `Data Form ID` | `50826` | String | Form template ID |
+| `Data Form Slug` | `test` | String | Form template slug |
+| `Data Form Title` | `test` | String | Form template title |
 
-### **💰 Financial & Currency**
-| Field | Value | Type | Description |
-|-------|-------|------|-------------|
-| `Data Reseller` | - | String | Reseller information |
-| `Data Currency Code` | `USD` | String | String | Currency code |
-| `Data Currency Name` | `United States Dollar` | String | Currency name |
+## **🎯 Key Insights for Implementation**
 
-### **📋 Form/Template**
-| Field | Value | Type | Description |
-|-------|-------|------|-------------|
-| `Data Form Id` | `50826` | Integer | Form/template ID |
-| `Data Form Slug` | `test` | String | Form slug |
-| `Data Form Title` | `test-with deal` | String | Form title |
-| `Data Custom Fields` | - | String | Custom field data |
-| `Data Checkout Custom Fields` | - | String | Checkout custom fields |
+### **Phase 1: Data Extraction** ✅
+- **Contact Information**: Complete name, email, phone, address data available
+- **Organization Data**: Organization name with deal ID suffix (e.g., "Blue Owl Capital-2096")
+- **Financial Data**: Total amounts, margins, shipping costs available
+- **Quote Metadata**: Status, expiration, revision information available
 
-### **📦 Line Items (Detailed)**
-| Field | Value | Type | Description |
-|-------|-------|------|-------------|
-| `Data Line Items ID` | `41290386` | Integer | Line item ID |
-| `Data Line Items Quantity` | `1` | Integer | Quantity |
-| `Data Line Items Name` | `Balloon Drops` | String | Item name |
-| `Data Line Items Sku` | `BAL-DROP-001` | String | SKU |
-| `Data Line Items Pricing Structure` | `fixed_per_unit` | String | Pricing structure |
-| `Data Line Items Recurring` | `false` | Boolean | Is recurring |
-| `Data Line Items Recurring Time Period` | `1` | Integer | Recurring period |
-| `Data Line Items Base Price` | `1,000.00` | Decimal | Base price |
-| `Data Line Items Base Unit Price` | `1,000.00` | Decimal | Unit price |
-| `Data Line Items Base Cost` | `500.00` | Decimal | Base cost |
-| `Data Line Items Base Margin Dollars` | `500.00` | Decimal | Margin in dollars |
-| `Data Line Items Base Margin Percent` | `50.00` | Decimal | Margin percentage |
-| `Data Line Items Total Upfront` | `1,000.00` | Decimal | Total upfront |
-| `Data Line Items Total Recurring` | `0` | Decimal | Total recurring |
-| `Data Line Items Total Cost` | `500.00` | Decimal | Total cost |
-| `Data Line Items Total Margin Dollars` | `500.00` | Decimal | Total margin dollars |
-| `Data Line Items Total Margin Percent` | `50.00` | Decimal | Total margin percentage |
-| `Data Line Items Discount` | `0.00` | Decimal | Discount amount |
-| `Data Line Items Total Upfront After Discount` | `1,000.00` | Decimal | Final upfront total |
-| `Data Line Items Supplier` | - | String | Supplier information |
-| `Data Line Items Type` | `Drop` | String | Item type |
-| `Data Line Items Is Optional` | `false` | Boolean | Is optional item |
-| `Data Line Items Is Optional Selected` | `false` | Boolean | Is selected |
-| `Data Line Items Options` | - | String | Item options |
-| `Data Line Items Custom Fields` | - | String | Item custom fields |
+### **Phase 2: Quote Number Formatting** ✅
+- **Deal ID Extraction**: Available from `person.organization` field (e.g., "Blue Owl Capital-2096" → "2096")
+- **Sequential Numbering**: Can be implemented using our `generate_sequential_quote_number()` function
+- **Implementation Flow**: 
+  1. Quote is published → webhook received
+  2. Extract deal ID from organization name
+  3. Generate sequential number (e.g., 02096-01, 02096-02)
+  4. Update the published quote with our numbering
+  5. Update Pipedrive with quote information
 
-### **⏰ System Fields**
-| Field | Value | Type | Description |
-|-------|-------|------|-------------|
-| `Timestamp` | `1754857377` | Integer | Unix timestamp |
-| `Module` | `Quotes` | String | Module name |
-| `Is New` | `1` | Integer | Is new record flag |
-| `querystring` | - | String | Query parameters |
+### **Phase 3: Pipedrive Integration** ✅
+- **Quote Status Updates**: Can update deal status to "presented" when quote is published
+- **Contact Address Updates**: Can sync billing address back to Pipedrive person records
+- **Deal Value Updates**: Can update deal value with quote total amount
+- **Revision Handling**: Can distinguish between original quotes and revisions
 
-## 🎯 **Critical Findings for Stage 3**
+## **📊 Data Availability Summary**
 
-### **✅ What We Have (Good News)**
+### **✅ Available Fields:**
+- **Quote ID**: `7228156` ✅
+- **Quote Number**: `7` ✅ (Quoter's internal numbering)
+- **Contact Name**: `Robert Lee` ✅
+- **Organization**: `Blue Owl Capital-2096` ✅
+- **Deal ID**: `2096` (extracted from organization name) ✅
+- **Address**: Complete billing address ✅
+- **Phone**: Work and mobile numbers ✅
+- **Email**: `robert.lee@blueowl.com` ✅
+- **Total Amount**: `$2,575.00` ✅
+- **Status**: `pending` ✅
 
-1. **Pipedrive Person ID**: `Data Person Id: 2559270` - Perfect for mapping back to Pipedrive
-2. **Organization with Deal ID**: `Blue Owl Capital-2096` - Deal ID `2096` is embedded
-3. **Complete Financial Data**: Totals, margins, costs, discounts, taxes
-4. **Full Address Information**: Billing and shipping addresses
-5. **Line Item Details**: Comprehensive pricing and margin information
-6. **Quote Metadata**: Status, revision, expiry, owner information
+### **⚠️ Fields to Generate:**
+- **Sequential Quote Number**: Need to generate `02096-01` format ✅
+- **Deal Status**: Need to update Pipedrive deal status ✅
+- **Contact Address**: Need to sync back to Pipedrive ✅
 
-### **❌ What We're Missing (Challenges)**
+## **🚀 Implementation Status**
 
-1. **No Direct Pipedrive Deal ID**: The webhook doesn't capture `pipedrive_deal_id` directly
-2. **No Custom Field Mapping**: We can't see Pipedrive custom fields in the webhook
-3. **Deal ID Extraction Required**: We need to parse `Blue Owl Capital-2096` to extract `2096`
+### **✅ Completed:**
+1. **Webhook Handler**: Receives and processes published quotes
+2. **Data Extraction**: Extracts all necessary fields from webhook
+3. **Deal ID Parsing**: Successfully extracts deal ID from organization name
+4. **Pipedrive Updates**: Updates deals with quote information
+5. **Sequential Numbering Function**: Generates xxxxx-yy format numbers
+6. **Quote Update Function**: Updates published quotes with our numbering
 
-### **🔄 Data Flow Analysis**
+### **🎯 Current Flow:**
+1. **Quote Published** → Quoter webhook sent
+2. **Webhook Received** → Data parsed and validated
+3. **Deal ID Extracted** → From organization name suffix
+4. **Quote Type Determined** → Check `parent_quote_id` field
+5. **If NEW Quote** → Generate sequential number (02096-01, 02096-02, etc.)
+6. **If REVISION** → Keep existing quote number, skip sequential numbering
+7. **Quote Updated** → With appropriate numbering (new quotes only)
+8. **Pipedrive Updated** → Deal status, value, and contact information
+9. **Processing Tracked** → Prevents duplicate updates
 
-```
-Quoter Quote Published → Webhook → Our System
-     ↓
-Available Fields:
-├── Pipedrive Person ID (2559270) ✅
-├── Organization Name (Blue Owl Capital-2096) ✅
-├── Financial Data (totals, margins, costs) ✅
-├── Address Information ✅
-├── Line Items ✅
-└── Quote Metadata ✅
+### **🔧 Technical Implementation:**
+- **Sequential Numbering**: `generate_sequential_quote_number(deal_id)` function
+- **Quote Updates**: `update_quote_with_sequential_number(quote_id, deal_id)` function
+- **Webhook Processing**: `handle_quoter_quote_published()` function
+- **Pipedrive Integration**: `update_deal_with_quote_info()` function
 
-Missing Fields:
-├── Direct Pipedrive Deal ID ❌
-├── Pipedrive Custom Fields ❌
-└── Direct Deal Reference ❌
-```
+## **📝 Notes**
 
-## 🚀 **Stage 3 Implementation Strategy**
-
-### **Phase 1: Deal ID Extraction**
-- Parse organization name `Blue Owl Capital-2096` to extract deal ID `2096`
-- Use regex pattern: `.*-(\d+)$` to capture the deal ID suffix
-- Fallback: Use Pipedrive Person ID to look up associated deals
-
-### **Phase 2: Quote Number Formatting**
-- Apply xxxxx-nn format: `02096-01` (deal 2096, quote 01)
-- Use extracted deal ID from organization name
-- Implement sequential numbering logic
-
-### **Phase 3: Pipedrive Updates**
-- Update deal with quote information using extracted deal ID
-- Sync financial data, status, and quote details
-- Use Pipedrive Person ID for contact verification
-
-## 📝 **Next Steps**
-
-1. **Implement Deal ID extraction** from organization name
-2. **Test quote number formatting** with xxxxx-nn pattern
-3. **Build Pipedrive update functions** using available data
-4. **Handle edge cases** where deal ID extraction fails
-
-## �� **Questions for Further Investigation**
-
-1. **Is the organization name format consistent?** (Always ends with `-{deal_id}`?)
-2. **Can we access Pipedrive custom fields** through the API after getting the person ID?
-3. **Are there other webhook events** that might provide deal information?
-4. **Can we configure Quoter** to include additional fields in webhooks?
-
----
-
-**Last Updated**: August 14, 2025  
-**Source**: Quoter → Zapier webhook analysis  
-**Status**: Ready for Stage 3 implementation planning
-
-## 📊 **MULTI-QUOTE ANALYSIS UPDATE (August 15, 2025)**
-
-### **Second Quote Analysis (8:25am PDT, 8/15/2025)**
-
-**New Quote Data:**
-- **Data Number**: `4` (Quoter's internal numbering)
-- **Data Form Title**: `Quote for Blue Owl Capital-2096`
-- **Total Upfront**: `$2,525.00` (3 line items: $25 + $1,500 + $1,000)
-- **Line Items**: 3-to-1 splitter CO2, 360 VIDEO GLOBES, Aerial Cameras/Drones
-
-### **Updated Quote Comparison Table**
-
-| Field | Quote 1 (8/14) | Quote 2 (8/15) | Pattern Analysis |
-|-------|----------------|----------------|------------------|
-| **Data Number** | `2` | `4` | ✅ **Sequential numbering** |
-| **Data Person Id** | `2559270` | `2559270` | ✅ **Same Pipedrive person** |
-| **Data Person Organization** | `Blue Owl Capital-2096` | `Blue Owl Capital-2096` | ✅ **Same organization** |
-| **Deal ID (extracted)** | `2096` | `2096` | ✅ **Consistent deal ID** |
-| **Total Upfront** | `1,000.00` | `2,525.00` | ✅ **Different amounts** |
-
-### **Key Patterns Confirmed**
-
-1. **Deal ID Extraction Reliability**: 
-   - Quote 1: `Blue Owl Capital-2096` → Deal ID `2096`
-   - Quote 2: `Blue Owl Capital-2096` → Deal ID `2096`
-   - **Pattern**: `.*-(\d+)$` regex will consistently extract deal IDs
-
-2. **Quote Number Availability**:
-   - Quote 1: `Data Number: 2` ✅
-   - Quote 2: `Data Number: 4` ✅
-   - **Conclusion**: `Data Number` field is consistently available in webhooks
-
-3. **Organization Naming Consistency**:
-   - Both quotes use identical organization names
-   - Deal ID is always embedded in the same format
-   - **Strategy**: We can reliably extract deal IDs for our xxxxx-nn formatting
-
-### **Stage 3 Implementation Readiness: ✅ CONFIRMED**
-
-- **Deal ID extraction**: 100% reliable (tested with 2 quotes)
-- **Quote number formatting**: All data available for xxxxx-nn pattern
-- **Pipedrive updates**: Comprehensive financial and line item data ready
-- **Webhook handling**: Field mapping complete and validated
-
-**Status**: Ready to proceed with Stage 3 implementation!
+- **Quote numbers are NOT set during draft creation** - they're only assigned when quotes are published
+- **Sequential numbering happens AFTER publication** via webhook processing
+- **Format**: `xxxxx-yy` where `xxxxx` is 5-digit deal ID with leading zeros, `yy` is sequential number
+- **Examples**: `02096-01`, `02096-02`, `02217-01`, `00123-01`
+- **Revision vs. New Quote Logic**:
+  - **Revisions** (`parent_quote_id` present): Keep same quote number, skip sequential numbering
+  - **New Quotes** (`parent_quote_id` null): Generate next sequential number for the deal
+- **Revision Support**: Handles both original quotes and revisions with duplicate prevention

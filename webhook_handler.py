@@ -6,6 +6,7 @@ Triggers quote creation when sub-organization is ready.
 
 import json
 import os
+import requests
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 from quoter import create_draft_quote, create_comprehensive_quote_from_pipedrive
@@ -16,6 +17,58 @@ from utils.logger import logger
 load_dotenv()
 
 app = Flask(__name__)
+
+def update_quote_with_sequential_number(quote_id, deal_id):
+    """
+    Update a published quote with sequential numbering in xxxxx-yy format.
+    
+    Args:
+        quote_id (str): The quote ID from Quoter
+        deal_id (str): The deal ID from Pipedrive
+        
+    Returns:
+        bool: True if update successful, False otherwise
+    """
+    try:
+        # Generate sequential quote number
+        from quoter import generate_sequential_quote_number
+        quote_number = generate_sequential_quote_number(deal_id)
+        logger.info(f"🎯 Updating quote {quote_id} with sequential number: {quote_number}")
+        
+        # Get access token
+        from quoter import get_access_token
+        access_token = get_access_token()
+        if not access_token:
+            logger.error("❌ Failed to get OAuth token for quote update")
+            return False
+        
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json"
+        }
+        
+        # Update the quote with our sequential numbering
+        update_data = {
+            "number": quote_number
+        }
+        
+        response = requests.put(
+            f"https://api.quoter.com/v1/quotes/{quote_id}",
+            json=update_data,
+            headers=headers,
+            timeout=10
+        )
+        
+        if response.status_code in [200, 201]:
+            logger.info(f"✅ Successfully updated quote {quote_id} with number: {quote_number}")
+            return True
+        else:
+            logger.error(f"❌ Failed to update quote {quote_id}: {response.status_code} - {response.text}")
+            return False
+            
+    except Exception as e:
+        logger.error(f"❌ Error updating quote {quote_id} with sequential number: {e}")
+        return False
 
 @app.route('/webhook/pipedrive/organization', methods=['POST'])
 def handle_organization_webhook():
@@ -218,6 +271,22 @@ def handle_quoter_quote_published():
                 
                 if update_result:
                     logger.info(f"✅ Successfully updated Pipedrive deal {deal_id} with quote {quote_id}")
+                    
+                    # Update the quote with sequential numbering ONLY if it's a new quote (not a revision)
+                    if not is_revision:
+                        try:
+                            logger.info(f"🎯 Updating NEW quote {quote_id} with sequential numbering...")
+                            numbering_update_result = update_quote_with_sequential_number(quote_id, deal_id)
+                            
+                            if numbering_update_result:
+                                logger.info(f"✅ Successfully updated NEW quote {quote_id} with sequential numbering")
+                            else:
+                                logger.warning(f"⚠️ Failed to update quote {quote_id} with sequential numbering")
+                        except Exception as e:
+                            logger.warning(f"⚠️ Error updating quote numbering: {e}")
+                    else:
+                        logger.info(f"📝 Skipping sequential numbering for REVISION {quote_id} (revision {revision_number})")
+                        logger.info(f"   Revisions keep the same quote number as the parent quote")
                     
                     # Mark this quote/revision as processed
                     try:

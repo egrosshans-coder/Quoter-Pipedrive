@@ -7,6 +7,113 @@ load_dotenv()
 CLIENT_ID = os.getenv("QUOTER_API_KEY")  # Your Client ID
 CLIENT_SECRET = os.getenv("QUOTER_CLIENT_SECRET")  # Your Client Secret
 
+def generate_sequential_quote_number(deal_id):
+    """
+    Generate sequential quote number in xxxxx-yy format with leading zeros.
+    
+    Args:
+        deal_id (str or int): The deal ID from Pipedrive
+        
+    Returns:
+        str: Formatted quote number (e.g., "02096-01", "02096-02")
+    """
+    try:
+        # Convert deal_id to integer and pad with leading zeros to 5 digits
+        deal_id_int = int(str(deal_id))
+        padded_deal_id = f"{deal_id_int:05d}"
+        
+        # Get access token for API calls
+        access_token = get_access_token()
+        if not access_token:
+            logger.warning(f"⚠️ Could not get access token, using fallback numbering for deal {deal_id}")
+            return f"{padded_deal_id}-01"
+        
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json"
+        }
+        
+        # Query existing quotes to find the next sequence number
+        # We'll search for quotes that contain the deal ID in their name or number
+        endpoint = "https://api.quoter.com/v1/quotes"
+        
+        # Search for existing quotes related to this deal
+        # We'll use a broader search to find any quotes that might be related
+        search_params = {
+            "limit": 100,  # Get more quotes to ensure we don't miss any
+            "page": 1
+        }
+        
+        existing_quotes = []
+        page = 1
+        
+        while True:
+            search_params["page"] = page
+            response = requests.get(endpoint, headers=headers, params=search_params, timeout=10)
+            
+            if response.status_code != 200:
+                logger.warning(f"⚠️ Could not fetch quotes page {page}, using fallback numbering")
+                break
+                
+            data = response.json()
+            quotes = data.get("data", [])
+            
+            if not quotes:
+                break
+                
+            # Filter quotes that might be related to this deal
+            for quote in quotes:
+                quote_name = quote.get("name", "")
+                quote_number = quote.get("number", "")
+                
+                # Check if this quote is related to our deal
+                # Look for deal ID in quote name or number
+                if (str(deal_id) in quote_name or 
+                    str(deal_id) in quote_number or
+                    padded_deal_id in quote_name or
+                    padded_deal_id in quote_number):
+                    existing_quotes.append(quote)
+            
+            # Check if we've reached the end
+            if len(quotes) < 100:
+                break
+                
+            page += 1
+        
+        # Find the highest sequence number for this deal
+        max_sequence = 0
+        for quote in existing_quotes:
+            quote_name = quote.get("name", "")
+            quote_number = quote.get("number", "")
+            
+            # Look for existing xxxxx-yy pattern
+            import re
+            pattern = rf"{padded_deal_id}-(\d{{2}})"
+            match = re.search(pattern, quote_name) or re.search(pattern, quote_number)
+            
+            if match:
+                sequence = int(match.group(1))
+                max_sequence = max(max_sequence, sequence)
+        
+        # Generate next sequence number
+        next_sequence = max_sequence + 1
+        quote_number = f"{padded_deal_id}-{next_sequence:02d}"
+        
+        logger.info(f"🎯 Generated quote number: {quote_number} for deal {deal_id}")
+        logger.info(f"   Found {len(existing_quotes)} existing quotes, max sequence: {max_sequence}")
+        
+        return quote_number
+        
+    except Exception as e:
+        logger.error(f"❌ Error generating quote number for deal {deal_id}: {e}")
+        # Fallback to basic format
+        try:
+            deal_id_int = int(str(deal_id))
+            padded_deal_id = f"{deal_id_int:05d}"
+            return f"{padded_deal_id}-01"
+        except:
+            return f"DEAL-{deal_id}-01"
+
 def get_access_token():
     """
     Get OAuth access token from Quoter API.
@@ -698,7 +805,6 @@ def create_draft_quote_with_contact(deal_id, organization_name, deal_title,
         "contact_id": contact_id,  # Use the real contact, not a default placeholder
         "template_id": required_fields["template_id"],
         "currency_abbr": required_fields["currency_abbr"],
-        "number": f"PD-{deal_id}",  # Use 'number' field (not 'quote_number')
         "pipedrive_deal_id": str(deal_id),  # Include Pipedrive deal ID
         "name": f"Quote for {organization_name}",  # Use the clean organization name passed in
         "status": "draft"
@@ -708,7 +814,6 @@ def create_draft_quote_with_contact(deal_id, organization_name, deal_title,
         logger.info(f"Creating draft quote for deal {deal_id}")
         logger.info(f"Organization: {organization_name}")
         logger.info(f"Contact: {contact_name}")
-        logger.info(f"Quote number: PD-{deal_id}")
         logger.info("Note: Quoter will automatically populate contact/org/deal info from Pipedrive")
         
         logger.info(f"📤 Sending API request to Quoter:")
@@ -733,7 +838,6 @@ def create_draft_quote_with_contact(deal_id, organization_name, deal_title,
             
             if quote_id:
                 logger.info(f"✅ Successfully created draft quote {quote_id}")
-                logger.info(f"   Quote number: PD-{deal_id}")
                 logger.info(f"   Pipedrive deal ID: {deal_id}")
                 logger.info(f"   Organization: {organization_name}")
                 logger.info(f"   Title: Quote for {organization_name} - Deal {deal_id}")
@@ -841,20 +945,18 @@ def create_draft_quote(deal_id, organization_name, deal_title=None):
         logger.error("Failed to get default contact ID")
         return None
     
-    # Prepare quote data with custom numbering
+    # Prepare quote data (quote number will be assigned by Quoter after publication)
     quote_data = {
         "contact_id": default_contact_id,  # Use the created contact
         "template_id": required_fields["template_id"],
         "currency_abbr": required_fields["currency_abbr"],
         "title": deal_title or f"Quote for {organization_name} - Deal {deal_id}",
-        "quote_number": f"PD-{deal_id}",  # Custom quote number using deal ID
         "pipedrive_deal_id": str(deal_id),
         "organization_name": organization_name
     }
     
     try:
         logger.info(f"Creating draft quote for deal {deal_id} and organization {organization_name}")
-        logger.info(f"Using quote number: PD-{deal_id}")
         
         response = requests.post(
             "https://api.quoter.com/v1/quotes",
@@ -869,7 +971,6 @@ def create_draft_quote(deal_id, organization_name, deal_title=None):
             
             if quote_id:
                 logger.info(f"✅ Successfully created draft quote {quote_id} for deal {deal_id}")
-                logger.info(f"   Quote number: PD-{deal_id}")
                 logger.info(f"   URL: {data.get('url', 'N/A')}")
                 return data
             else:
@@ -1177,3 +1278,5 @@ def create_comprehensive_quote_from_pipedrive(organization_data):
     except Exception as e:
         logger.error(f"❌ Error creating comprehensive quote: {e}")
         return None 
+
+ 
