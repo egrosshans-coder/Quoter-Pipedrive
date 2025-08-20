@@ -385,7 +385,32 @@ def get_person_by_id(person_id):
         
         if response.status_code == 200:
             data = response.json()
-            return data.get("data")
+            person_data = data.get("data")
+            
+            # Debug logging to see what fields we get from Pipedrive
+            if person_data:
+                logger.info(f"🔍 DEBUG: Pipedrive person {person_id} fields:")
+                logger.info(f"   Available keys: {list(person_data.keys())}")
+                
+                # Check for address-related fields
+                address_fields = [key for key in person_data.keys() if 'address' in key.lower() or 'postal' in key.lower()]
+                if address_fields:
+                    logger.info(f"   Address-related fields: {address_fields}")
+                    for field in address_fields:
+                        logger.info(f"      {field}: {person_data.get(field)}")
+                else:
+                    logger.info(f"   No address-related fields found")
+                
+                # Check for city, state, zip fields
+                location_fields = [key for key in person_data.keys() if any(loc in key.lower() for loc in ['city', 'state', 'zip', 'postal', 'locality', 'admin'])]
+                if location_fields:
+                    logger.info(f"   Location-related fields: {location_fields}")
+                    for field in location_fields:
+                        logger.info(f"      {field}: {person_data.get(field)}")
+                else:
+                    logger.info(f"   No location-related fields found")
+            
+            return person_data
         elif response.status_code == 404:
             logger.warning(f"Person {person_id} not found")
             return None
@@ -423,7 +448,32 @@ def get_organization_by_id(org_id):
         
         if response.status_code == 200:
             data = response.json()
-            return data.get("data")
+            org_data = data.get("data")
+            
+            # Debug logging to see what fields we get from Pipedrive
+            if org_data:
+                logger.info(f"🔍 DEBUG: Pipedrive organization {org_id} fields:")
+                logger.info(f"   Available keys: {list(org_data.keys())}")
+                
+                # Check for address-related fields
+                address_fields = [key for key in org_data.keys() if 'address' in key.lower()]
+                if address_fields:
+                    logger.info(f"   Address-related fields: {address_fields}")
+                    for field in address_fields:
+                        logger.info(f"      {field}: {org_data.get(field)}")
+                else:
+                    logger.info(f"   No address-related fields found")
+                
+                # Check for city, state, zip fields
+                location_fields = [key for key in org_data.keys() if any(loc in key.lower() for loc in ['city', 'state', 'zip', 'postal'])]
+                if location_fields:
+                    logger.info(f"   Location-related fields: {location_fields}")
+                    for field in location_fields:
+                        logger.info(f"      {field}: {org_data.get(field)}")
+                else:
+                    logger.info(f"   No location-related fields found")
+            
+            return org_data
         elif response.status_code == 404:
             logger.warning(f"Organization {org_id} not found")
             return None
