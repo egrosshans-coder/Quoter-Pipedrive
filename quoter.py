@@ -340,197 +340,19 @@ def create_or_find_contact_in_quoter(contact_name, contact_email=None, contact_p
                 
                 # Look for existing contact with matching email
                 for contact in contacts:
-                    contact_emails = contact.get('email', [])
+                    contact_emails = contact.get("email", [])
                     if isinstance(contact_emails, list):
                         for email_item in contact_emails:
-                            if email_item.get('value') == contact_email:
+                            if email_item.get("value") == contact_email:
                                 logger.info(f"✅ Found existing contact: {contact.get('first_name')} {contact.get('last_name')} "
-                                          f"(ID: {contact.get('id')}) - will update with new address data")
-                                
-                                # Update the existing contact with new address data from Pipedrive
-                                try:
-                                    update_data = {}
-                                    
-                                    # Update billing address if we have new data
-                                    if person_address:
-                                        update_data["billing_address"] = person_address
-                                    elif org_address:
-                                        update_data["billing_address"] = org_address
-                                        
-                                    if person_address_subpremise:
-                                        update_data["billing_address2"] = person_address_subpremise
-                                    elif org_address2:
-                                        update_data["billing_address2"] = org_address2
-                                        
-                                    if person_city:
-                                        update_data["billing_city"] = person_city
-                                    elif org_city:
-                                        update_data["billing_city"] = org_city
-                                        
-                                    if person_state:
-                                        update_data["billing_region_iso"] = person_state
-                                    elif org_state:
-                                        update_data["billing_region_iso"] = org_state
-                                        
-                                    if person_zip:
-                                        update_data["billing_postal_code"] = person_zip
-                                    elif org_zip:
-                                        update_data["billing_postal_code"] = org_zip
-                                        
-                                    if person_country:
-                                        update_data["billing_country_iso"] = person_country
-                                    elif org_country:
-                                        update_data["billing_country_iso"] = org_country
-                                    
-                                    # Update shipping address (same as billing for now)
-                                    if person_address:
-                                        update_data["shipping_address"] = person_address
-                                    elif org_address:
-                                        update_data["shipping_address"] = org_address
-                                        
-                                    if person_address_subpremise:
-                                        update_data["shipping_address2"] = person_address_subpremise
-                                    elif org_address2:
-                                        update_data["shipping_address2"] = org_address2
-                                        
-                                    if person_city:
-                                        update_data["shipping_city"] = person_city
-                                    elif org_city:
-                                        update_data["shipping_city"] = org_city
-                                        
-                                    if person_state:
-                                        update_data["shipping_region_iso"] = person_state
-                                    elif org_state:
-                                        update_data["shipping_region_iso"] = org_state
-                                        
-                                    if person_zip:
-                                        update_data["shipping_postal_code"] = person_zip
-                                    elif org_zip:
-                                        update_data["shipping_postal_code"] = org_zip
-                                        
-                                    if person_country:
-                                        update_data["shipping_country_iso"] = person_country
-                                    elif org_country:
-                                        update_data["shipping_country_iso"] = org_country
-                                    
-                                    # Only update if we have address data to update
-                                    if update_data:
-                                        logger.info(f"🔄 Updating existing contact {contact.get('id')} with new address data")
-                                        logger.info(f"   Update data: {update_data}")
-                                        
-                                        update_response = requests.put(
-                                            f"https://api.quoter.com/v1/contacts/{contact.get('id')}",
-                                            json=update_data,
-                                            headers=headers,
-                                            timeout=10
-                                        )
-                                        
-                                        if update_response.status_code in [200, 201]:
-                                            logger.info(f"✅ Successfully updated existing contact {contact.get('id')} with new address data")
-                                        else:
-                                            logger.warning(f"⚠️ Failed to update existing contact {contact.get('id')}: {update_response.status_code} - {update_response.text[:200]}")
-                                    else:
-                                        logger.info(f"ℹ️ No address data to update for existing contact {contact.get('id')}")
-                                        
-                                except Exception as e:
-                                    logger.warning(f"⚠️ Error updating existing contact {contact.get('id')}: {e}")
-                                
+                                          f"(ID: {contact.get('id')}) - reusing existing contact")
                                 return contact.get("id")
                     elif isinstance(contact_emails, str) and contact_emails == contact_email:
                         logger.info(f"✅ Found existing contact: {contact.get('first_name')} {contact.get('last_name')} "
-                                  f"(ID: {contact.get('id')}) - will update with new address data")
-                        
-                        # Same update logic for string email format
-                        try:
-                            update_data = {}
-                            
-                            # Update billing address if we have new data
-                            if person_address:
-                                update_data["billing_address"] = person_address
-                            elif org_address:
-                                update_data["billing_address"] = org_address
-                                
-                            if person_address_subpremise:
-                                update_data["billing_address2"] = person_address_subpremise
-                            elif org_address2:
-                                update_data["billing_address2"] = org_address2
-                                
-                            if person_city:
-                                update_data["billing_city"] = person_city
-                            elif org_city:
-                                update_data["billing_city"] = org_city
-                                
-                            if person_state:
-                                update_data["billing_region_iso"] = person_state
-                            elif org_state:
-                                update_data["billing_region_iso"] = org_state
-                                
-                            if person_zip:
-                                update_data["billing_postal_code"] = person_zip
-                            elif org_zip:
-                                update_data["billing_postal_code"] = org_zip
-                                
-                            if person_country:
-                                update_data["billing_country_iso"] = person_country
-                            elif org_country:
-                                update_data["billing_country_iso"] = org_country
-                            
-                            # Update shipping address (same as billing for now)
-                            if person_address:
-                                update_data["shipping_address"] = person_address
-                            elif org_address:
-                                update_data["shipping_address"] = org_address
-                                
-                            if person_address_subpremise:
-                                update_data["shipping_address2"] = person_address_subpremise
-                            elif org_address2:
-                                update_data["shipping_address2"] = org_address2
-                                
-                            if person_city:
-                                update_data["shipping_city"] = person_city
-                            elif org_city:
-                                update_data["shipping_city"] = org_city
-                                
-                            if person_state:
-                                update_data["shipping_region_iso"] = person_state
-                            elif org_state:
-                                update_data["shipping_region_iso"] = org_state
-                                
-                            if person_zip:
-                                update_data["shipping_postal_code"] = person_zip
-                            elif org_zip:
-                                update_data["shipping_postal_code"] = org_zip
-                                
-                            if person_country:
-                                update_data["shipping_country_iso"] = person_country
-                            elif org_country:
-                                update_data["shipping_country_iso"] = org_country
-                            
-                            # Only update if we have address data to update
-                            if update_data:
-                                logger.info(f"🔄 Updating existing contact {contact.get('id')} with new address data")
-                                logger.info(f"   Update data: {update_data}")
-                                
-                                update_response = requests.put(
-                                    f"https://api.quoter.com/v1/contacts/{contact.get('id')}",
-                                    json=update_data,
-                                    headers=headers,
-                                    timeout=10
-                                )
-                                
-                                if update_response.status_code in [200, 201]:
-                                    logger.info(f"✅ Successfully updated existing contact {contact.get('id')} with new address data")
-                                else:
-                                    logger.warning(f"⚠️ Failed to update existing contact {contact.get('id')}: {update_response.status_code} - {update_response.text[:200]}")
-                            else:
-                                logger.info(f"ℹ️ No address data to update for existing contact {contact.get('id')}")
-                                
-                        except Exception as e:
-                            logger.warning(f"⚠️ Error updating existing contact {contact.get('id')}: {e}")
-                        
+                                  f"(ID: {contact.get('id')}) - reusing existing contact")
                         return contact.get("id")
                 
-                logger.info(f"📧 No existing contact found with email {contact_email} - will create new one with comprehensive data")
+                logger.info(f"📧 No existing contact found with email {contact_email} - will create new one")
                     
         except Exception as e:
             logger.warning(f"Error searching for existing contact: {e}")
@@ -648,30 +470,13 @@ def create_comprehensive_contact_from_pipedrive(pipedrive_contact_data, pipedriv
     org_name = pipedrive_org_data.get("name", "")
     org_website = pipedrive_org_data.get("website", "")
     
-    # Extract address information from ORGANIZATION data first (corporate address), then fallback to person data
+    # Extract address information from organization
     org_address = pipedrive_org_data.get("address", "")
-    org_address_subpremise = pipedrive_org_data.get("address_subpremise", "")
-    org_address_street_number = pipedrive_org_data.get("address_street_number", "")
-    org_address_route = pipedrive_org_data.get("address_route", "")
-    org_city = pipedrive_org_data.get("address_locality", "")
-    org_state = pipedrive_org_data.get("address_admin_area_level_1", "")
-    org_zip = pipedrive_org_data.get("address_postal_code", "")
-    org_country = pipedrive_org_data.get("address_country", "US")
-    
-    # Fallback to person address fields if organization address fields are empty
-    person_address = pipedrive_contact_data.get("postal_address", "")
-    person_address_subpremise = pipedrive_contact_data.get("postal_address_subpremise", "")
-    person_city = pipedrive_contact_data.get("postal_address_locality", "")
-    person_state = pipedrive_contact_data.get("postal_address_admin_area_level_1", "")
-    person_zip = pipedrive_contact_data.get("postal_address_postal_code", "")
-    person_country = pipedrive_contact_data.get("postal_address_country", "US")
-    
-    # Debug logging for address data
-    logger.info(f"🔍 DEBUG: Address data extraction:")
-    logger.info(f"   Organization data (CORPORATE) - Address: '{org_address}', Street Number: '{org_address_street_number}', Route: '{org_address_route}', City: '{org_city}', State: '{org_state}', ZIP: '{org_zip}'")
-    logger.info(f"   Person data (PERSONAL) - Address: '{person_address}', City: '{person_city}', State: '{person_state}', ZIP: '{person_zip}'")
-    logger.info(f"   Pipedrive contact data keys: {list(pipedrive_contact_data.keys())}")
-    logger.info(f"   Pipedrive org data keys: {list(pipedrive_org_data.keys())}")
+    org_address2 = pipedrive_org_data.get("address2", "")
+    org_city = pipedrive_org_data.get("city", "")
+    org_state = pipedrive_org_data.get("state", "")
+    org_zip = pipedrive_org_data.get("postal_code", "") or pipedrive_org_data.get("zip", "")
+    org_country = pipedrive_org_data.get("country", "US")  # Default to US
     
     # Extract organization contact information
     org_phone = pipedrive_org_data.get("phone", "")
@@ -753,67 +558,33 @@ def create_comprehensive_contact_from_pipedrive(pipedrive_contact_data, pipedriv
         if org_email:
             contact_data["email"] = org_email  # Use org email if no contact email
         
-        # Add comprehensive billing address from ORGANIZATION data first (corporate address), fallback to person data
+        # Add comprehensive billing address from organization data
         if org_address:
             contact_data["billing_address"] = org_address
-        elif person_address:
-            contact_data["billing_address"] = person_address
-            
-        if org_address_subpremise:
-            contact_data["billing_address2"] = org_address_subpremise
-        elif person_address_subpremise:
-            contact_data["billing_address2"] = person_address_subpremise
-            
+        if org_address2:
+            contact_data["billing_address2"] = org_address2
         if org_city:
             contact_data["billing_city"] = org_city
-        elif person_city:
-            contact_data["billing_city"] = person_city
-            
         if org_state:
             contact_data["billing_region_iso"] = org_state
-        elif person_state:
-            contact_data["billing_region_iso"] = person_state
-            
         if org_zip:
             contact_data["billing_postal_code"] = org_zip
-        elif person_zip:
-            contact_data["billing_postal_code"] = person_zip
-            
         if org_country:
             contact_data["billing_country_iso"] = org_country
-        elif person_country:
-            contact_data["billing_country_iso"] = person_country
         
-        # Add comprehensive shipping address (same as billing for now)
+        # Add comprehensive shipping address from organization data (same as billing for now)
         if org_address:
             contact_data["shipping_address"] = org_address
-        elif person_address:
-            contact_data["shipping_address"] = person_address
-            
-        if org_address_subpremise:
-            contact_data["shipping_address2"] = org_address_subpremise
-        elif person_address_subpremise:
-            contact_data["shipping_address2"] = person_address_subpremise
-            
+        if org_address2:
+            contact_data["shipping_address2"] = org_address2
         if org_city:
             contact_data["shipping_city"] = org_city
-        elif person_city:
-            contact_data["shipping_city"] = person_city
-            
         if org_state:
             contact_data["shipping_region_iso"] = org_state
-        elif person_state:
-            contact_data["shipping_region_iso"] = person_state
-            
         if org_zip:
             contact_data["shipping_postal_code"] = org_zip
-        elif person_zip:
-            contact_data["shipping_postal_code"] = person_zip
-            
         if org_country:
             contact_data["shipping_country_iso"] = org_country
-        elif person_country:
-            contact_data["shipping_country_iso"] = person_country
         
         # Add shipping contact details
         if contact_email:
@@ -839,17 +610,6 @@ def create_comprehensive_contact_from_pipedrive(pipedrive_contact_data, pipedriv
         logger.info(f"   Website: {org_website}")
         logger.info(f"   Country: {org_country}")
         logger.info(f"   Total fields to map: {len(contact_data)}")
-        
-        # Debug logging for final address data being sent to Quoter
-        logger.info(f"🔍 DEBUG: Final address data being sent to Quoter:")
-        logger.info(f"   Billing Address: {contact_data.get('billing_address', 'NOT SET')}")
-        logger.info(f"   Billing City: {contact_data.get('billing_city', 'NOT SET')}")
-        logger.info(f"   Billing State: {contact_data.get('billing_region_iso', 'NOT SET')}")
-        logger.info(f"   Billing ZIP: {contact_data.get('billing_postal_code', 'NOT SET')}")
-        logger.info(f"   Shipping Address: {contact_data.get('shipping_address', 'NOT SET')}")
-        logger.info(f"   Shipping City: {contact_data.get('shipping_city', 'NOT SET')}")
-        logger.info(f"   Shipping State: {contact_data.get('shipping_region_iso', 'NOT SET')}")
-        logger.info(f"   Shipping ZIP: {contact_data.get('shipping_postal_code', 'NOT SET')}")
         
         response = requests.post(
             "https://api.quoter.com/v1/contacts",
