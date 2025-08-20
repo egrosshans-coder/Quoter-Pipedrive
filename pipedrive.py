@@ -833,9 +833,29 @@ def update_organization_address(org_id, contact_data):
         logger.info(f"   Full Address: {full_address}")
         logger.info(f"   Individual Fields: {update_data}")
         
+        # Log each field being updated with its value
+        logger.info(f"🔍 DEBUG: Organization address update details:")
+        logger.info(f"   Input data - line1: '{line1}', line2: '{line2}', city: '{city}', state: '{state_code}', postal: '{postal_code}', country: '{country_code}'")
+        logger.info(f"   Pipedrive field mappings:")
+        for field, value in update_data.items():
+            logger.info(f"      {field}: '{value}'")
+        
+        # Log what we're NOT updating (None values)
+        none_fields = [k for k, v in update_data.items() if v is None]
+        if none_fields:
+            logger.info(f"   Fields with None values (not updating): {none_fields}")
+        
+        logger.info(f"   Total fields to update: {len(update_data)}")
+        logger.info(f"   Pipedrive API endpoint: {BASE_URL}/organizations/{org_id}")
+        
         # Update the organization
         headers = {"Content-Type": "application/json"}
         params = {"api_token": API_TOKEN}
+        
+        logger.info(f"📡 Sending PUT request to Pipedrive API...")
+        logger.info(f"   Headers: {headers}")
+        logger.info(f"   Params: {params}")
+        logger.info(f"   Request body: {update_data}")
         
         response = requests.put(
             f"{BASE_URL}/organizations/{org_id}",
@@ -844,11 +864,38 @@ def update_organization_address(org_id, contact_data):
             params=params
         )
         
+        logger.info(f"📡 Pipedrive API response:")
+        logger.info(f"   Status Code: {response.status_code}")
+        logger.info(f"   Response Headers: {dict(response.headers)}")
+        
         if response.status_code in [200, 201]:
+            try:
+                response_data = response.json()
+                logger.info(f"   Response Body: {response_data}")
+                
+                # Check if the response contains the updated fields
+                if 'data' in response_data:
+                    updated_org = response_data['data']
+                    logger.info(f"✅ Organization update response details:")
+                    logger.info(f"   Updated Organization ID: {updated_org.get('id')}")
+                    logger.info(f"   Updated Organization Name: {updated_org.get('name')}")
+                    
+                    # Log the address fields that were returned
+                    address_fields_returned = {k: v for k, v in updated_org.items() if 'address' in k.lower()}
+                    if address_fields_returned:
+                        logger.info(f"   Address fields in response: {address_fields_returned}")
+                    else:
+                        logger.info(f"   No address fields found in response")
+                        
+            except Exception as e:
+                logger.warning(f"⚠️ Could not parse response JSON: {e}")
+                logger.info(f"   Raw response text: {response.text[:500]}")
+            
             logger.info(f"✅ Successfully updated organization {org_id} address")
             return True
         else:
-            logger.error(f"❌ Failed to update organization {org_id} address: {response.status_code} - {response.text}")
+            logger.error(f"❌ Failed to update organization {org_id} address: {response.status_code}")
+            logger.error(f"   Response text: {response.text}")
             return False
             
     except Exception as e:
