@@ -485,6 +485,57 @@ def get_organization_by_id(org_id):
         logger.error(f"Error getting organization {org_id}: {e}")
         return None 
 
+def get_organization_by_name(org_name):
+    """
+    Get organization information by name.
+    
+    Args:
+        org_name (str): Organization name to search for
+        
+    Returns:
+        dict: Organization data if found, None otherwise
+    """
+    if not API_TOKEN:
+        logger.error("PIPEDRIVE_API_TOKEN not found in environment variables")
+        return None
+    
+    headers = {"Content-Type": "application/json"}
+    params = {"api_token": API_TOKEN}
+    
+    try:
+        # Search for organization by name
+        response = requests.get(
+            f"{BASE_URL}/organizations/search",
+            headers=headers,
+            params={**params, "term": org_name}
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            organizations = data.get("data", {}).get("items", [])
+            
+            # Look for exact match first
+            for org in organizations:
+                if org.get("item", {}).get("name") == org_name:
+                    logger.info(f"✅ Found organization by name: {org_name}")
+                    return org.get("item")
+            
+            # If no exact match, return the first one (closest match)
+            if organizations:
+                closest_match = organizations[0].get("item", {})
+                logger.info(f"📍 Using closest organization match: {closest_match.get('name')} for search term: {org_name}")
+                return closest_match
+            
+            logger.warning(f"Organization '{org_name}' not found")
+            return None
+        else:
+            logger.error(f"Error searching for organization '{org_name}': {response.status_code}")
+            return None
+            
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error searching for organization '{org_name}': {e}")
+        return None
+
 def update_deal_with_quote_info(deal_id, quote_id, quote_number, quote_amount, quote_status, contact_data):
     """
     Update Pipedrive deal with quote information when a quote is published.
@@ -660,7 +711,7 @@ def update_contact_address(contact_data):
         if billing_address.get('line2'):
             address_parts.append(billing_address['line2'])
         
-        # Add city, state, postal code
+        # Add city, state, zip fields
         if billing_address.get('city'):
             address_parts.append(billing_address['city'])
         if billing_address.get('state', {}).get('code'):
@@ -708,4 +759,98 @@ def update_contact_address(contact_data):
             
     except Exception as e:
         logger.error(f"❌ Error updating contact address: {e}")
+        return False 
+
+def update_organization_address(org_id, contact_data):
+    """
+    Update organization address fields in Pipedrive using address data from Quoter contact.
+    
+    Args:
+        org_id (int): Organization ID in Pipedrive
+        contact_data (dict): Contact data from Quoter with address information
+        
+    Returns:
+        bool: True if update successful, False otherwise
+    """
+    if not API_TOKEN:
+        logger.error("PIPEDRIVE_API_TOKEN not found in environment variables")
+        return False
+    
+    try:
+        # Extract address information from contact data
+        addresses = contact_data.get('addresses', {})
+        billing_address = addresses.get('billing', {})
+        
+        if not billing_address:
+            logger.warning("⚠️ No billing address found in contact data")
+            return False
+        
+        # Extract address components
+        line1 = billing_address.get('line1', '')
+        line2 = billing_address.get('line2', '')
+        city = billing_address.get('city', '')
+        state = billing_address.get('state', {})
+        state_code = state.get('code', '') if isinstance(state, dict) else state
+        postal_code = billing_address.get('postal_code', '')
+        country = billing_address.get('country', {})
+        country_code = country.get('code', '') if isinstance(country, dict) else country
+        
+        # Build full address string (Google Maps style)
+        address_parts = []
+        if line1:
+            address_parts.append(line1)
+        if line2:
+            address_parts.append(line2)
+        if city:
+            address_parts.append(city)
+        if state_code:
+            address_parts.append(state_code)
+        if postal_code:
+            address_parts.append(postal_code)
+        if country_code:
+            address_parts.append(country_code)
+        
+        full_address = ', '.join(address_parts) if address_parts else ''
+        
+        # Prepare update data for organization
+        update_data = {
+            # Full address string
+            "address": full_address,
+            # Individual address components for QuickBooks integration
+            "address_subpremise": line2 or None,  # Apartment/suite number
+            "address_street_number": line1.split()[0] if line1 else None,
+            "address_route": ' '.join(line1.split()[1:]) if line1 and len(line1.split()) > 1 else None,
+            "address_locality": city or None,
+            "address_admin_area_level_1": state_code or None,
+            "address_postal_code": postal_code or None,
+            "address_country": country_code or None
+        }
+        
+        # Remove None values to avoid overwriting with empty data
+        update_data = {k: v for k, v in update_data.items() if v is not None}
+        
+        logger.info(f"🔄 Updating organization {org_id} address:")
+        logger.info(f"   Full Address: {full_address}")
+        logger.info(f"   Individual Fields: {update_data}")
+        
+        # Update the organization
+        headers = {"Content-Type": "application/json"}
+        params = {"api_token": API_TOKEN}
+        
+        response = requests.put(
+            f"{BASE_URL}/organizations/{org_id}",
+            json=update_data,
+            headers=headers,
+            params=params
+        )
+        
+        if response.status_code in [200, 201]:
+            logger.info(f"✅ Successfully updated organization {org_id} address")
+            return True
+        else:
+            logger.error(f"❌ Failed to update organization {org_id} address: {response.status_code} - {response.text}")
+            return False
+            
+    except Exception as e:
+        logger.error(f"❌ Error updating organization {org_id} address: {e}")
         return False 

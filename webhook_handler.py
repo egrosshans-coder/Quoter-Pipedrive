@@ -264,10 +264,20 @@ def handle_quoter_quote_published():
             logger.info(f"   Status: {quote_status}")
             logger.info(f"🔍 DEBUG: About to call update_deal_with_quote_info with contact_data: {contact_data}")
             
-            # Update Pipedrive deal with quote information
+            # Update Pipedrive with quote information
             try:
-                # Update Pipedrive deal with quote information
-                update_result = update_deal_with_quote_info(
+                # Extract deal ID from organization name (e.g., "Blue Owl Capital-2096" -> "2096")
+                org_name = contact_data.get('organization', '')
+                if '-' in org_name:
+                    deal_id = org_name.split('-')[-1]
+                    logger.info(f"Extracted deal ID: {deal_id} from organization: {org_name}")
+                else:
+                    logger.error(f"Could not extract deal ID from organization name: {org_name}")
+                    return jsonify({"error": "Invalid organization name format"}), 400
+                
+                # Update the deal with quote information
+                from pipedrive import update_deal_with_quote_info
+                success = update_deal_with_quote_info(
                     deal_id=deal_id,
                     quote_id=quote_id,
                     quote_number=quote_number,
@@ -276,8 +286,32 @@ def handle_quoter_quote_published():
                     contact_data=contact_data
                 )
                 
-                if update_result:
+                if success:
                     logger.info(f"✅ Successfully updated Pipedrive deal {deal_id} with quote {quote_id}")
+                    
+                    # Update the organization address fields instead of contact address
+                    try:
+                        # Extract organization ID from the contact data or get it from Pipedrive
+                        # We'll need to get the organization ID from Pipedrive using the org name
+                        from pipedrive import get_organization_by_name, update_organization_address
+                        
+                        org_name_clean = org_name.split('-')[0] if '-' in org_name else org_name  # Remove deal ID suffix
+                        org_data = get_organization_by_name(org_name_clean)
+                        
+                        if org_data and org_data.get('id'):
+                            org_id = org_data['id']
+                            logger.info(f"🔄 Updating organization {org_id} address fields with quote data")
+                            
+                            success = update_organization_address(org_id, contact_data)
+                            if success:
+                                logger.info(f"✅ Successfully updated organization {org_id} address information")
+                            else:
+                                logger.warning(f"⚠️ Failed to update organization {org_id} address information")
+                        else:
+                            logger.warning(f"⚠️ Could not find organization '{org_name_clean}' in Pipedrive")
+                            
+                    except Exception as e:
+                        logger.error(f"❌ Error updating organization address: {e}")
                     
                     # Update the quote with sequential numbering ONLY if it's a new quote (not a revision)
                     if not is_revision:
@@ -303,25 +337,22 @@ def handle_quoter_quote_published():
                     except Exception as e:
                         logger.warning(f"⚠️ Failed to mark quote as processed: {e}")
                     
-                else:
-                    logger.warning(f"⚠️ Pipedrive update for deal {deal_id} may have failed")
-                
-                # Send notification
-                # TODO: Implement send_quote_published_notification function
-                logger.info(f"Quote {quote_id} - notification pending")
-                
-                return jsonify({
-                    "status": "success",
-                    "quote_id": quote_id,
-                    "deal_id": deal_id,
-                    "type": "revision" if is_revision else "original",
-                    "amount": total_amount,
-                    "message": f"{'Revision' if is_revision else 'Original'} quote ready for Pipedrive update to deal {deal_id}"
-                }), 200
+                    # Send notification
+                    # TODO: Implement send_quote_published_notification function
+                    logger.info(f"Quote {quote_id} - notification pending")
+                    
+                    return jsonify({
+                        "status": "success",
+                        "quote_id": quote_id,
+                        "deal_id": deal_id,
+                        "type": "revision" if is_revision else "original",
+                        "amount": total_amount,
+                        "message": f"{'Revision' if is_revision else 'Original'} quote ready for Pipedrive update to deal {deal_id}"
+                    }), 200
                 
             except Exception as e:
-                logger.error(f"Error updating Pipedrive for quote {quote_id}: {e}")
-                return jsonify({"error": f"Pipedrive update failed: {str(e)}"}), 500
+                logger.error(f"❌ Error updating Pipedrive: {e}")
+                return jsonify({"error": f"Failed to update Pipedrive: {str(e)}"}), 500
         else:
             logger.error(f"Quote {quote_id} missing required data: contact_id={contact_id}, deal_id={deal_id}")
             return jsonify({"error": "Missing contact_id or deal_id"}), 400
