@@ -317,14 +317,21 @@ def handle_quoter_quote_published():
                     if not is_revision:
                         try:
                             logger.info(f"🎯 Updating NEW quote {quote_id} with sequential numbering...")
-                            numbering_update_result = update_quote_with_sequential_number(quote_id, deal_id)
+                            # TODO: Uncomment when custom_number field becomes updatable
+                            # numbering_update_result = update_quote_with_sequential_number(quote_id, deal_id)
                             
-                            if numbering_update_result:
-                                logger.info(f"✅ Successfully updated NEW quote {quote_id} with sequential numbering")
-                            else:
-                                logger.warning(f"⚠️ Failed to update quote {quote_id} with sequential numbering")
+                            # if numbering_update_result:
+                            #     logger.info(f"✅ Successfully updated NEW quote {quote_id} with sequential numbering")
+                            # else:
+                            #     logger.warning(f"⚠️ Failed to update quote {quote_id} with sequential numbering")
+                            
+                            # For now, just log the custom number that would be assigned
+                            from quoter import generate_sequential_quote_number
+                            custom_number = generate_sequential_quote_number(deal_id)
+                            logger.info(f"📝 Would assign custom_number '{custom_number}' to quote {quote_id} (currently disabled)")
+                            
                         except Exception as e:
-                            logger.warning(f"⚠️ Error updating quote numbering: {e}")
+                            logger.warning(f"⚠️ Error generating sequential numbering: {e}")
                     else:
                         logger.info(f"📝 Skipping sequential numbering for REVISION {quote_id} (revision {revision_number})")
                         logger.info(f"   Revisions keep the same quote number as the parent quote")
