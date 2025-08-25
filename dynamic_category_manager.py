@@ -133,8 +133,9 @@ def sync_categories_from_quoter():
     logger.info("=== Syncing Categories from Quoter to Pipedrive ===")
     
     # Get all categories from Quoter
-    from category_mapper import get_all_categories
-    quoter_categories = get_all_categories()
+    from category_mapper import get_verified_subcategory_hierarchy
+    hierarchy = get_verified_subcategory_hierarchy()
+    quoter_categories = list(hierarchy.keys())
     
     if not quoter_categories:
         logger.error("No categories found in Quoter")

@@ -1,0 +1,272 @@
+Item Level (enter Parent or Child - default is Parent),*Item Name,*Category,Subcategory,Description,Manufacturer,Code,Supplier,Supplier SKU,Weight (e.g. 5.0 - default is 0),"Pricing Type (enter Flat Fee or Fixed Per Unit - default is Fixed Per Unit),",*USD Price (e.g. 1000.00),USD Cost (in dollars or percentage),USD Cost Type (enter dollars or percent - default is dollars),Recurring (enter No/Monthly/Quarterly/Annually - default is No),Allow Decimal Quantities (enter Yes or No - default is No),Taxable Item (enter Yes or No - default is Yes)
+Parent,90-day Warranty,FINANCE,Warranty,This product or service is covered under a 90-day limited warranty from the date of delivery. The warranty includes protection against defects in materials and workmanship under normal use.,,FIN-WAR-90D,,,0,,0,0,Dollars,No,No,No
+Parent,Accomodations,ALL-IN,Accomodations,"A flat, comprehensive rate covering all lodging-related costs associated with the project or event. This all-inclusive price ensures predictable budgeting and includes: Nightly room rate, Taxes and resort fees, Wi-Fi and standard amenities, Parking (if applicable), Hotel service charges and booking fees",,5R-ACC-001,,,0,,999,99,Dollars,No,No,No
+Parent,ACH PAYMENT INFORMATION,FINANCE,ACH,"Bank Name: [Your Bank Name]
+Bank Address: [Bank Address, optional]
+Routing Number (ABA): [Routing Number]
+Account Number: [Account Number]
+Account Type: [Checking/Savings]
+Account Name: [Company Name or Payee Name]
+Reference: [Invoice Number, Project Name, or Customer ID]
+
+Remittance Email: [accounts@yourcompany.com]
+Phone (Accounts Dept): [Optional]
+
+Please include the invoice number or project reference in your payment to ensure proper credit.",,FIN-ACH-DOM,,,0,,0,0,Dollars,No,No,No
+Parent,After Hours Liftgate Pick-up,SHIP,After-hours,An additional charge applied for freight pick-up scheduled outside standard business hours and requiring a liftgate-equipped truck for ground-level loading.,,SHP-LIFT-LATE,,,0,,400,150,Dollars,No,No,No
+Parent,AI Character Robot Tray,ROBOTICS,UTILITY,"An autonomous indoor robot designed for efficient delivery of food, packages, or materials across multi-room environments. Equipped with multiple shelving tiers, it enables organized transport of multiple items in a single trip. Includes video screen for branding and information",,ROB-TRY-001,,,0,,6000,500,Dollars,No,No,No
+Parent,AI Robotics Bulk Package,ROBOTICS,Package,"A comprehensive package that delivers a full spectrum of robotic solutions for live events, exhibitions, hospitality, or operational automation. This all-in-one offering includes multiple robot types tailored to your environment and goals, along with full technical support and programming services.",,ROB-PACK-001,,,0,,15000,1500,Dollars,No,No,No
+Parent,AI-Large Language Models (LLMs),ROBOTICS,LLM,"At the event, the robot is powered by a Large Language Model (LLM) to enable natural, real-time interaction with guests. The LLM processes spoken input, understands intent, and generates human-like responses, allowing the robot to act as an intelligent, conversational host or guide.",,ROB-LLM-001,,,0,,2500,500,Dollars,No,No,No
+Parent,Attendee Behavioural Data Analysis Capture,DATA,Behavioural,"A privacy-conscious analytics solution that uses advanced visual sensing technology and AI to interpret audience mood, engagement, and demographic trends in real time—without collecting or storing any personal data. Ideal for brand activations, live presentations, trade shows, experiential marketing, digital signage, and retail environments, this system empowers teams to understand how people react to content and experiences as they happen.",,DAT-BEH-ANA,,,0,,,,Dollars,No,No,No
+Parent,T&E-Baggage fees,T&E,Baggage,Baggage fees,,,,,0,,,,Dollars,No,No,No
+Parent,"Barista Package - Left side coffee system, right side ice, milk & flavors",,,"Barista Package - Left side coffee system, right side ice, milk & flavors",,,,,0,,,,Dollars,No,No,No
+Parent,Branding for Robot Bartender ADAM,,,Branding for Robot Bartender ADAM,,,,,0,,,,Dollars,No,No,No
+Parent,Call-Out Fee,,,Call-Out Fee,,,,,0,,,,Dollars,No,No,No
+Parent,Catch/Recirculating Basins - Non Stainless,,,Catch/Recirculating Basins - Non Stainless,,,,,0,,,,Dollars,No,No,No
+Parent,Champagne Bottle -EZ break material.,,,Champagne Bottle -EZ break material.,,,,,0,,,,Dollars,No,No,No
+Parent,Champagne Bottles: Additional,,,Champagne Bottles: Additional,,,,,0,,,,Dollars,No,No,No
+Parent,Client To Provide,,,Client To Provide,,,,,0,,,,Dollars,No,No,No
+Parent,Tanks - Dewar Tall,,,CO2 Dewar Tanks,,,,,0,,,,Dollars,No,No,No
+Parent,CO2 Jet Repair,,,CO2 Jet Repair,,,,,0,,,,Dollars,No,No,No
+Parent,Tanks Technician Services,,,Co2 Tank and Technician Services,,,,,0,,,,Dollars,No,No,No
+Parent,Confetti Blower Rental (TBD),,,Confetti Blower Rental (TBD),,,,,0,,,,Dollars,No,No,No
+Parent,Content Conversion and Instruction,,,Content Conversion and Instruction,,,,,0,,,,Dollars,No,No,No
+Parent,Control System Deposit,,,Control System Deposit,,,,,0,,,,Dollars,No,No,No
+Parent,Control Systems,,,Control Systems,,,,,0,,,,Dollars,No,No,No
+Parent,Controller - Electronic - Hardware.,,,Controller - Electronic - Hardware.,,,,,0,,,,Dollars,No,No,No
+Parent,Controller & Technician Services,,,Controller & Technician Services,,,,,0,,,,Dollars,No,No,No
+Parent,Controller Rental,,,Controller Rental,,,,,0,,,,Dollars,No,No,No
+Parent,Controller System Rental,,,Controller System Rental,,,,,0,,,,Dollars,No,No,No
+Parent,Credit for Defective Tank,FINANCE,Credit,Credit for Defective Tank,,FIN-CDT-TNK,,,0,,,,Dollars,No,No,No
+Parent,Credit for Return of System,FINANCE,Credit,Credit for Return of System,,FIN-CDT-SYS,,,0,,,,Dollars,No,No,No
+Parent,Credit or Item Returned,FINANCE,Credit,Credit for Return of Unused Item,,FIN-CDT-ITM,,,0,,,,Dollars,No,No,No
+Parent,Cryo Jets,,,Cryo Jets,,,,,0,,,,Dollars,No,No,No
+Parent,Custom Cups - Cost to be determined,,,Custom Cups - Cost to be determined,,,,,0,,,,Dollars,No,No,No
+Parent,Custom Cups - Quantity & cost to be determined,,,Custom Cups - Quantity & cost to be determined,,,,,0,,,,Dollars,No,No,No
+Parent,Custom Music Mix for Light Show,,,Custom Music Mix for Light Show,,,,,0,,,,Dollars,No,No,No
+Parent,Customs Duty & Fees,,,Customs Duty & Fees,,,,,0,,,,Dollars,No,No,No
+Parent,December 2024 Rental - Paid Check Date 11/22/2024,,,December 2024 Rental - Paid Check Date 11/22/2024,,,,,0,,,,Dollars,No,No,No
+Parent,Deposit,,,Deposit,,,,,0,,,,Dollars,No,No,No
+Parent,Dual iPad on back of robot dog,,,Dual iPad on back of robot dog,,,,,0,,,,Dollars,No,No,No
+Parent,Electronic Travel Authorization,,,Electronic Travel Authorization,,,,,0,,,,Dollars,No,No,No
+Parent,Equipment Support,,,Equipment Support,,,,,0,,,,Dollars,No,No,No
+Parent,Estimated damage to Henry,,,Estimated damage to Henry,,,,,0,,,,Dollars,No,No,No
+Parent,Event Technology Package,,,Event Technology Package,,,,,0,,,,Dollars,No,No,No
+Parent,Exclusions to Quote,,,Exclusions to Quote,,,,,0,,,,Dollars,No,No,No
+Parent,February 2025 Rental,,,February 2025 Rental,,,,,0,,,,Dollars,No,No,No
+Parent,Financial-1-Year Extended Warranty,FINANCE,Warranty,1-Year Extended Warranty,,FIN-WAR-1YR,,,0,,5000,1000,Dollars,No,No,No
+Parent,Financial-Monthly Service Overage Payment Schedule,SERVICE,Monthly Fee,Monthly Service Overage Payment Schedule,,SVC-MTH-FEE,,,0,,3000,600,Dollars,No,No,No
+Parent,Flight - Baggage Fees,,,Flight - Baggage Fees,,,,,0,,,,Dollars,No,No,No
+Parent,Flights,,,Flights,,,,,0,,,,Dollars,No,No,No
+Parent,Flights Estimate,,,Flights Estimate,,,,,0,,,,Dollars,No,No,No
+Parent,Fluid Concentrate for Snow Machine,,,Fluid Concentrate for Snow Machine,,,,,0,,,,Dollars,No,No,No
+Parent,Fly-Pak for HoloPortal,,,Fly-Pak,,,,,0,,,,Dollars,No,No,No
+Parent,Fog/Mist Screen Rental & Technician Services *,,,Fog/Mist Screen Rental & Technician Services *,,,,,0,,,,Dollars,No,No,No
+Parent,Full Order Confetti,,,Full Order Confetti,,,,,0,,,,Dollars,No,No,No
+Parent,FV-30 Fan Holographic,Hologram,FV,30-inch holographic fan,,HG-FVH-L30-001,,1,0,Fixed Per Unit Pricing,2500,300,Dollars,No,No,Yes
+Parent,Gender Reveal Package,,,Gender Reveal Package,,,,,0,,,,Dollars,No,No,No
+Parent,Global Safety Cable for Mounting,,,Global Safety Cable for Mounting,,,,,0,,,,Dollars,No,No,No
+Parent,Graphics for floating video,,,Graphics for floating video,,,,,0,,,,Dollars,No,No,No
+Parent,Graphics for Floating Video Holograms,,,Graphics for Floating Video Holograms,,,,,0,,,,Dollars,No,No,No
+Parent,Graphics for LED Signage Estimate,,,Graphics for LED Signage Estimate,,,,,0,,,,Dollars,No,No,No
+Parent,Graphics Package (Mid-level Design),,,Graphics Package (Mid-level Design),,,,,0,,,,Dollars,No,No,No
+Parent,Ground Transportation,,,Ground Transportation,,,,,0,,,,Dollars,No,No,No
+Parent,Ground Transportation Estimate,,,Ground Transportation Estimate,,,,,0,,,,Dollars,No,No,No
+Parent,Half Day Shoot in Studio,,,Half Day Shoot in Studio,,,,,0,,,,Dollars,No,No,No
+Parent,Handling Charges,SHIP,Handling,"A flat fee covering labor and materials required to prepare items for safe and secure shipment. This includes: Protective packaging and labeling, Custom crating or boxing (if needed), Inventory verification and documentation, Coordination with shipping carrier or pickup service",,SHP-HND-001,,,0,,400,100,Dollars,No,No,No
+Parent,Hanging Hardware.,,,Hanging Hardware.,,,,,0,,,,Dollars,No,No,No
+Parent,Henry preproduction & OT for George,,,Henry preproduction & OT for George,,,,,0,,,,Dollars,No,No,No
+Parent,HO (Ai) (Trey #1) ‬‭HandOut,,,HO (Ai) (Trey #1) ‬‭HandOut,,,,,0,,,,Dollars,No,No,No
+Parent,HO (Ai) (Trey #2) ‬‭HandOut,,,HO (Ai) (Trey #2) ‬‭HandOut,,,,,0,,,,Dollars,No,No,No
+Parent,Holographic Hardware Rental,,,Holographic Hardware Rental,,,,,0,,,,Dollars,No,No,No
+Parent,Holographic Slot Machine All-in Package (Graphics not included),,,Holographic Slot Machine All-in Package (Graphics not included),,,,,0,,,,Dollars,No,No,No
+Parent,Holopod 3D transparent display,,,Holopod 3D transparent display,,,,,0,,,,Dollars,No,No,No
+Parent,Hotel Accommodations,,,Hotel Accommodations,,,,,0,,,,Dollars,No,No,No
+Parent,HRAi (Henry)‬‭ Humanoid Robot w/Ai‬,,,HRAi (Henry)‬‭ Humanoid Robot w/Ai‬,,,,,0,,,,Dollars,No,No,No
+Parent,HST-20 (HS&T 100% Ownership),,,HST-20 (HS&T 100% Ownership),,,,,0,,,,Dollars,No,No,No
+Parent,HST-20 Holobox (HS&T 100% Ownership),,,HST-20 Holobox (HS&T 100% Ownership),,,,,0,,,,Dollars,No,No,No
+Parent,HST-30 (HS&T 100% Ownership),,,HST-30 (HS&T 100% Ownership),,,,,0,,,,Dollars,No,No,No
+Parent,HST-30 Holobox (HS&T 100% Ownership),,,HST-30 Holobox (HS&T 100% Ownership),,,,,0,,,,Dollars,No,No,No
+Parent,HST-84 (Ownership 50% HS&T and TLC),,,HST-84 (Ownership 50% HS&T and TLC),,,,,0,,,,Dollars,No,No,No
+Parent,HST-84 Holobox (Ownership 50% HS&T and TLC),,,HST-84 Holobox (Ownership 50% HS&T and TLC),,,,,0,,,,Dollars,No,No,No
+Parent,HST-86 Transparent 3D Hologram Display: Deposit,,,HST-86 Transparent 3D Hologram Display: Deposit,,,,,0,,,,Dollars,No,No,No
+Parent,HST30 22-Inch Holographic Display Extended Warranty: One Year,,,HST30 22-Inch Holographic Display Extended Warranty: One Year,,,,,0,,,,Dollars,No,No,No
+Parent,HST30 22-Inch Holographic Display Road Case,,,HST30 22-Inch Holographic Display Road Case,,,,,0,,,,Dollars,No,No,No
+Parent,HST30 22-Inch Holographic Display Technical Support,,,HST30 22-Inch Holographic Display Technical Support,,,,,0,,,,Dollars,No,No,No
+Parent,"Humanoid ""Henry"" G1 Rental",,,"Humanoid ""Henry"" G1 Rental",,,,,0,,,,Dollars,No,No,No
+Parent,Image Processing (Estimate based on Range $5000-$15000),,,Image Processing (Estimate based on Range $5000-$15000),,,,,0,,,,Dollars,No,No,No
+Parent,Image Processing: Second Media Server,,,Image Processing: Second Media Server,,,,,0,,,,Dollars,No,No,No
+Parent,Indoor Drone Show (T-Mobile Arena & MGM),,,Indoor Drone Show (T-Mobile Arena & MGM),,,,,0,,,,Dollars,No,No,No
+Parent,Inflatable Air Soccer Drone Arena/Enclosure,,,Inflatable Air Soccer Drone Arena/Enclosure,,,,,0,,,,Dollars,No,No,No
+Parent,"Installation in Venice, Italy",,,"Installation in Venice, Italy",,,,,0,,,,Dollars,No,No,No
+Parent,Installation Onsite,,,Installation Onsite,,,,,0,,,,Dollars,No,No,No
+Parent,Insurance for Dreamforce Press Event,,,Insurance for Dreamforce Press Event,,,,,0,,,,Dollars,No,No,No
+Parent,January 2025 Rental - Paid Check Date 1/17/2025,,,January 2025 Rental - Paid Check Date 1/17/2025,,,,,0,,,,Dollars,No,No,No
+Parent,June 2025 Rental,,,June 2025 Rental,,,,,0,,,,Dollars,No,No,No
+Parent,Labor,,,Labor,,,,,0,,,,Dollars,No,No,No
+Parent,Labor & Delivery of Transparent Holographic Display,,,Labor & Delivery of Transparent Holographic Display,,,,,0,,,,Dollars,No,No,No
+Parent,Labor & tech support TBD,,,Labor & tech support TBD,,,,,0,,,,Dollars,No,No,No
+Parent,Labor for Initial Setup and Adjustment of CO2 Jets,,,Labor for Initial Setup and Adjustment of CO2 Jets,,,,,0,,,,Dollars,No,No,No
+Parent,Labor for Installation of CO2 Jet,,,Labor for Installation of CO2 Jet,,,,,0,,,,Dollars,No,No,No
+Parent,Labor Overtime & Per-Diem,,,Labor Overtime & Per-Diem,,,,,0,,,,Dollars,No,No,No
+Parent,Labor Per Diem,,,Labor Per Diem,,,,,0,,,,Dollars,No,No,No
+Parent,Labor Supplied by TLC,,,Labor Supplied by TLC,,,,,0,,,,Dollars,No,No,No
+Parent,"Labor/Technician for Setup, Test and Strike",,,"Labor/Technician for Setup, Test and Strike",,,,,0,,,,Dollars,No,No,No
+Parent,Labor/Technician per diem,,,Labor/Technician per diem,,,,,0,,,,Dollars,No,No,No
+Parent,Labor/Technician: Portal to Portal,,,Labor/Technician: Portal to Portal,,,,,0,,,,Dollars,No,No,No
+Parent,Large Shiny Metallic Orbs - Package,,,Large Shiny Metallic Orbs - Package,,,,,0,,,,Dollars,No,No,No
+Parent,Laser Control Systems,,,Laser Control Systems,,,,,0,,,,Dollars,No,No,No
+Parent,Laser Light Show Package,LASER,Show,"A high-impact visual package featuring professional-grade lasers synchronized to music, lighting, or custom cues. This system delivers crisp aerial beams, graphics, and atmospheric effects that elevate any live event or immersive experience.",,LSR-SHW-001,,,0,,20000,10000,Dollars,No,No,No
+Parent,Laser Light System,,,Laser Light System,,,,,0,,,,Dollars,No,No,No
+Parent,Laser programming and graphics (Standard programming),,,Laser programming and graphics (Standard programming),,,,,0,,,,Dollars,No,No,No
+Parent,Laser Show Programming & Design for Competitors,,,Laser Show Programming & Design for Competitors,,,,,0,,,,Dollars,No,No,No
+Parent,Lasers,,,Lasers,,,,,0,,,,Dollars,No,No,No
+Parent,Lasers - 40 watt full color with Pangolin software system,,,Lasers - 40 watt full color with Pangolin software system,,,,,0,,,,Dollars,No,No,No
+Parent,LED Ai Interactive Wall - Hardware/Labor - Package,,,LED Ai Interactive Wall - Hardware/Labor - Package,,,,,0,,,,Dollars,No,No,No
+Parent,LED Ai Interactive Wall - Software/Touchscreen - Package,,,LED Ai Interactive Wall - Software/Touchscreen - Package,,,,,0,,,,Dollars,No,No,No
+Parent,LED Ai Interactive Wall - Technician Labor - Day Rate for 3 people,,,LED Ai Interactive Wall - Technician Labor - Day Rate for 3 people,,,,,0,,,,Dollars,No,No,No
+Parent,LED Beach Ball Rental,,,LED Beach Ball Rental,,,,,0,,,,Dollars,No,No,No
+Parent,LED Beach Balls Rental Package Estimate,,,LED Beach Balls Rental Package Estimate,,,,,0,,,,Dollars,No,No,No
+Parent,LED Beach Balls: Rental,,,LED Beach Balls: Rental,,,,,0,,,,Dollars,No,No,No
+Parent,LED Lanyard Rental Package,,,LED Lanyard Rental Package,,,,,0,,,,Dollars,No,No,No
+Parent,LED Lanyard w/Zone Control & Technician,,,LED Lanyard w/Zone Control & Technician,,,,,0,,,,Dollars,No,No,No
+Parent,LED Table Orbs: Rental,,,LED Table Orbs: Rental,,,,,0,,,,Dollars,No,No,No
+Parent,LED Wall,,,LED Wall,,,,,0,,,,Dollars,No,No,No
+Parent,Lighting for Holiday Party Package,,,Lighting for Holiday Party Package,,,,,0,,,,Dollars,No,No,No
+Parent,Lighting Show Package,LIGHTS,Show,"A turnkey lighting system designed to transform any venue with dynamic visual impact. This package includes programmable intelligent lights, control systems, and rigging for a synchronized, high-energy light show. Ideal for concerts, corporate events, and private parties.",,LGT-SHW-001,,,0,,20000,10000,Dollars,No,No,No
+Parent,Line Items,,,Line Items,,,,,0,,,,Dollars,No,No,No
+Parent,Low Lying Fog,,,Low Lying Fog,,,,,0,,,,Dollars,No,No,No
+Parent,Makeup / Prosthetic / Onsite Makeup / Rush,,,Makeup / Prosthetic / Onsite Makeup / Rush,,,,,0,,,,Dollars,No,No,No
+Parent,March 2025 Rental,,,March 2025 Rental,,,,,0,,,,Dollars,No,No,No
+Parent,Massonic 2 SUV (post-event transportation),,,Massonic 2 SUV (post-event transportation),,,,,0,,,,Dollars,No,No,No
+Parent,May 2025 Rental,,,May 2025 Rental,,,,,0,,,,Dollars,No,No,No
+Parent,Meals or Per-Diem,,,Meals or Per-Diem,,,,,0,,,,Dollars,No,No,No
+Parent,Media Design and Program,,,Media Design and Program,,,,,0,,,,Dollars,No,No,No
+Parent,Media Upload and Test,,,Media Upload and Test,,,,,0,,,,Dollars,No,No,No
+Parent,Mini Holobox,,,Mini Holobox,,,,,0,,,,Dollars,No,No,No
+Parent,"Misc items (Speakers, glue, wireless transmitters)",,,"Misc items (Speakers, glue, wireless transmitters)",,,,,0,,,,Dollars,No,No,No
+Parent,Mixmaster II Robot Bartender Activation,,,Mixmaster II Robot Bartender Activation,,,,,0,,,,Dollars,No,No,No
+Parent,Module Collection,,,Module Collection,,,,,0,,,,Dollars,No,No,No
+Parent,Non-Recoverable Costs Due to Postponement,,,Non-Recoverable Costs Due to Postponement,,,,,0,,,,Dollars,No,No,No
+Parent,Robotics TLC Purchase,ROBOTICS,Purchase,Roobotic Equipment Purchased by TLC,,ROB-PUR-TLC,,,0,,,,Dollars,No,No,No
+Parent,Onsite Robot Arm Programmer,,,On-site Robot Arm Programmer,,,,,0,,,,Dollars,No,No,No
+Parent,Onsite Laser Technician Services,,,Onsite Laser Technician Services,,,,,0,,,,Dollars,No,No,No
+Parent,Onsite Laserjet Printer,,,Onsite Laserjet Printer,,,,,0,,,,Dollars,No,No,No
+Parent,Onsite Pre-show Engineering - San Francisco,,,Onsite Pre-show Engineering - San Francisco,,,,,0,,,,Dollars,No,No,No
+Parent,Onsite Technical Production Advisor,,,Onsite Technical Production Advisor,,,,,0,,,,Dollars,No,No,No
+Parent,Onsite Testing,,,Onsite Testing,,,,,0,,,,Dollars,No,No,No
+Parent,T&E-Parking,T&E,Parking,Parking,,,,,0,,,,Dollars,No,No,No
+Parent,Payment,,,Payment,,,,,0,,,,Dollars,No,No,No
+Parent,T&E-Per Diem,T&E,PerDiem,Per Diem,,,,,0,,,,Dollars,No,No,No
+Parent,Plexi Glass Holder,,,Plexi Glass Holder,,,,,0,,,,Dollars,No,No,No
+Parent,Pool Projection,Projection,Pool,Caesars Palace Pool Projection,,,,,0,,,,Dollars,No,No,No
+Parent,Power Banks for Robotics,,,Power Banks for Robotics,,,,,0,,,,Dollars,No,No,No
+Parent,Pre-Installation,,,Pre-Installation,,,,,0,,,,Dollars,No,No,No
+Parent,Pre-Production Planning,,,Pre-Production Planning,,,,,0,,,,Dollars,No,No,No
+Parent,Pre-Production Support,,,Pre-Production Support,,,,,0,,,,Dollars,No,No,No
+Parent,Tanks - Helium,TANKS,Helium,Premium Helium Tanks,,TNK-HEL-291,,,0,,495,1000,Dollars,No,No,No
+Parent,Premium Helium Tanks - Last Minute Cancellation,,,Premium Helium Tanks - Last Minute Cancellation,,,,,0,,,,Dollars,No,No,No
+Parent,Printing for Show,,,Printing for TDX,,,,,0,,,,Dollars,No,No,No
+Parent,Projection Water System/Screen (PWS),,,Projection Water System/Screen (PWS),,,,,0,,,,Dollars,No,No,No
+Parent,Projectionist / Logistics / Expenses,,,Projectionist / Logistics / Expenses,,,,,0,,,,Dollars,No,No,No
+Parent,Projector & inflatable screen,,,Projector & inflatable screen,,,,,0,,,,Dollars,No,No,No
+Parent,Projector Management & Content Conversion,,,Projector Management & Content Conversion,,,,,0,,,,Dollars,No,No,No
+Parent,PWS: “Projection Water System/Screen”,,,PWS: “Projection Water System/Screen”,,,,,0,,,,Dollars,No,No,No
+Parent,Pyro effects - Estimate,,,Pyro effects - Estimate,,,,,0,,,,Dollars,No,No,No
+Parent,R Dog Ai with ai Lidar,,,R Dog Ai with ai Lidar,,,,,0,,,,Dollars,No,No,No
+Parent,R Dog Wagon,,,R Dog Wagon,,,,,0,,,,Dollars,No,No,No
+Parent,RA-Eye (Ai) (Captain)‬Robot Arm with Ai Eye,,,RA-Eye (Ai) (Captain)‬Robot Arm with Ai Eye,,,,,0,,,,Dollars,No,No,No
+Parent,Rdog mounting rails for carry system,,,Rdog mounting rails for carry system,,,,,0,,,,Dollars,No,No,No
+Parent,Remote Controlled Light Up Lanyards: Purchase,,,Remote Controlled Light Up Lanyards: Purchase,,,,,0,,,,Dollars,No,No,No
+Parent,Remote Controlled Light Up Lanyards: Package,,,Remote Controlled Light Up Lanyards: Rental,,,,,0,,,,Dollars,No,No,No
+Parent,Remote Controlled Light Up Wristbands: Purchase,,,Remote Controlled Light Up Wristbands: PURCHASE,,,,,0,,,,Dollars,No,No,No
+Parent,Remote Controlled Light Up Wristbands: Package,,,Remote Controlled Light Up Wristbands: PURCHASE PACKAGE,,,,,0,,,,Dollars,No,No,No
+Parent,Remotes and interfaces,,,Remotes and interfaces,,,,,0,,,,Dollars,No,No,No
+Parent,Tanks - Hose Repair,,,Replace Short CO2 Lines Due to Kink in Hose,,,,,0,,,,Dollars,No,No,No
+Parent,Replacement Beach Balls --- Touring Show,,,Replacement Beach Balls --- Touring Show,,,,,0,,,,Dollars,No,No,No
+Parent,Ship - Return Shipping,SHIP,Return,Return Shipping,,SHP-RTN-001,,,0,,,,Dollars,No,No,No
+Parent,RFID System for Object Scanning and Video Playback,RFID,System,RFID System for Object Scanning and Video Playback,,RFID-SYS-001,,,0,,,,Dollars,No,No,No
+Parent,RFID Technician Services,SVC,RFIDTech,RFID Technician Services,,SVC-RFID-TECH,,,0,,,,Dollars,No,No,No
+Parent,Robot - Thing Robot Hand,ROBOT,Think,RH (Ai)‬‭ Thing Robot Hand,,ROB-ROB-HND,,,0,,,,Dollars,No,No,No
+Parent,Road Case for HST-84,SHIP,Roadcase,Road Case for HST-84,,SHP-CASE-86,,,0,,,,Dollars,No,No,No
+Parent,"Robot ""Flo"" and Technicians",,,"Robot ""Flo"" and Technicians",,,,,0,,,,Dollars,No,No,No
+Parent,Robot Arm & Endafactor,,,Robot Arm & Endafactor,,,,,0,,,,Dollars,No,No,No
+Parent,Robot Arms,,,Robot Arms,,,,,0,,,,Dollars,No,No,No
+Parent,Robot Bartender Server Arm,,,Robot Bartender Server Arm,,,,,0,,,,Dollars,No,No,No
+Parent,Robot Dog Branding,,,Robot Dog Branding,,,,,0,,,,Dollars,No,No,No
+Parent,Robot Dog Cart/Wagon,,,Robot Dog Cart/Wagon,,,,,0,,,,Dollars,No,No,No
+Parent,Robot Fleet,,,Robot Fleet,,,,,0,,,,Dollars,No,No,No
+Parent,Robot Handler,ROBOTICS,Handler,"A Robot Handler is responsible for the setup, monitoring, and manual control of robotic systems during production, events, or demonstrations. They ensure the robot functions safely and efficiently, following pre-programmed sequences or real-time control inputs.",,SVC-ROB-SUP,,,0,,1200,400,Dollars,No,No,No
+Parent,Robot Programming Tech,ROBOTICS,Technician,"A Robot Programming Technician is responsible for configuring, testing, and maintaining robotic systems used in manufacturing, entertainment, or special effects environments. This role involves writing, debugging, and optimizing motion paths and logic routines to ensure safe and precise robot operation.",,SVC-ROB-TECH,,,0,,1500,400,Dollars,No,No,No
+Parent,Robot Supervisors,ROBOTICS,Supervisor,"The Robot Supervisor oversees the operation, programming, and safety of robotic systems in live environments, production settings, or technical installations. They manage a team of operators and technicians to ensure the robots function as intended and meet performance standards.",,SVC-ROB-SUP,,,0,,1500,400,Dollars,No,No,No
+Parent,Robotic Barista -MM2,,,Robotic Barista Rental: PURCHASE ORDER # 241300,,,,,0,,,,Dollars,No,No,No
+Parent,Robotic Barista-MM1,,,Robotic Barista,,,,,0,,,,Dollars,No,No,No
+Parent,Robotic Chess,,,Robotic Chess,,,,,0,,,,Dollars,No,No,No
+Parent,Robotic Server Arm,,,Robotic Server Arm,,,,,0,,,,Dollars,No,No,No
+Parent,Robotic Server Arm Package,,,Robotic Server Arm Package,,,,,0,,,,Dollars,No,No,No
+Parent,Robotic Services Deposit,,,Robotic Services Deposit,,,,,0,,,,Dollars,No,No,No
+Parent,Robotics Event Technology Package,,,Robotics Event Technology Package,,,,,0,,,,Dollars,No,No,No
+Parent,"Robotics Rental"" Wall-E Bot",,,"Robotics Rental"" Wall-E Bot",,,,,0,,,,Dollars,No,No,No
+Parent,Scope of Technical Consultation Services,,,Scope of Technical Consultation Services,,,,,0,,,,Dollars,No,No,No
+Parent,Scorpion Bartender Package,,,Scorpion Bartender Package,,,,,0,,,,Dollars,No,No,No
+Parent,Second Technician: OPTION,,,Second Technician: OPTION,,,,,0,,,,Dollars,No,No,No
+Parent,Shipping,,,Shipping,,,,,0,,,,Dollars,No,No,No
+Parent,Shipping & Handling,,,Shipping & Handling,,,,,0,,,,Dollars,No,No,No
+Parent,Silent Storm Confetti Blowers,,,Silent Storm Confetti Blowers,,,,,0,,,,Dollars,No,No,No
+Parent,Simulated Fire Special Effect FOG system,,,Simulated Fire Special Effect FOG system,,,,,0,,,,Dollars,No,No,No
+Parent,Snow Machines,,,Snow Machines,,,,,0,,,,Dollars,No,No,No
+Parent,Special Effects Package,,,Special Effects Package,,,,,0,,,,Dollars,No,No,No
+Parent,SPONSORSHIP,,,SPONSORSHIP,,,,,0,,,,Dollars,No,No,No
+Parent,Storage Fee for Late Pickup,,,Storage Fee for Late Pickup,,,,,0,,,,Dollars,No,No,No
+Parent,T & E,,,T & E,,,,,0,,,,Dollars,No,No,No
+Parent,"T&E (Travel, Ground transportation, Shipping & handling)",,,"T&E (Travel, Ground transportation, Shipping & handling)",,,,,0,,,,Dollars,No,No,No
+Parent,Tanks Rental Fee,,,Tank Rental Fee,,,,,0,,,,Dollars,No,No,No
+Parent,Tanks Service - (Discharge - Change - Verify - Pressurize),,,Tank Service - (Discharge - Change - Verify - Pressurize),,,,,0,,,,Dollars,No,No,No
+Parent,Tanks - Dewar CO2 - New Footprint,,,Tanks - Dewar CO2 - New Footprint,,,,,0,,,,Dollars,No,No,No
+Parent,Tanks - Force Majure,,,Tanks - Force Majure,,,,,0,,,,Dollars,No,No,No
+Parent,Tanks - Hazmat Fee,,,Tanks - Hazmat Fee,,,,,0,,,,Dollars,No,No,No
+Parent,Tanks - Weekly Rental Fee,,,Tanks - Weekly Rental Fee,,,,,0,,,,Dollars,No,No,No
+Parent,Tavel: Robot Handler & Technicians,,,Tavel: Robot Handler & Technicians,,,,,0,,,,Dollars,No,No,No
+Parent,Technical Consultation Services,,,Technical Consultation Services,,,,,0,,,,Dollars,No,No,No
+Parent,Technical Staffing,,,Technical Staffing,,,,,0,,,,Dollars,No,No,No
+Parent,Technician - Setup Holobox,,,Technician - Setup Holobox,,,,,0,,,,Dollars,No,No,No
+Parent,Technician and labor Services,,,Technician and labor Services,,,,,0,,,,Dollars,No,No,No
+Parent,Technician Services,,,Technician Services,,,,,0,,,,Dollars,No,No,No
+Parent,Technician Services and Controller Rental,,,Technician Services and Controller Rental,,,,,0,,,,Dollars,No,No,No
+Parent,Technician Support Services,,,Technician Support Services,,,,,0,,,,Dollars,No,No,No
+Parent,Technicians,,,Technicians,,,,,0,,,,Dollars,No,No,No
+Parent,Technology Package,,,Technology Package,,,,,0,,,,Dollars,No,No,No
+Parent,THREE Video projectors with Media Server,,,THREE Video projectors with Media Server,,,,,0,,,,Dollars,No,No,No
+Parent,TLC - Laser system with tech and support.,,,TLC - Laser system with tech and support.,,,,,0,,,,Dollars,No,No,No
+Parent,"TLC Monthly Service: Effective Dates: March 1, 2025 – March 1, 2026",,,"TLC Monthly Service: Effective Dates: March 1, 2025 – March 1, 2026",,,,,0,,,,Dollars,No,No,No
+Parent,TLC overage Paid February 10th 2025 Inv #230179044,,,TLC overage Paid February 10th 2025 Inv #230179044,,,,,0,,,,Dollars,No,No,No
+Parent,TLC Service Overage,,,TLC Service Overage,,,,,0,,,,Dollars,No,No,No
+Parent,TLC Service Overage Payment Schedule,,,TLC Service Overage Payment Schedule,,,,,0,,,,Dollars,No,No,No
+Parent,Transmission Controller Rental,,,Transmission Controller Rental,,,,,0,,,,Dollars,No,No,No
+Parent,Transparent Holographic Display Purchase,,,Transparent Holographic Display Purchase,,,,,0,,,,Dollars,No,No,No
+Parent,Transportation & Shipping,,,Transportation & Shipping,,,,,0,,,,Dollars,No,No,No
+Parent,Travel accommodations Buyout,,,Travel accommodations Buyout,,,,,0,,,,Dollars,No,No,No
+Parent,Travel and Accommodation Estimated Costs**,,,Travel and Accommodation Estimated Costs**,,,,,0,,,,Dollars,No,No,No
+Parent,Travel and Accommodations: 3 Technicians,,,Travel and Accommodations: 3 Technicians,,,,,0,,,,Dollars,No,No,No
+Parent,Travel Expenses for Installation,,,Travel Expenses for Installation,,,,,0,,,,Dollars,No,No,No
+Parent,Travel fees / per-diems,,,Travel fees / per-diems,,,,,0,,,,Dollars,No,No,No
+Parent,"Travel, Accommodations, Meals",,,"Travel, Accommodations, Meals",,,,,0,,,,Dollars,No,No,No
+Parent,"Travel, Accommodations, Per-diem, Shipping: Buyout",,,"Travel, Accommodations, Per-diem, Shipping: Buyout",,,,,0,,,,Dollars,No,No,No
+Parent,"Travel, Accommodations, Shipping & Handling",,,"Travel, Accommodations, Shipping & Handling",,,,,0,,,,Dollars,No,No,No
+Parent,"Travel, Accommodations, Shipping & handling",,,"Travel, Accommodations, Shipping & handling",,,,,0,,,,Dollars,No,No,No
+Parent,"Travel, Ground transportation, Shipping & handling",,,"Travel, Ground transportation, Shipping & handling",,,,,0,,,,Dollars,No,No,No
+Parent,TRON Robot Rental,,,TRON Robot Rental,,,,,0,,,,Dollars,No,No,No
+Parent,"Truck Usage (Pickup and Return-Oceanside, CA)",,,"Truck Usage (Pickup and Return-Oceanside, CA)",,,,,0,,,,Dollars,No,No,No
+Parent,Trucking,,,Trucking,,,,,0,,,,Dollars,No,No,No
+Parent,Two Event Package,,,Two Event Package,,,,,0,,,,Dollars,No,No,No
+Parent,Valet for truck,,,Valet for truck,,,,,0,,,,Dollars,No,No,No
+Parent,Voice Prompt System,,,Voice Prompt System,,,,,0,,,,Dollars,No,No,No
+Parent,Wagon/cart branding,,,Wagon/cart branding,,,,,0,,,,Dollars,No,No,No
+Parent,Wall-E Bot,,,Wall-E Bot,,,,,0,,,,Dollars,No,No,No
+Parent,Water Screen-10 Feet Modules,PROJECTION,Water Modules,"A modular water projection surface that forms a vertical sheet of falling water, ideal for high-impact video and laser projection. Each 10-foot section can be combined for custom widths and configured for indoor or outdoor use.",,PRO-WAT-10ft,,,0,,2000,500,Dollars,No,No,No
+Parent,Water Wall Scrim - Estimate,,,Water Wall Scrim - Estimate,,,,,0,,,,Dollars,No,No,No
+Parent,WBS‬‭ Walle Bot (Short)‬,,,WBS‬‭ Walle Bot (Short)‬,,,,,0,,,,Dollars,No,No,No
+Parent,WBT‬ Walle Bot (Tall),,,WBT‬ Walle Bot (Tall),,,,,0,,,,Dollars,No,No,No
+Parent,Weekend Service and Hose Repair,,,Weekend Service and Hose Repair,,,,,0,,,,Dollars,No,No,No
+Parent,Weekly Tank Rental,,,Weekly Tank Rental,,,,,0,,,,Dollars,No,No,No
+Parent,Wrapping Services,,,Wrapping Services,,,,,0,,,,Dollars,No,No,No

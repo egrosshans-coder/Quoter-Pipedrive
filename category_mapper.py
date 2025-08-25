@@ -14,6 +14,100 @@ load_dotenv()
 # Cache for categories to avoid repeated API calls
 _categories_cache = None
 
+# Cache for Pipedrive to Quoter category mappings
+_pipedrive_to_quoter_cache = {}
+
+def get_pipedrive_to_quoter_mapping():
+    """Get the mapping from Pipedrive category IDs to Quoter category information."""
+    global _pipedrive_to_quoter_cache
+    
+    if _pipedrive_to_quoter_cache:
+        return _pipedrive_to_quoter_cache
+    
+    # Comprehensive mapping from Pipedrive category IDs to Quoter category information
+    # Based on VERIFIED Pipedrive data (no assumptions)
+    mapping = {
+        # VERIFIED CATEGORIES from Pipedrive API
+        28: {"name": "Hologram", "quoter_id": "cat_30LNfXTaWG0yu173faTJEiAIU1e"},
+        29: {"name": "Laser", "quoter_id": "cat_30LNfZkrGEwUAgOW7BYnb05ftCz"},
+        30: {"name": "Robotics", "quoter_id": "cat_30LNfYXnk657htcR39QF5y3qWgh"},
+        31: {"name": "Fog", "quoter_id": "cat_30LNff2sfuMH27xwymRGG00vrPE"},
+        32: {"name": "Snow", "quoter_id": "cat_30LNfSnow"},
+        33: {"name": "Fire", "quoter_id": "cat_30LNfFire"},
+        34: {"name": "Water", "quoter_id": "cat_30LNfmnUOBkf1hJ0YyPpYe18pkH"},
+        35: {"name": "Drones", "quoter_id": "cat_30LNfYZ7SuMTuobYMDmCyBDommp"},
+        36: {"name": "Wristbands/Lanyards/Orbs", "quoter_id": "cat_30LNfVVNvu8coIPyXgqLeUFqp2I"},
+        38: {"name": "LED Tubes/Floor/Panels", "quoter_id": "cat_30LNfZPYF9vwZjzdvqgfuL6pNI3"},
+        42: {"name": "Balloons", "quoter_id": "cat_30LNfY0GaYgL4XAkEwRzLF1qYRv"},
+        43: {"name": "Spheres", "quoter_id": "cat_30LNfXWDuxpEXJv1Suc8JODZcEe"},
+        55: {"name": "Drones", "quoter_id": "cat_30LNfYZ7SuMTuobYMDmCyBDommp"},
+        94: {"name": "Pyro", "quoter_id": "cat_30LNfdY5ZPBbzlzzpLlW4XjKjkH"},
+        101: {"name": "Tanks", "quoter_id": "cat_30LNfhhYMRvMhqU2ml5RmnBqVcA"},
+        102: {"name": "Confetti/Streamers", "quoter_id": "cat_30LNfdtY40hB9AWRtcNYWLqKm1K"},
+        104: {"name": "CO2", "quoter_id": "cat_30LNfdXXFqn4K7EQgplUoqP24GS"},
+        109: {"name": "Electrical", "quoter_id": "cat_30LNfElectrical"},
+        110: {"name": "Projection", "quoter_id": "cat_30LNfXrtJJWmNlbh5FwKr57KwWm"},
+        359: {"name": "Bubbles", "quoter_id": "cat_30LNfBubbles"},
+        360: {"name": "Apparel", "quoter_id": "cat_30LNfmxxRpwnvIP9PWeoKfIWXnC"},
+        361: {"name": "AI", "quoter_id": "cat_30LNfn2pcAMmCBZ6rYNL4Lsg2kA"},
+        362: {"name": "Reveal", "quoter_id": "cat_30LNfReveal"},
+        396: {"name": "Inflatables", "quoter_id": "cat_30LNfInflatables"},
+    }
+    
+    _pipedrive_to_quoter_cache = mapping
+    return mapping
+
+def get_quoter_category_from_pipedrive_id(pipedrive_id):
+    """Get Quoter category information from a Pipedrive category ID."""
+    mapping = get_pipedrive_to_quoter_mapping()
+    
+    if pipedrive_id not in mapping:
+        logger.warning(f"Pipedrive category ID {pipedrive_id} not found in mapping")
+        return None
+    
+    return mapping[pipedrive_id]
+
+def get_verified_subcategory_hierarchy():
+    """Get the verified subcategory hierarchy based on Pipedrive data."""
+    return {
+        "Hologram": ["FV", "FV-Graphics", "HoloTable", "HoloPortal", "HoloPod", "Virtual-Stage", "Holopod"],
+        "Laser": ["30Watt", "40Watt", "Tripod", "Sphere", "Mapping", "Cables", "Show", "Graphics", "Cannons", "Array"],
+        "Robotics": ["Dog", "Arm", "Walle", "Character"],
+        "Fog": ["Walle", "LLF", "Fogger", "LLF-Fluid", "LLF-Control", "Fog-Bubbles"],
+        "Snow": ["Hillside", "Machines"],
+        "Fire": [],
+        "Water": ["FX", "Screens", "Dancing", "Intelligent", "Mist-Curtain"],
+        "Drones": ["Indoor", "Outdoor", "Delivery", "Camera", "Soccer"],
+        "Wristbands/Lanyards/Orbs": ["Landyard-Xylo", "Orbs", "Technician-Wristbands", "Wristband-Xylo", "Controller-Xylo", "Handheld-Xylo", "Launchpad", "Laptop", "Deposit", "Branding", "Wristband-TLC", "Landyard-TLC", "GlowBalls", "GlowOrbs", "Programming", "Controller-TLC", "Transmitter", "Glowballs"],
+        "LED Tubes/Floor/Panels": ["Mesh", "Floor", "Panel", "Letters", "Tubes", "Tubes-Kinetic", "Panels-Vertical", "LED Shapes", "AI-Engage", "Screens"],
+        "Balloons": ["Moon", "Wall-Flying", "Drop"],
+        "Spheres": ["Mirrored", "Inflatable-Metalic"],
+        "Pyro": ["Granuals", "WSF", "Fire", "Fireworks", "Faux"],
+        "Tanks": ["Dewar", "Nitrogen", "Syphon", "1-to-3 Splitter"],
+        "Confetti/Streamers": ["Cannons", "Confetti", "Streamers", "Streamers-Custom", "Launch-Custom"],
+        "CO2": ["Cryo-Jet"],
+        "Electrical": ["Relay-Pack"],
+        "Projection": ["Mapping", "Video-Globes", "Video", "Technician-Laser", "Technician-Projectionist", "Kinetic"],
+        "Bubbles": [],
+        "Apparel": ["LED-Costumes"],
+        "AI": ["DJ"],
+        "Reveal": ["Pullaway-Kabuki"],
+        "Inflatables": ["DraftQuote"]
+    }
+
+def get_category_path_from_pipedrive_id(pipedrive_id):
+    """Get the full category path for a Pipedrive category ID."""
+    quoter_info = get_quoter_category_from_pipedrive_id(pipedrive_id)
+    
+    if not quoter_info or not quoter_info.get('quoter_id'):
+        return f"Unknown Category ID: {pipedrive_id}"
+    
+    # If we have a parent, build the full path
+    if quoter_info.get('parent'):
+        return f"{quoter_info['parent']} / {quoter_info['name']}"
+    else:
+        return quoter_info['name']
+
 def get_all_categories():
     """Fetch all categories from Quoter API with caching."""
     global _categories_cache
@@ -40,7 +134,7 @@ def get_all_categories():
         while True:
             params = {
                 "limit": limit,
-                "offset": offset
+                "page": offset // limit + 1  # Convert offset to page number
             }
             
             response = requests.get(endpoint, headers=headers, params=params, timeout=10)

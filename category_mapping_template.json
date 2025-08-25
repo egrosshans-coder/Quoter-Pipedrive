@@ -1,0 +1,656 @@
+{
+  "current_mappings": {
+    "Tanks": 30,
+    "Balloons": 31,
+    "Hologram": 28,
+    "Service": 29,
+    "1-to-3 Splitter": 40,
+    "Drop": 41,
+    "FV": 42
+  },
+  "suggested_new_mappings": {
+    "Product": {
+      "quoter_id": "cat_2zvQaf22S854NWwBhURxjIe3iDk",
+      "parent_category": null,
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Wristbands/Lanyards/Orbs": {
+      "quoter_id": "cat_30LNfVVNvu8coIPyXgqLeUFqp2I",
+      "parent_category": null,
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Spheres": {
+      "quoter_id": "cat_30LNfXWDuxpEXJv1Suc8JODZcEe",
+      "parent_category": null,
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Projection": {
+      "quoter_id": "cat_30LNfXrtJJWmNlbh5FwKr57KwWm",
+      "parent_category": null,
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Robotics": {
+      "quoter_id": "cat_30LNfYXnk657htcR39QF5y3qWgh",
+      "parent_category": null,
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Drones": {
+      "quoter_id": "cat_30LNfYZ7SuMTuobYMDmCyBDommp",
+      "parent_category": null,
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "LED Tubes/Floor/Panels": {
+      "quoter_id": "cat_30LNfZPYF9vwZjzdvqgfuL6pNI3",
+      "parent_category": null,
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Laser": {
+      "quoter_id": "cat_30LNfZkrGEwUAgOW7BYnb05ftCz",
+      "parent_category": null,
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Electrical": {
+      "quoter_id": "cat_30LNfc47qqQ8Jhpqd7AKjDhDKrt",
+      "parent_category": null,
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "CO2": {
+      "quoter_id": "cat_30LNfdXXFqn4K7EQgplUoqP24GS",
+      "parent_category": null,
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Pyro": {
+      "quoter_id": "cat_30LNfdY5ZPBbzlzzpLlW4XjKjkH",
+      "parent_category": null,
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Confetti/Streamers": {
+      "quoter_id": "cat_30LNfdtY40hB9AWRtcNYWLqKm1K",
+      "parent_category": null,
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Fog": {
+      "quoter_id": "cat_30LNff2sfuMH27xwymRGG00vrPE",
+      "parent_category": null,
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Bubbles": {
+      "quoter_id": "cat_30LNfjSveGKWxGL2W2Uz6s7MwdG",
+      "parent_category": null,
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Reveal": {
+      "quoter_id": "cat_30LNfjupkRhTG3kMFCGCgzugoqG",
+      "parent_category": null,
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Water": {
+      "quoter_id": "cat_30LNfmnUOBkf1hJ0YyPpYe18pkH",
+      "parent_category": null,
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Apparel": {
+      "quoter_id": "cat_30LNfmxxRpwnvIP9PWeoKfIWXnC",
+      "parent_category": null,
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "AI": {
+      "quoter_id": "cat_30LNfn2pcAMmCBZ6rYNL4Lsg2kA",
+      "parent_category": null,
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Snow": {
+      "quoter_id": "cat_30LNfoUmNtPvgHu1S2ADY44qGZe",
+      "parent_category": null,
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Instructions": {
+      "quoter_id": "cat_31IQMODwWkeshcyETxiFelGyggH",
+      "parent_category": null,
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Sphere": {
+      "quoter_id": "cat_30LNfUGzvP234ksrsl6GuL1prnk",
+      "parent_category": "Laser",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Outdoor": {
+      "quoter_id": "cat_30LNfUH9hjcEDVrgM0uwYxt6fdF",
+      "parent_category": "Drones",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Mirrored": {
+      "quoter_id": "cat_30LNfUo6njOmBNH0I2kPCeog7xf",
+      "parent_category": "Spheres",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Panel": {
+      "quoter_id": "cat_30LNfVXUjErEcm13lFc1XWJSnxB",
+      "parent_category": "LED Tubes/Floor/Panels",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Dog": {
+      "quoter_id": "cat_30LNfVXgtLnGZFgwezlYqNqE9yf",
+      "parent_category": "Robotics",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Mapping": {
+      "quoter_id": "cat_30LNfeXyGLEx7hcvDayMwqt4xSV",
+      "parent_category": "Laser",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Landyard-Xylo": {
+      "quoter_id": "cat_30LNfWXQsLFbvCft1Ugxh3odcrw",
+      "parent_category": "Wristbands/Lanyards/Orbs",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Walle": {
+      "quoter_id": "cat_30LNfao0yEU899tkWsjVzjYIvof",
+      "parent_category": "Robotics",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Floor": {
+      "quoter_id": "cat_30LNfXCOXSMDxFCw4sn8JGU49ye",
+      "parent_category": "LED Tubes/Floor/Panels",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Tripod": {
+      "quoter_id": "cat_30LNfYRhZPJNnck8hlpPtQ2H6vr",
+      "parent_category": "Laser",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Mesh": {
+      "quoter_id": "cat_30LNfYq2uZPel8iyHNSE7YkKvgt",
+      "parent_category": "LED Tubes/Floor/Panels",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Arm": {
+      "quoter_id": "cat_30LNfYqwaryMtnFMLIHLlsq6i2Q",
+      "parent_category": "Robotics",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "30Watt": {
+      "quoter_id": "cat_30LNfZEwQd2GYyce8a19IfPguK2",
+      "parent_category": "Laser",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Moon": {
+      "quoter_id": "cat_30LNfZy9G94KJpgxkjkvOVwxBVk",
+      "parent_category": "Balloons",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Orbs": {
+      "quoter_id": "cat_30LNfaEuPlJ6GVpqnZBOdEwtDUZ",
+      "parent_category": "Wristbands/Lanyards/Orbs",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Letters": {
+      "quoter_id": "cat_30LNfazWDXan5t8EqKAEisIVuvz",
+      "parent_category": "LED Tubes/Floor/Panels",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Indoor": {
+      "quoter_id": "cat_30LNfbORrJajE15fqQ4kJ5wAZeP",
+      "parent_category": "Drones",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Graphics": {
+      "quoter_id": "cat_30LNfbtugAftwuROtr0dNYqPctu",
+      "parent_category": "Laser",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Wristband-TLC": {
+      "quoter_id": "cat_30LNfc81H3efbZFUrQkUc9v1Laa",
+      "parent_category": "Wristbands/Lanyards/Orbs",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Launchpad": {
+      "quoter_id": "cat_30LNfc9qGMwxyhqhUa34DJzLxkt",
+      "parent_category": "Wristbands/Lanyards/Orbs",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Cryo-Jet": {
+      "quoter_id": "cat_30LNfcsNRBEYUgBwwutYkvqnthJ",
+      "parent_category": "CO2",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Tubes": {
+      "quoter_id": "cat_30LNfctefX5aRmUupHxXQEFsEQz",
+      "parent_category": "LED Tubes/Floor/Panels",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Syphon": {
+      "quoter_id": "cat_30LNfdaxqj46oF6Q8Urd3fH9b7q",
+      "parent_category": "Tanks",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "WSF": {
+      "quoter_id": "cat_30LNfdnLxoHmQgiYLKcbuHvDVwM",
+      "parent_category": "Pyro",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "LLF-Control": {
+      "quoter_id": "cat_30LNfdv27RnBHLhE2hNTXYq69zT",
+      "parent_category": "Fog",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Laptop": {
+      "quoter_id": "cat_30LNfe1B77147IXFgkcLlPClxvL",
+      "parent_category": "Wristbands/Lanyards/Orbs",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Cables": {
+      "quoter_id": "cat_30LNfe2yZ62jvzEJzJGJnwja8wK",
+      "parent_category": "Laser",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Wall-Flying": {
+      "quoter_id": "cat_30LNfeGqX2nGsMuHWOQjq70z8DX",
+      "parent_category": "Balloons",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "HoloPod": {
+      "quoter_id": "cat_30LNfeIbZsSgHbJwjYIjoDQQQZS",
+      "parent_category": "Hologram",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "FV-Graphics": {
+      "quoter_id": "cat_30LNfeItn4zY2tkCYrSSEmVa0UR",
+      "parent_category": "Hologram",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Streamers-Custom": {
+      "quoter_id": "cat_30LNfeMy6uByufTK0S9PQKcwGhk",
+      "parent_category": "Confetti/Streamers",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Landyard-TLC": {
+      "quoter_id": "cat_30LNff8UHeNsk3oUzqWiBW69XvK",
+      "parent_category": "Wristbands/Lanyards/Orbs",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "HoloTable": {
+      "quoter_id": "cat_30LNffTUHD68GwANZJ4sQ7WJqjZ",
+      "parent_category": "Hologram",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Show": {
+      "quoter_id": "cat_30LNffTwrheHsfjAdEhzsFoKQVf",
+      "parent_category": "Laser",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Fogger": {
+      "quoter_id": "cat_30LNffYTDYzFG6jeBRtADjMInQc",
+      "parent_category": "CO2",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Cannons": {
+      "quoter_id": "cat_30LNfnRBNoItQmnNs1YeZukyykj",
+      "parent_category": "Laser",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Handheld-Xylo": {
+      "quoter_id": "cat_30LNfgPmOCifE8DhZWQURDY1PxH",
+      "parent_category": "Wristbands/Lanyards/Orbs",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Technician-Wristbands": {
+      "quoter_id": "cat_30LNfgadqdFSj9OItJvFIGsJ9pS",
+      "parent_category": "Wristbands/Lanyards/Orbs",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Fire": {
+      "quoter_id": "cat_30LNfgiO0jxxg2fYu0Hku0vPMzr",
+      "parent_category": "Pyro",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Streamers": {
+      "quoter_id": "cat_30LNfh4DkXQyp1Wqr7APebAWRw3",
+      "parent_category": "Confetti/Streamers",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Launch-Custom": {
+      "quoter_id": "cat_30LNfhL8OjPZiacHpAhsVRvLzMN",
+      "parent_category": "Confetti/Streamers",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Confetti": {
+      "quoter_id": "cat_30LNfhVNdlY7ATZP4GCk8t4ZJ7z",
+      "parent_category": "Confetti/Streamers",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "HoloPortal": {
+      "quoter_id": "cat_30LNfhaF33jMJdQ70PQxK235Wi0",
+      "parent_category": "Hologram",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Tubes-Kinetic": {
+      "quoter_id": "cat_30LNfhf0H7WGnpIc3uibL9Kp9XH",
+      "parent_category": "LED Tubes/Floor/Panels",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Branding": {
+      "quoter_id": "cat_30LNfhgKniIJLZNX3e4XIVXiuIN",
+      "parent_category": "Wristbands/Lanyards/Orbs",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Granuals": {
+      "quoter_id": "cat_30LNfiMmNf22VIIg36bQaO474dQ",
+      "parent_category": "Pyro",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Controller-Xylo": {
+      "quoter_id": "cat_30LNfiSTr07Irp5zsWDYHhMv5Rx",
+      "parent_category": "Wristbands/Lanyards/Orbs",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Relay-Pack": {
+      "quoter_id": "cat_30LNfiiIbZ3ZewXKMrXC80fCwp2",
+      "parent_category": "Electrical",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Wristband-Xylo": {
+      "quoter_id": "cat_30LNfiiMF7nlJKtFQr9ILQrTX0u",
+      "parent_category": "Wristbands/Lanyards/Orbs",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "LLF-Fluid": {
+      "quoter_id": "cat_30LNfiwkQeKwUzntns5VIk5YQAA",
+      "parent_category": "Fog",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Nitrogen": {
+      "quoter_id": "cat_30LNfj5JdgFEb0Bxh7QDnnQYiQY",
+      "parent_category": "Tanks",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Delivery": {
+      "quoter_id": "cat_30LNfjEW1wypmyBuDwgXhQFgG9A",
+      "parent_category": "Drones",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Dewar": {
+      "quoter_id": "cat_30LNfjFO4luEjjrFU96F6GDCM2c",
+      "parent_category": "Tanks",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "LLF": {
+      "quoter_id": "cat_30LNfjL7BenCIX3rwQ6GVHQm5jH",
+      "parent_category": "Fog",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Camera": {
+      "quoter_id": "cat_30LNfjaoUtaZFe1Bbm9sgk7NuLP",
+      "parent_category": "Drones",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "LED-Costumes": {
+      "quoter_id": "cat_30LNfkKTmrkDT0hdmdveaNjgFh4",
+      "parent_category": "Apparel",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Array": {
+      "quoter_id": "cat_30LNfkicKRzrGvhXI27RmOOJgmH",
+      "parent_category": "Laser",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Fog-Bubbles": {
+      "quoter_id": "cat_30LNfkn0zGaLSSC8WahDbH6VAAU",
+      "parent_category": "Bubbles",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Technician-Projectionist": {
+      "quoter_id": "cat_30LNfkoAfIqEYqVhFAcMC3Fzk2b",
+      "parent_category": "Projection",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Soccer": {
+      "quoter_id": "cat_30LNfkszHffwkZgLdwrch1SGmGm",
+      "parent_category": "Drones",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Video": {
+      "quoter_id": "cat_30LNfkwFfwSOG5ZZVr6194KhoAR",
+      "parent_category": "Projection",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "GlowBalls": {
+      "quoter_id": "cat_30LNflAUVPZ0yqrw2Tb60lLVtMr",
+      "parent_category": "Wristbands/Lanyards/Orbs",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Programming": {
+      "quoter_id": "cat_30LNflz4TogRghOgzTeDcRBcsrD",
+      "parent_category": "Wristbands/Lanyards/Orbs",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Technician-Laser": {
+      "quoter_id": "cat_30LNfm07n1VX6QVPYuPx13dgVzV",
+      "parent_category": "Projection",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Panels-Vertical": {
+      "quoter_id": "cat_30LNfmLa9pTS7QU2mehOrBPrtnF",
+      "parent_category": "LED Tubes/Floor/Panels",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "DJ": {
+      "quoter_id": "cat_30LNfmUZJaDnPgRxVOYMzeksubP",
+      "parent_category": "AI",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Dancing": {
+      "quoter_id": "cat_30LNfmWlCLle6qzWsDdoeW1VJoX",
+      "parent_category": "Water",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Intelligent": {
+      "quoter_id": "cat_30LNfmssBQ5n7peucbQwO4O1qUD",
+      "parent_category": "Water",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Inflatable-Metalic": {
+      "quoter_id": "cat_30LNfmxlBmaPFN0TStDOUijVYLO",
+      "parent_category": "Spheres",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Hillside": {
+      "quoter_id": "cat_30LNfnNceNjJp0KlpFts3bfKT2x",
+      "parent_category": "Snow",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Faux": {
+      "quoter_id": "cat_30LNfnTIPbyhaoNnJrWi9ODz1bf",
+      "parent_category": "Pyro",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Machines": {
+      "quoter_id": "cat_30LNfnkXrIJLtG1JgJVoJQOoCP4",
+      "parent_category": "Snow",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Controller-TLC": {
+      "quoter_id": "cat_30LNfo0NKrVSVacvryFJm1j3FSg",
+      "parent_category": "Wristbands/Lanyards/Orbs",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Kinetic": {
+      "quoter_id": "cat_30LNfo5CwOttk7OFmZhK0dFHVit",
+      "parent_category": "Projection",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "AI-Engage": {
+      "quoter_id": "cat_30LNfot3QHJxfMBwQ6qpOd817Jy",
+      "parent_category": "LED Tubes/Floor/Panels",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "FX": {
+      "quoter_id": "cat_30LNfp99tZoBvqMJRXd1zF41NgK",
+      "parent_category": "Water",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Virtual-Stage": {
+      "quoter_id": "cat_30LNfp9DzuXd286B1tD4YimAJnX",
+      "parent_category": "Hologram",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "GlowOrbs": {
+      "quoter_id": "cat_30LNfpJssPha298dfbLbOaEqEwA",
+      "parent_category": "Wristbands/Lanyards/Orbs",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "LED Shapes": {
+      "quoter_id": "cat_30LNfpVY1BqGQcYhJLq0QVdg2jN",
+      "parent_category": "LED Tubes/Floor/Panels",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Fireworks": {
+      "quoter_id": "cat_30LNfpoRQcu0eQdc3nArgPDF5qx",
+      "parent_category": "Pyro",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Screens": {
+      "quoter_id": "cat_30LNfqDkSJXRXbcPclSpyeLRK9l",
+      "parent_category": "LED Tubes/Floor/Panels",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Pullaway-Kabuki": {
+      "quoter_id": "cat_30LNfqiSfyUMGR0eFhnub87St7p",
+      "parent_category": "Reveal",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Video-Globes": {
+      "quoter_id": "cat_30LNfqiqD9X333ZbK9VQTnvW6Ki",
+      "parent_category": "Projection",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Mist-Curtain": {
+      "quoter_id": "cat_30LNfqk2K6B032GSzR5bhCMhZeo",
+      "parent_category": "Water",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "Character": {
+      "quoter_id": "cat_30LOcjEvneCS3YuIiKZMEjcKFn5",
+      "parent_category": "Robotics",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "40W": {
+      "quoter_id": "cat_30Tp9zRiMfA8VJyEtreOM5bzFeP",
+      "parent_category": "Laser",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    },
+    "40Watt": {
+      "quoter_id": "cat_30TrYJTJbanER6ieH156VNnwIiH",
+      "parent_category": "Laser",
+      "suggested_pipedrive_id": null,
+      "notes": ""
+    }
+  },
+  "mapping_notes": {}
+}
