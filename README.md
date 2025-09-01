@@ -9,6 +9,7 @@ A Python project that synchronizes data between Quoter and Pipedrive APIs, inclu
 - `quoter.py` - Quoter API client for authentication and data access
 - `webhook_handler.py` - Pipedrive webhook processing and automation
 - `sync_with_date_filter.py` - Main Quoter-Pipedrive synchronization script
+- `pd_catsub_backfill.py` - CatSub field backfill script for Pipedrive products
 - `last_sync_date.txt` - Tracks last successful sync date for performance
 - `notification.py` - Multi-channel notification system (Slack, Email, Pipedrive)
 - `session_manager.py` - CLI session management and command grouping
@@ -25,7 +26,7 @@ A Python project that synchronizes data between Quoter and Pipedrive APIs, inclu
 - `daily_backup.sh` - Daily production files backup script
 
 ### Utility Scripts
-- `sync.sh` - Main synchronization shell script
+- `sync.sh` - Main synchronization shell script with GitHub Actions workflow validation
 - `retrieve.sh` - Data retrieval shell script
 - `pipedrive_backup.py` - Pipedrive data backup utilities
 
@@ -33,6 +34,9 @@ A Python project that synchronizes data between Quoter and Pipedrive APIs, inclu
 - `.env` - Environment variables and API keys
 - `requirements.txt` - Python dependencies
 - `render.yaml` - Render.com deployment configuration
+- `.github/workflows/` - GitHub Actions workflow files
+  - `sync.yml` - Regular product sync workflow (every 30 minutes)
+  - `catsub-backfill.yml` - CatSub field backfill workflow (daily at 2 AM UTC)
 - `.gitignore` - Git ignore patterns
 
 ## Organized Subfolders
@@ -161,6 +165,8 @@ NOTIFICATION_EMAILS=email1@domain.com,email2@domain.com
 - Category mapping and management
 - Price synchronization with proper data type handling
 - Automatic conflict resolution
+- CatSub field backfill for existing products
+- GitHub Actions automation with workflow validation
 
 ### Quote Automation
 - Monitors Pipedrive for new sub-organizations
@@ -176,23 +182,59 @@ NOTIFICATION_EMAILS=email1@domain.com,email2@domain.com
 - Context transfer between sessions
 - Daily backup and archival
 
+## GitHub Actions Automation
+
+### Automated Workflows
+The project uses GitHub Actions for automated synchronization:
+
+#### **Job 1: Regular Product Sync** (`sync.yml`)
+- **Schedule:** Every 30 minutes, 6 AM-6 PM UTC, weekdays
+- **Script:** `sync_with_date_filter.py`
+- **Purpose:** Syncs products from Quoter to Pipedrive
+- **Features:** 
+  - Bidirectional sync (new products get Pipedrive ID written back to Quoter)
+  - Date-filtered updates for performance
+  - Category mapping and price synchronization
+
+#### **Job 2: CatSub Backfill** (`catsub-backfill.yml`)
+- **Schedule:** Daily at 2 AM UTC
+- **Script:** `pd_catsub_backfill.py`
+- **Purpose:** Backfills Cat:Sub fields for existing Pipedrive products
+- **Features:**
+  - Combines Category (enum) and Subcategory (text) into "Parent:Child" format
+  - Updates custom field (e.g., "QBO-Category:Subcategory")
+  - Idempotent - safe to run multiple times
+
+### Workflow Validation
+- **Pre-commit validation** in `sync.sh` checks workflow syntax
+- **Prevents broken workflows** from reaching GitHub
+- **Warns about problematic patterns** like complex conditional logic
+
+### Manual Triggers
+Both workflows support manual execution via GitHub Actions interface:
+- Use "Run workflow" button for testing
+- Useful for immediate sync or troubleshooting
+
 ## Daily Workflow
 
 ### Morning Setup
 1. Run `./daily_backup.sh` to backup production files
 2. Check `chat_backups/` for previous day's progress summaries
 3. Review `work_logs/` for recent JSON exports
+4. Check GitHub Actions for overnight workflow runs
 
 ### During Work
 1. Export chat sessions manually to `chat_backups/` (any filename.md)
 2. Run `./summary.sh` to generate progress summaries
 3. Use `debug_files/` for development work
 4. Store test data in `test_files/`
+5. Use `./sync.sh` for git operations (includes workflow validation)
 
 ### End of Day
 1. Run `./daily_backup.sh` for final backup
 2. Review generated summaries in `chat_backups/`
 3. Archive completed work to `archive/` if needed
+4. Verify GitHub Actions workflows are running successfully
 
 ## Workflow Integration
 
@@ -204,6 +246,24 @@ This project supports the complete Pipedrive → Quoter → QBO workflow:
 4. **Notifications** alert sales team when quotes are ready for editing
 5. **Progress Tracking** maintains context and documentation across sessions
 
+## Troubleshooting
+
+### GitHub Actions Issues
+- **Red failures:** Check workflow syntax and ensure latest code is pushed
+- **Workflow validation:** `sync.sh` now validates workflows before committing
+- **Schedule issues:** Use separate workflow files instead of complex conditionals
+- **Manual testing:** Use "Run workflow" button in GitHub Actions interface
+
+### Common Problems
+- **Broken conditional logic:** Avoid complex `if` conditions in workflows
+- **Older commit fallback:** Ensure workflow syntax is correct to prevent GitHub Actions from using older code
+- **Missing secrets:** Verify all required secrets are configured in GitHub repository settings
+
+### Validation Features
+- **Pre-commit checks:** `sync.sh` validates YAML syntax and warns about problematic patterns
+- **Error prevention:** Stops commits if workflow files have syntax errors
+- **Educational warnings:** Shows tips about better workflow patterns
+
 ## Development Guidelines
 
 - **Shared files** (`quoter.py`, `pipedrive.py`, `utils/`) contain common functionality used across multiple features
@@ -211,6 +271,7 @@ This project supports the complete Pipedrive → Quoter → QBO workflow:
 - **Utility files** support development, testing, and daily operations
 - **Progress tracking** provides automated documentation and context transfer
 - **Daily backups** ensure safety and rollback capability
+- **Workflow validation** prevents broken GitHub Actions from reaching production
 
 ## File Organization Principles
 
