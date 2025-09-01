@@ -1,14 +1,13 @@
-name: Quoter-Pipedrive Sync
+name: CatSub Backfill
 
 on:
   schedule:
-    # Run every 30 minutes from 6 AM to 6 PM (UTC)
-        # Adjust timezone as needed - this is UTC time
-    - cron: '0,30 6-17 * * 1-5'  # Weekdays only, 6 AM - 6 PM UTC
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
-  sync:
+  catsub-backfill:
     runs-on: ubuntu-latest
     
     steps:
@@ -25,11 +24,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         
-    - name: Run sync
+    - name: Run CatSub Backfill
       env:
-        QUOTER_API_KEY: ${{ secrets.QUOTER_API_KEY }}
         PIPEDRIVE_API_TOKEN: ${{ secrets.PIPEDRIVE_API_TOKEN }}
-        QUOTER_CLIENT_SECRET: ${{ secrets.QUOTER_CLIENT_SECRET }}
       run: |
-        python sync_with_date_filter.py
-        
+        python pd_catsub_backfill.py \
+          --domain tlciscreative.pipedrive.com \
+          --api-token $PIPEDRIVE_API_TOKEN \
+          --catsub-key 9c636133839b978b686bbc952fbd5dc41d5cd087 \
+          --subcategory-key ae55145d60840de457ff9e785eba68f0b39ab777 \
+          --batch-size 50
