@@ -3,8 +3,7 @@ import os
 from dotenv import load_dotenv
 from utils.logger import logger
 from quoter import update_quoter_sku
-from category_mapper import get_quoter_category_from_pipedrive_id, get_verified_subcategory_hierarchy
-from dynamic_category_manager import get_or_create_category_mapping, get_or_create_subcategory_mapping
+from category_manager import get_category_mapping, get_subcategory_mapping
 
 load_dotenv()
 API_TOKEN = os.getenv("PIPEDRIVE_API_TOKEN")
@@ -46,35 +45,62 @@ def update_or_create_products(products):
             
             # Add price if available
             if product.get("price_decimal"):
-                pipedrive_product["price"] = float(product.get("price_decimal", 0))
+                pipedrive_product["price"] = int(product.get("price_decimal", 0))
             
             # Add cost if available (Pipedrive stores cost in prices array)
             if product.get("cost_decimal"):
-                pipedrive_product["cost"] = float(product.get("cost_decimal", 0))
+                pipedrive_product["cost"] = int(product.get("cost_decimal", 0))
             
             # Add category and subcategory if available (Pipedrive has separate fields)
             if product.get("category_id"):
-                # Get the verified category mapping from Pipedrive ID
-                category_info = get_quoter_category_from_pipedrive_id(int(product.get("category_id")))
+                # Get the complete category path (Parent / Child) from Quoter Categories API
+                from category_manager import get_category_path_from_item
+                full_category_path = get_category_path_from_item(product)
                 
-                if category_info:
-                    # Use dynamic category manager to get or create mappings
-                    pipedrive_category_id = get_or_create_category_mapping(category_info["name"])
+                # Debug: Log what we're getting from Quoter
+                logger.info(f"🔍 DEBUG: Quoter category_id: {product.get('category_id')}")
+                logger.info(f"🔍 DEBUG: Quoter category_path: {full_category_path}")
+                
+                if full_category_path and " / " in full_category_path:
+                    # Split the path into category and subcategory
+                    category_parts = full_category_path.split(" / ", 1)
+                    main_category = category_parts[0]
+                    subcategory = category_parts[1]
+                    
+                    logger.info(f"🔍 DEBUG: Parsed - Main: '{main_category}', Sub: '{subcategory}'")
+                    
+                    # Map main category to Pipedrive
+                    pipedrive_category_id = get_category_mapping(main_category)
                     
                     if pipedrive_category_id:
                         pipedrive_product["category"] = pipedrive_category_id
-                        logger.info(f"Mapped category '{category_info['name']}' to Pipedrive ID {pipedrive_category_id}")
-                        
-                        # Check if there are subcategories for this category
-                        hierarchy = get_verified_subcategory_hierarchy()
-                        if category_info["name"] in hierarchy and hierarchy[category_info["name"]]:
-                            # For now, we'll leave subcategory empty as it needs business logic
-                            # This can be enhanced based on your specific requirements
-                            logger.info(f"Category '{category_info['name']}' has subcategories: {hierarchy[category_info['name']]}")
+                        logger.info(f"Mapped main category '{main_category}' to Pipedrive ID {pipedrive_category_id}")
                     else:
-                        logger.warning(f"No category mapping found for '{category_info['name']}'")
+                        logger.warning(f"No category mapping found for '{main_category}'")
+                    
+                    # Map subcategory to Pipedrive custom field
+                    subcategory_field_key = get_subcategory_mapping(subcategory)
+                    
+                    if subcategory_field_key:
+                        # Send subcategory as text value to the custom field
+                        pipedrive_product[subcategory_field_key] = subcategory
+                        logger.info(f"Mapped subcategory '{subcategory}' to field key: {subcategory_field_key}")
+                    else:
+                        logger.warning(f"No subcategory field key found")
+                        
+                elif full_category_path:
+                    # Single category (no subcategory)
+                    pipedrive_category_id = get_category_mapping(full_category_path)
+                    
+                    if pipedrive_category_id:
+                        pipedrive_product["category"] = pipedrive_category_id
+                        logger.info(f"Mapped category '{full_category_path}' to Pipedrive ID {pipedrive_category_id}")
+                    else:
+                        logger.warning(f"No category mapping found for '{full_category_path}'")
                 else:
-                    logger.warning(f"No category info found for Pipedrive ID {product.get('category_id')}")
+                    logger.warning(f"Could not resolve category path for category_id: {product.get('category_id')}")
+            else:
+                logger.info(f"No category_id found for product: {product.get('name')}")
             
             # Check if product exists by sku (which maps to Pipedrive ID)
             sku = product.get("sku")
@@ -89,6 +115,9 @@ def update_or_create_products(products):
                 logger.info(f"New product (no sku): {product.get('name')}")
             
             if existing_product:
+                # Debug: Log what we're comparing against
+                logger.info(f"🔍 DEBUG: Existing product data: {existing_product}")
+                
                 # Check if product needs updating by comparing fields
                 needs_update = False
                 update_reasons = []
@@ -125,6 +154,12 @@ def update_or_create_products(products):
                 if needs_update:
                     # Update existing product
                     product_id = existing_product["id"]
+                    
+                    # Debug: Log what we're sending
+                    logger.info(f"🔍 DEBUG: Updating product {product_id}")
+                    logger.info(f"🔍 DEBUG: Update payload: {pipedrive_product}")
+                    logger.info(f"🔍 DEBUG: Update reasons: {', '.join(update_reasons)}")
+                    
                     response = requests.put(
                         f"{BASE_URL}/products/{product_id}",
                         json=pipedrive_product,

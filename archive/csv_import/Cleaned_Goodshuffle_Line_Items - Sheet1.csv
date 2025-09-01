@@ -1,0 +1,143 @@
+Item Level (enter Parent or Child - default is Parent),*Item Name,*Category,Subcategory,Description,Manufacturer,Code,Supplier,Supplier SKU,Weight (e.g. 5.0 - default is 0),"Pricing Type (enter Flat Fee or Fixed Per Unit - default is Fixed Per Unit),",*USD Price (e.g. 1000.00),USD Cost (in dollars or percentage),USD Cost Type (enter dollars or percent - default is dollars),Recurring (enter No/Monthly/Quarterly/Annually - default is No),Allow Decimal Quantities (enter Yes or No - default is No),Taxable Item (enter Yes or No - default is Yes)
+Parent,LED Ai Interactive Wall - Hardware/Labor - Package,AI,Wall-Interactive,LED Ai Interactive Wall - Hardware/Labor - Package,,AI-LED-HW,,,0,,999,,Dollars,No,No,No
+Parent,LED Ai Interactive Wall - Software/Touchscreen - Package,AI,Wall-Interactive,LED Ai Interactive Wall - Software/Touchscreen - Package,,AI-LED-SW,,,0,,999,,Dollars,No,No,No
+Parent,LED Ai Interactive Wall - Technician Labor - Day Rate for 3 people,AI,Wall-Interactive,LED Ai Interactive Wall - Technician Labor - Day Rate for 3 people,,AI-LED-TEC,,,0,,999,,Dollars,No,No,No
+Parent,Printing for Show,BRANDING,Printing,Printing for TDX,,BRD-SHW-001,,,0,,999,,Dollars,No,No,No
+Parent,Low Lying Fog,CO2,LLF,Low Lying Fog,,FOG-LLF,,,0,,500,,Dollars,No,No,No
+Parent,Silent Storm Confetti Blowers,CONFETTI,Blowers,Silent Storm Confetti Blowers - Standard Version,,CNF-BLW-SS,,,0,,999,,Dollars,No,No,No
+Parent,Silent Storm Confetti Blowers,CONFETTI,Blowers,Silent Storm Confetti Blowers - Taller Version,,CNF-BLW-SST,,,0,,1299,,Dollars,No,No,No
+Parent,Attendee Behavioural Data Analysis Capture,DATA,Behavioural,"A privacy-conscious analytics solution that uses advanced visual sensing technology and AI to interpret audience mood, engagement, and demographic trends in real time—without collecting or storing any personal data. Ideal for brand activations, live presentations, trade shows, experiential marketing, digital signage, and retail environments, this system empowers teams to understand how people react to content and experiences as they happen.",,DAT-BEH-ANA,,,0,,5999,,Dollars,No,No,No
+Parent,Equipment Damage,EQUIPMENT,Damage,Estimated damage to equipment,,EQP-RPR-DMG,,,0,,99,,Dollars,No,No,No
+Parent,Onsite Laserjet Printer,EQUIPMENT,Printer,Onsite Laserjet Printer,,EQP-LSR-ONS,,,0,,299,,Dollars,No,No,No
+Parent,Equipment Support,EQUIPMENT,Support,Equipment Support,,SVC-EQP-SUP,,,0,,299,,Dollars,No,No,No
+Parent,Event Technology Package,EVENT,Package,Event Technology Package,,PKG-EVT,,,0,,9999,,Dollars,No,No,No
+Parent,ACH PAYMENT INFORMATION,FINANCE,ACH,"Bank Name: [Your Bank Name]
+Bank Address: [Bank Address, optional]
+Routing Number (ABA): [Routing Number]
+Account Number: [Account Number]
+Account Type: [Checking/Savings]
+Account Name: [Company Name or Payee Name]
+Reference: [Invoice Number, Project Name, or Customer ID]
+
+Remittance Email: [accounts@yourcompany.com]
+Phone (Accounts Dept): [Optional]
+
+Please include the invoice number or project reference in your payment to ensure proper credit.",,FIN-ACH-DOM,,,0,,0,0,Dollars,No,No,No
+Parent,90-day Warranty,FINANCE,Warranty,This product or service is covered under a 90-day limited warranty from the date of delivery. The warranty includes protection against defects in materials and workmanship under normal use.,,FIN-WAR-90D,,,0,,0,0,Dollars,No,No,No
+Parent,Financial-1-Year Extended Warranty,FINANCE,Warranty,1-Year Extended Warranty,,FIN-WAR-1YR,,,0,,5000,1000,Dollars,No,No,No
+Parent,Non-Recoverable Costs Due to Postponement,FINANCE,Postponement,Non-Recoverable Costs Due to Postponement,,FIN-PST-PON,,,0,,999,,Dollars,No,No,No
+Parent,Champagne Bottle -EZ break material.,FX,Bottle,Champagne Bottle -EZ break material.,,FX-BOT-CHP,,,0,,299,,Dollars,No,No,No
+Parent,Confetti Blower Rental (TBD),FX,Confetti,Confetti Blower Rental (TBD),,CNF-BLW-001,,,0,,299,,Dollars,No,No,No
+Parent,Cryo Jets,FX,Cryo,Cryo Jets,,CO2-CRYO-001,,,0,,299,,Dollars,No,No,No
+Parent,Fog/Mist Screen Rental & Technician Services *,FX,Fog,Fog/Mist Curtain Screen,,FOG-MST-CRT,,,0,,999,,Dollars,No,No,No
+Parent,Special Effects Package,FX,Package,Special Effects Package,,PKG-FX,,,0,,999,,Dollars,No,No,No
+Parent,Technology Package,FX,Package,Technology Package,,PKG-FX-TEC,,,0,,2999,,Dollars,No,No,No
+Parent,CO2 Jet Repair,FX,Repair,CO2 Jet Repair,,SVC-RPR-CO2,,,0,,499,,Dollars,No,No,No
+Parent,Gender Reveal Package,REVEAL,Gender,Gender Reveal Package,,RVL-GNDR-001,,,0,,499,,Dollars,No,No,No
+Parent,Fluid Concentrate for Snow Machine,FX,Snow,Fluid Concentrate for Snow Machine,,SNO-FLD-001,,,0,,99,,Dollars,No,No,No
+Parent,Content Conversion and Instruction,GRAPHICS,Conversion,Content Conversion and Instruction,,GPH-CNV-INST,,,0,,799,,Dollars,No,No,No
+Parent,HST-86 Transparent 3D Hologram Display: Deposit,HOLOGRAM,HPORT,HST-86 Transparent 3D Hologram Display: Deposit,,HG-HP-86-DEP,,,0,,999,,Dollars,No,No,No
+Parent,Fly-Pak for HoloPortal,HOLOGRAM,Fly-Pak,"Fly-Pak includeds tripods, lights, camera, mic, paper (optional)",,HG-HP-FPAK,,,0,,799,,Dollars,No,No,No
+Parent,FV-30 Fan Holographic,HOLOGRAM,FV,30-inch holographic fan,,HG-FVH-L30-001,,1,0,Fixed Per Unit Pricing,2500,300,Dollars,No,No,Yes
+Parent,HST-20 Holobox - Rental,HOLOGRAM,HPOD,HST-20 Holobox (HS&T 100% Ownership),,HG-HP-20-BUY,,,0,,1999,,Dollars,No,No,No
+Parent,HST-30 Holobox - Rental,HOLOGRAM,HPOD,HST-30 Holobox (HS&T 100% Ownership),,HG-HP-30-BUY,,,0,,2999,,Dollars,No,No,No
+Parent,HST-86 Holobox - Rental,HOLOGRAM,HPORT,HST-84 Holobox (Ownership 50% HS&T and TLC),,HG-HP-86-BUY,,,0,,8999,,Dollars,No,No,No
+Parent,HST-20 Holobox (HS&T 100% Ownership),HOLOGRAM,HPOD,HST-20 Holobox ,,HG-HP-20,,,0,,499,,Dollars,No,No,No
+Parent,HST-30 Holobox (HS&T 100% Ownership),HOLOGRAM,HPOD,HST-30 Holobox,,HG-HP-30,,,0,,699,,Dollars,No,No,No
+Parent,HST-86 Holobox (Ownership 50% HS&T and TLC),HOLOGRAM,HPORT,HST-86 Holobox,,HG-HP-86,,,0,,1999,,Dollars,No,No,No
+Parent,Ship-Transparent Holographic Display Purchase,SHIP,HPORT,Shipping Transparent Holographic Display HP-86,,SHP-HP-86-BUY,,,0,,3999,,Dollars,No,No,No
+Parent,Holoportal & Pod - Holographic Display Technical Support,HOLOGRAM,Service,HST30 22-Inch Holographic Display Technical Support,,SVC-HP-SUP,,,0,,999,,Dollars,No,No,No
+Parent,Holographic Slot Machine All-in Package (Graphics not included),HOLOGRAM,Slotmachine,Holographic Slot Machine All-in Package (Graphics not included),,HG-SLT-MCH,,,0,,19999,,Dollars,No,No,No
+Parent,Half Day Shoot in Studio,HOLOGRAM,Studio,Half Day Shoot in Studio,,STU-SHT-HALF,,,0,,3999,,Dollars,No,No,No
+Parent,HST30 & HST20 - Holographic Display Extended Warranty: One Year,HOLOGRAM,Warranty,HST30 & HST20 - Holographic Display Extended Warranty: One Year,,FIN-WAR-HPOD,,,0,,499,,Dollars,No,No,No
+Parent,Wrapping Services,HOLOGRAM,Wrapping,Wrapping Services for HoloPortal and HoloPod,,HG-HP-WRAP,,,0,,1199,,Dollars,No,No,No
+Parent,Customs Duty & Fees,SHP,Import,Customs Duty & Fees,,SHP-IMP-FEE,,,0,,950,,Dollars,No,No,No
+Parent,"Labor/Technician for Setup, Test and Strike",SVC,Labor,"Labor/Technician for Setup, Test and Strike",,SVC-LAB-001,,,0,,950,,Dollars,No,No,No
+Parent,Labor-FX Special effects,SVC,Labor-FX,Labor for Initial Setup and Adjustment of Special Effects,,SVC-LAB-FX,,,0,,950,,Dollars,No,No,No
+Parent,Labor-Transparent Holographic Display,SVC,Labor-HP,"Labor for Transparent Holographic Display including prep, ship, install and strike",,SVC-LAB-HP,,,0,,950,,Dollars,No,No,No
+Parent,Labor Overtime & Per-Diem,SVC,Overtime,Labor Overtime & Per-Diem,,SVC-LAB-OVR,,,0,,1599,,Dollars,No,No,No
+Parent,Labor-Wristband/Landyards,SVC,WB/LAN,"Labor related to Wristband and Lanyards, including preshow, setup, operation and strike",,SVC-LAB-WBL,,,0,,950,,Dollars,No,No,No
+Parent,Lasers - Pangolin software system - PC,LASER,Software,Laptop with Pangolin software system,,LSR-SW-SYS,,,0,,1599,,Dollars,No,No,No
+Parent,Laser programming and graphics (Standard programming),LASER,Program,Laser programming and graphics (Standard programming),,LSR-PGM-001,,,0,,999,,Dollars,No,No,No
+Parent,Laser Light Show Package,LASER,Show,"A high-impact visual package featuring professional-grade lasers synchronized to music, lighting, or custom cues. This system delivers crisp aerial beams, graphics, and atmospheric effects that elevate any live event or immersive experience.",,LSR-SHW-001,,,0,,20000,10000,Dollars,No,No,No
+Parent,Laser Control Systems,LASER,System,Laser Control Systems,,LSR-CTL-SYS,,,0,,1999,,Dollars,No,No,No
+Parent,Custom Music Mix for Light Show,LED,Music,Custom Music Mix for Light Show,,LED-MUSIC,,,0,,1999,,Dollars,No,No,No
+Parent,Graphics for LED Signage Estimate,LED,Signage,Graphics for LED Signage Estimate,,LED-SGN,,,0,,999,,Dollars,No,No,No
+Parent,LED Wall,LED,Wall ,LED Wall,,LED-WAL,,,0,,999,,Dollars,No,No,No
+Parent,Image Processing (Estimate based on Range $5000-$15000),PROJECTION,MediaServer,Image Processing (Estimate based on Range $5000-$15000),,PRO-MS-001,,,0,,2999,,Dollars,No,No,No
+Parent,Image Processing: Second Media Server,PROJECTION,MediaServer,Image Processing: Second Media Server,,PRO-MS-002,,,0,,999,,Dollars,No,No,No
+Parent,Media Design and Program,PROJECTION,MediaServer,Media Design and Program,,PRO-MS-DSN,,,0,,1999,,Dollars,No,No,No
+Parent,Projector Management & Content Conversion,PROJECTION,Content,Projector Management & Content Conversion,,PRO-CNT-CNV,,,0,,999,,Dollars,No,No,No
+Parent,Projection-inflatable screen,PROJECTION,Inflatable Screen,Projection-inflatable screen,,PRO-SCR-INF,,,0,,1999,,Dollars,No,No,No
+Parent,Projectionist / Logistics / Expenses,PROJECTION,Package,Projectionist / Logistics / Expenses,,PRO-PKG,,,0,,1999,,Dollars,No,No,No
+Parent,Pool Projection,PROJECTION,Pool,"Pool Projection with Projector, Projectionist, Supporting Truss",,PRO-POOL,,,0,,2999,,Dollars,No,No,No
+Parent,Water Screen-10 Feet Modules,PROJECTION,Water Modules,"A modular water projection surface that forms a vertical sheet of falling water, ideal for high-impact video and laser projection. Each 10-foot section can be combined for custom widths and configured for indoor or outdoor use.",,PRO-WAT-10ft,,,0,,1500,500,Dollars,No,No,No
+Parent,Pyro effects - Estimate,PYRO,Effects,Pyro effects - Estimate,,PYR-EFF-EST,,,0,,999,,Dollars,No,No,No
+Parent,RFID System for Object Scanning and Video Playback,RFID,System,RFID System for Object Scanning and Video Playback,,RFID-SYS-001,,,0,,2999,,Dollars,No,No,No
+Parent,TRON Robot Rental,ROBOTICS,2-Wheel,TRON Robot Rental,,ROB-TRON,,,0,,999,,Dollars,No,No,No
+Parent,WBT‬ Walle Bot (Tall),ROBOTICS,2-Wheel,WBT‬ Walle Bot (Tall),,ROB-WAL-TAL,,,0,,999,,Dollars,No,No,No
+Parent,Custom Cups - Cost to be determined,ROBOTICS,Bartender,Custom Cups - Cost to be determined,,ROB-CUP-CUS,,,0,,199,,Dollars,No,No,No
+Parent,Mixmaster I Robot Bartender Activation,ROBOTICS,Bartender,Mixmaster I Robot Bartender Activation,,ROB-MM1-001,,,0,,15999,,Dollars,No,No,No
+Parent,Mixmaster II Robot Bartender Activation,ROBOTICS,Bartender,Mixmaster II Robot Bartender Activation,,ROB-MM2-001,,,0,,19999,,Dollars,No,No,No
+Parent,Robot Dog Branding,ROBOTICS,Branding,Robot Dog Branding,,ROB-DOG-BRND,,,0,,299,,Dollars,No,No,No
+Parent,Robot Dog Cart/Wagon,ROBOTICS,Cart,Robot Dog Cart/Wagon,,ROB-DOG-CART,,,0,,299,,Dollars,No,No,No
+Parent,Wagon/cart branding,ROBOTICS,Cart,Wagon/cart branding,,ROB-CART-BRND,,,0,,299,,Dollars,No,No,No
+Parent,Robotic Draw,ROBOTICS,Draw,Robot Drawing with Ipad,,ROB-DRAW-001,,,0,,699,,Dollars,No,No,No
+Parent,Robotic Draw,ROBOTICS,Draw,Robot Drawing with Ipad,,ROB-DRAW-002,,,0,,699,,Dollars,No,No,No
+Parent,Robotic Draw,ROBOTICS,Draw,Robot Drawing with Ipad,,ROB-DRAW-003,,,0,,699,,Dollars,No,No,No
+Parent,Robotic Chess,ROBOTICS,Chess,Robotic Chess,,ROB-CHESS-001,,,0,,699,,Dollars,No,No,No
+Parent,Dual iPad on back of robot dog,ROBOTICS,Dog,Dual iPad on back of robot dog,,ROB-DOG-IPAD,,,0,,299,,Dollars,No,No,No
+Parent,R Dog Ai with ai Lidar,ROBOTICs,Dog,R Dog Ai with ai Lidar,,ROB-DOG2-001,,,0,,799,,Dollars,No,No,No
+Parent,Robot Fleet,ROBOTICS,Fleet,Robot Fleet,,ROB-FLEET,,,0,,19999,,Dollars,No,No,No
+Parent,Robot - Thing Robot Hand,ROBOTICS,Hand-Thing,RH (Ai)‬‭ Thing Robot Hand,,ROB-HAND,,,0,,499,,Dollars,No,No,No
+Parent,Robot Handler,ROBOTICS,Handler,"A Robot Handler is responsible for the setup, monitoring, and manual control of robotic systems during production, events, or demonstrations. They ensure the robot functions safely and efficiently, following pre-programmed sequences or real-time control inputs.",,SVC-ROB-HDLR,,,0,,1200,400,Dollars,No,No,No
+Parent,AI-Large Language Models (LLMs),ROBOTICS,LLM,"At the event, the robot is powered by a Large Language Model (LLM) to enable natural, real-time interaction with guests. The LLM processes spoken input, understands intent, and generates human-like responses, allowing the robot to act as an intelligent, conversational host or guide.",,ROB-LLM-001,,,0,,2500,500,Dollars,No,No,No
+Parent,Voice Prompt System,ROBOTICS,LLM,Voice Prompt System with Microphone and BT Speaker,,ROB-LLM-VCE,,,0,,599,,Dollars,No,No,No
+Parent,AI Robotics Bulk Package,ROBOTICS,Package,"A comprehensive package that delivers a full spectrum of robotic solutions for live events, exhibitions, hospitality, or operational automation. This all-in-one offering includes multiple robot types tailored to your environment and goals, along with full technical support and programming services.",,ROB-PACK-001,,,0,,15000,1500,Dollars,No,No,No
+Parent,Robotics Event Technology Package,ROBOTICS,Package,Robotics Event Technology Package,,ROB-PKG,,,0,,2999,,Dollars,No,No,No
+Parent,Power Banks for Robotics,ROBOTICS,PowerBank,Power Banks for Robotics,,ROB-PWR-001,,,0,,199,,Dollars,No,No,No
+Parent,Plexi Glass Holder,ROBOTICS,Server,Plexi Glass Holder,,ROB-ARM-PLX,,,0,,99,,Dollars,No,No,No
+Parent,Robot Supervisors,ROBOTICS,Supervisor,"The Robot Supervisor oversees the operation, programming, and safety of robotic systems in live environments, production settings, or technical installations. They manage a team of operators and technicians to ensure the robots function as intended and meet performance standards.",,SVC-ROB-SUP,,,0,,1500,400,Dollars,No,No,No
+Parent,Robot Programming Tech,ROBOTICS,Technician,"A Robot Programming Technician is responsible for configuring, testing, and maintaining robotic systems used in manufacturing, entertainment, or special effects environments. This role involves writing, debugging, and optimizing motion paths and logic routines to ensure safe and precise robot operation.",,SVC-ROB-TECH,,,0,,1500,400,Dollars,No,No,No
+Parent,AI Character Robot Tray,ROBOTICS,Server,"An autonomous indoor robot designed for efficient delivery of food, packages, or materials across multi-room environments. Equipped with multiple shelving tiers, it enables organized transport of multiple items in a single trip. Includes video screen for branding and information",,ROB-TRY-001,,,0,,6000,500,Dollars,No,No,No
+Parent,AI Character Robot Tray,ROBOTICS,Server,"An autonomous indoor robot designed for efficient delivery of food, packages, or materials across multi-room environments. Equipped with multiple shelving tiers, it enables organized transport of multiple items in a single trip. Includes video screen for branding and information",,ROB-TRY-002,,,0,,6000,500,Dollars,No,No,No
+Parent,Branding for Robot Bartender ADAM,ROBOTICS,Branding,Branding for Robot Bartender ADAM,,ROB-MM2-BRND,,,0,,199,,Dollars,No,No,No
+Parent,HRAi (Henry)‬‭ Humanoid Robot w/Ai‬,ROBOTICS,Henry,HRAi (Henry)‬‭ Humanoid Robot w/Ai‬,,ROB-HENRY-001,,,0,,4999,,Dollars,No,No,No
+Parent,Financial-Monthly Service Overage Payment Schedule,FINANCE,Monthly Fee,Monthly Service Overage Payment Schedule,,FIN-MTH-FEE,,,0,,3000,600,Dollars,No,No,No
+Parent,Liftgate Pick-up,SHIP,Transport,Lift-Gate Additional Charge,,SHP-LFT-FEE,,,0,,100,150,Dollars,No,No,No
+Parent,After Hours Liftgate Pick-up,SHIP,Transport,An additional charge applied for freight pick-up scheduled outside standard business hours and requiring a liftgate-equipped truck for ground-level loading.,,SHP-LFT-LATE,,,0,,250,150,Dollars,No,No,No
+Parent,Handling Charges,SHIP,Handling,"A flat fee covering labor and materials required to prepare items for safe and secure shipment. This includes: Protective packaging and labeling, Custom crating or boxing (if needed), Inventory verification and documentation, Coordination with shipping carrier or pickup service",,SHP-HND-001,,,0,,400,100,Dollars,No,No,No
+Parent,Shipping & Handling,SHIP,Handling,Shipping & Handling,,SHP-S&H-001,,,0,,99,,Dollars,No,No,No
+Parent,Ship - Return Shipping,SHIP,Transport,Return Shipping,,SHP-RTN-001,,,0,,99,,Dollars,No,No,No
+Parent,Road Case for HST-84,SHIP,Roadcase,Road Case for HST-84,,SHP-CASE-86,,,0,,99,,Dollars,No,No,No
+Parent,Ship - Outbound Shipping,SHIP,Transport,Outbound Shipping,,SHP-OUT-001,,,0,,99,,Dollars,No,No,No
+Parent,Storage Fee for Late Pickup,SHIP,Storage,Storage Fee for Late Pickup,,SHP-STO-LTE,,,0,,99,,Dollars,No,No,No
+Parent,Trucking - Estimated Cost,SHIP,Transport,Esitmated Trucking Costs,,SHP-EST-001,,,0,,99,,Dollars,No,No,No
+Parent,Makeup / Prosthetic / Onsite Makeup / Rush,STUDIO,Makeup,Makeup / Prosthetic / Onsite Makeup / Rush,,STU-MU-001,,,0,,1000,,Dollars,No,No,No
+Parent,Second Technician: OPTION,SVC,2nd Tech,Second Technician: OPTION,,SVC-TEC-002,,,0,,1000,,Dollars,No,No,No
+Parent,Technical Consultation Services,SVC,Consult,Technical Consultation Services,,SVC-CON-001,,,0,,10000,,Dollars,No,No,No
+Parent,Technician - Setup Holobox,SVC,Hologram,Technician - Setup Holobox,,SVC-SET-HP,,,0,,1000,,Dollars,No,No,No
+Parent,RFID Technician Services,SVC,RFIDTech,RFID Technician Services,,SVC-RFID-TECH,,,0,,1000,,Dollars,No,No,No
+Parent,Technician Services,SVC,Services,Technician Services,,SVC-TEC-001,,,0,,1000,,Dollars,No,No,No
+Parent,Scope of Technical Consultation Services,SVC,SOW,Scope of Technical Consultation Services,,SVC-SOW-001,,,0,,500,,Dollars,No,No,No
+Parent,Technical Staffing,SVC,Staff,Technical Staffing,,SVC-STF-001,,,0,,1000,,Dollars,No,No,No
+Parent,T&E-Baggage fees,T&E,Baggage,Baggage fees,,T&E-BAG-001,,,0,,99,,Dollars,No,No,No
+Parent,T&E - accommodations Buyout,T&E,Buyout,Travel accommodations Buyout,,T&E-BUY-OUT,,,0,,4999,,Dollars,No,No,No
+Parent,T&E-Flights,T&E,Flights,Flights to and from Event,,T&E-FLY-001,,,0,,999,,Dollars,No,No,No
+Parent,T&E-Ground transportation,T&E,Ground,Ground Transport - Uber/Taxi/Train/Ferry,,T&E-GND-001,,,0,,99,,Dollars,No,No,No
+Parent,T&E-Meals,T&E,Meals,Meals if not Per Diem is offered,,T&E-MLS-001,,,0,,99,,Dollars,No,No,No
+Parent,T&E-Parking,T&E,Parking,Parking Fees - Overnight/Hourly/Valet,,T&E-PRK-001,,,0,,99,,Dollars,No,No,No
+Parent,T&E-Per Diem,T&E,PerDiem,Per Diem includes Travel and Event Days,,T&E-PER-DIM,,,0,,95,,Dollars,No,No,No
+Parent,T&E-Rooms,T&E,Rooms,Lodging for the event,,T&E-RMS-001,,,0,,400,,Dollars,No,No,No
+Parent,Tanks - Dewar CO2 - New Footprint,TANKS,Dewar,Tanks - Dewar CO2 - New Footprint (Hazmat/Force Majeur Included),,TNK-DEW-230,,,0,,422.5,,Dollars,No,No,No
+Parent,Tanks - Dewar Tall,TANKS,Dewar,Tanks - Dewar CO2 - Tall Footprint (Hazmat/Force Majeur Included),,TNK-DEW-180,,,0,,422.5,,Dollars,No,No,No
+Parent,Tanks - Force Majure,TANKS,Delivery,Tanks - Delivery - Truck and Driver and 2nd Person,,TNK-DEL-001,,,0,,350,,Dollars,No,No,No
+Parent,Tanks - Last Minute Order,TANKS,Fee,Tanks - Last Minute Order,,TNK-RSH-FEE,,,0,,250,,Dollars,No,No,No
+Parent,Tanks - Rental Fee,TANKS,Fee,Tank Rental Fee - Weekly Fee per Tank,,TNK-RNT-FEE,,,0,,22,,Dollars,No,No,No
+Parent,Tanks - Service Fee,TANKS,Fee,Tank Service - (Discharge - Change - Verify - Pressurize),,TNK-SVC-FEE,,,0,,250,,Dollars,No,No,No
+Parent,Tanks - Helium,TANKS,Helium,Premium Helium Tanks,,TNK-HEL-291,,,0,,495,1000,Dollars,No,No,No
+Parent,Tanks - Hose Repair,TANKS,Repair,Replace Short CO2 Lines Due to Kink in Hose,,TNK-RPR-CO2,,,0,,250,,Dollars,No,No,No
+Parent,Weekend Service and Hose Repair,TANKS,Repair,Weekend Service and Hose Repair,,TNK-RPR-EMG,,,0,,500,,Dollars,No,No,No
+Parent,Tanks - Technician Services,SVC,Technician,Co2 Tank and Technician Services,,SVC-TNK-TEC,,,0,,500,,Dollars,No,No,No
+Parent,Projection Water System/Screen (PWS),WATER,PWS,Projection Water System/Screen (PWS) - Per Foot Price,,WTR-PWS-001,,,0,,1000,,Dollars,No,No,No
+Parent,Catch/Recirculating Basins - Non Stainless,WATER,PWS,Catch/Recirculating Basins - Non Stainless,,WTR-BIN-001,,,0,,99,,Dollars,No,No,No

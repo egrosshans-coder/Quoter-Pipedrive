@@ -7,8 +7,75 @@ to transfer progress between different chat sessions.
 
 import os
 import re
+import json
 from datetime import datetime
 from pathlib import Path
+
+def process_manual_chat_export():
+    """
+    Process manually exported chat files from chat_backups/.
+    Creates JSON in work_logs/ and summary in chat_backups/.
+    """
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    
+    # Create directories if they don't exist
+    os.makedirs("chat_backups", exist_ok=True)
+    os.makedirs("work_logs", exist_ok=True)
+    
+    # Find the most recent MD file in chat_backups/ (sorted by modification time)
+    chat_files = []
+    if os.path.exists("chat_backups"):
+        # Get files with their modification times and sort by most recent first
+        files_with_time = []
+        for f in os.listdir("chat_backups"):
+            if f.endswith('.md') and not f.startswith('progress_summary_'):
+                file_path = os.path.join("chat_backups", f)
+                mod_time = os.path.getmtime(file_path)
+                files_with_time.append((f, mod_time))
+        
+        # Sort by modification time (most recent first)
+        chat_files = [f[0] for f in sorted(files_with_time, key=lambda x: x[1], reverse=True)]
+    
+    if not chat_files:
+        print("❌ No chat files found in chat_backups/")
+        print("💡 Please export your chat manually to chat_backups/ folder")
+        return None, None
+    
+    # Read the most recent chat file
+    latest_chat_file = os.path.join("chat_backups", chat_files[0])
+    try:
+        with open(latest_chat_file, 'r', encoding='utf-8') as f:
+            chat_content = f.read()
+        print(f"📖 Processing latest chat file: {latest_chat_file}")
+    except Exception as e:
+        print(f"❌ Error reading chat file: {e}")
+        return None, None
+    
+    # Create JSON file in work_logs/
+    json_filename = f"work_logs/chat_{timestamp}.json"
+    try:
+        chat_data = {
+            "timestamp": timestamp,
+            "session_id": f"session_{timestamp}",
+            "export_type": "manual_export",
+            "source_file": chat_files[0],
+            "content": chat_content,
+            "metadata": {
+                "exported_at": datetime.now().isoformat(),
+                "format": "json",
+                "original_file": chat_files[0],
+                "file_size": len(chat_content)
+            }
+        }
+        
+        with open(json_filename, 'w', encoding='utf-8') as f:
+            json.dump(chat_data, f, indent=2, ensure_ascii=False)
+        print(f"✅ Created JSON file: {json_filename}")
+    except Exception as e:
+        print(f"❌ Failed to create JSON file: {e}")
+        return None, None
+    
+    return json_filename, chat_content
 
 def extract_progress_from_chat(chat_content):
     """Extract progress information from a chat file."""
@@ -99,34 +166,46 @@ def extract_progress_from_chat(chat_content):
     return progress
 
 def analyze_chat_files():
-    """Analyze all chat files in the current directory."""
+    """Analyze all chat files in the work_logs/ directory (JSON format)."""
     chat_files = []
     progress_data = []
     
-    # Find all chat files
-    for file in os.listdir('.'):
-        if file.endswith('.md') and ('chat' in file.lower() or 'cursor' in file.lower()):
-            chat_files.append(file)
+    # Look for JSON chat files in work_logs/ directory
+    work_logs_dir = "work_logs"
+    if not os.path.exists(work_logs_dir):
+        print(f"⚠️  Directory {work_logs_dir}/ not found. Creating it.")
+        os.makedirs(work_logs_dir, exist_ok=True)
+        return []
     
-    print(f"Found {len(chat_files)} chat files:")
+    # Find all JSON chat files in work_logs/
+    for file in os.listdir(work_logs_dir):
+        if file.endswith('.json') and ('chat' in file.lower()):
+            chat_files.append(os.path.join(work_logs_dir, file))
+    
+    print(f"Found {len(chat_files)} JSON chat files in {work_logs_dir}/:")
     for file in chat_files:
         print(f"  - {file}")
     
-    # Analyze each chat file
+    # Analyze each JSON chat file
     for chat_file in chat_files:
         try:
             with open(chat_file, 'r', encoding='utf-8') as f:
-                content = f.read()
+                chat_data = json.load(f)
+            
+            # Extract content from JSON structure
+            content = chat_data.get('content', '')
             
             progress = extract_progress_from_chat(content)
             progress['source_file'] = chat_file
             progress['file_size'] = len(content)
+            progress['export_timestamp'] = chat_data.get('timestamp', 'unknown')
             progress_data.append(progress)
             
-            print(f"\nAnalyzed {chat_file}:")
+            print(f"\nAnalyzed {chat_file}: {chat_file}")
             print(f"  Status: {progress['status']}")
             print(f"  Completed tasks: {len(progress['completed_tasks'])}")
             print(f"  Current files: {len(progress['current_files'])}")
+            print(f"  Exported: {chat_data.get('timestamp', 'unknown')}")
             
         except Exception as e:
             print(f"Error reading {chat_file}: {e}")
@@ -253,11 +332,54 @@ This file is auto-generated. To update it:
 
 def main():
     """Main function to generate progress summary."""
-    print("🔍 Analyzing chat files for progress...")
+    print("🔍 Starting progress summary generation...")
     print("=" * 50)
     
-    # Analyze chat files
-    progress_data = analyze_chat_files()
+    # Step 1: Process manually exported chat
+    print("📤 Step 1: Processing manually exported chat...")
+    json_file, chat_content = process_manual_chat_export()
+    
+    if not json_file:
+        print("❌ No chat file to process. Please export your chat manually to chat_backups/")
+        return
+    
+    print()
+    
+    # Step 2: Analyze the JSON file
+    print("🔍 Step 2: Analyzing JSON file for progress...")
+    progress_data = []
+    
+    try:
+        # Read and parse the JSON file
+        with open(json_file, 'r', encoding='utf-8') as f:
+            json_data = json.load(f)
+        
+        # Extract content from JSON structure
+        chat_content = json_data.get('content', '')
+        metadata = json_data.get('metadata', {})
+        
+        # Analyze the content
+        progress = extract_progress_from_chat(chat_content)
+        progress['source_file'] = json_file
+        progress['file_size'] = json_data.get('metadata', {}).get('file_size', len(chat_content))
+        progress['export_timestamp'] = json_data.get('timestamp', 'unknown')
+        progress['original_file'] = json_data.get('source_file', 'unknown')
+        progress['session_id'] = json_data.get('session_id', 'unknown')
+        
+        progress_data.append(progress)
+        
+        print(f"\nAnalyzed JSON file: {json_file}")
+        print(f"  Original file: {progress['original_file']}")
+        print(f"  Session ID: {progress['session_id']}")
+        print(f"  Export time: {progress['export_timestamp']}")
+        print(f"  File size: {progress['file_size']} bytes")
+        print(f"  Status: {progress['status']}")
+        print(f"  Completed tasks: {len(progress['completed_tasks'])}")
+        print(f"  Current files: {len(progress['current_files'])}")
+        
+    except Exception as e:
+        print(f"Error analyzing JSON file: {e}")
+        return
     
     if not progress_data:
         print("❌ No chat files found to analyze")
@@ -268,7 +390,7 @@ def main():
     
     # Write to file with timestamp
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    output_file = f"PROGRESS_SUMMARY_{timestamp}.md"
+    output_file = f"chat_backups/progress_summary_{timestamp}.md"
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(summary)
     

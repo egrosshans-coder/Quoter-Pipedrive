@@ -81,13 +81,14 @@ def main():
     Main function to handle command line arguments and run sync.
     """
     if len(sys.argv) > 1:
-        # Use command line argument as date
-        since_date = sys.argv[1]
-        logger.info(f"Using command line date: {since_date}")
-    elif len(sys.argv) > 1 and sys.argv[1] == "--last":
-        # Use last sync date
-        since_date = get_last_sync_date()
-        logger.info(f"Using last sync date: {since_date}")
+        if sys.argv[1] == "--last":
+            # Use last sync date
+            since_date = get_last_sync_date()
+            logger.info(f"Using last sync date: {since_date}")
+        else:
+            # Use command line argument as date
+            since_date = sys.argv[1]
+            logger.info(f"Using command line date: {since_date}")
     else:
         # Use last sync date by default
         since_date = get_last_sync_date()

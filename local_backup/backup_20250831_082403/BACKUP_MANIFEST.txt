@@ -1,0 +1,52 @@
+QUOTER SYNC - DAILY BACKUP MANIFEST
+====================================
+Backup Date: Sun Aug 31 08:24:03 PDT 2025
+Backup Time: 08:24:03
+Backup Directory: local_backup/backup_20250831_082403
+
+PRODUCTION FILES BACKED UP:
+==========================
+
+PYTHON SCRIPTS:
+- pipedrive.py
+- quoter.py
+- webhook_handler.py
+- category_manager.py
+- sync_with_date_filter.py
+- session_manager.py
+- notification.py
+- pipedrive_backup.py
+- progress_summary_generator.py
+
+UTILITY SCRIPTS:
+- validate_import_categories.py
+- retrieve_latest.py
+- end_of_day_sync.py
+
+SHELL SCRIPTS:
+- sync.sh
+- retrieve.sh
+
+CONFIGURATION:
+- .env
+- requirements.txt
+- render.yaml
+- .gitignore
+
+DOCUMENTATION:
+- README.md
+- README.txt
+
+UTILITIES:
+- utils/ (entire folder)
+
+BACKUP NOTES:
+- This backup contains all production files from the main directory
+- Subfolders (docs/, work_logs/, chat_backups/, etc.) are NOT included
+- Run this script daily before starting work
+- Keep backups for at least 7 days for safety
+
+RESTORE INSTRUCTIONS:
+- To restore: copy files from local_backup/backup_20250831_082403 back to main directory
+- Be careful not to overwrite newer changes
+- Always verify file contents before restoring

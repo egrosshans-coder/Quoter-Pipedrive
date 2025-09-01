@@ -1,0 +1,10 @@
+{
+  "timestamp": "20250901_012831",
+  "session_id": "session_20250901_012831",
+  "export_type": "current_chat",
+  "content": "Current chat session export",
+  "metadata": {
+    "exported_at": "2025-09-01T01:28:31.983322",
+    "format": "json"
+  }
+}
