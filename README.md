@@ -122,6 +122,10 @@ The progress summary system provides automated analysis and summarization of cha
 - Virtual environment (venv)
 - API access to both Quoter and Pipedrive
 
+### API Documentation
+- **Quoter API:** https://api.quoter.com/docs
+- **Pipedrive API:** https://developers.pipedrive.com/docs/api/v1
+
 ### Installation
 ```bash
 # Clone the repository
