@@ -33,4 +33,4 @@ jobs:
           --api-token $PIPEDRIVE_API_TOKEN \
           --catsub-key 9c636133839b978b686bbc952fbd5dc41d5cd087 \
           --subcategory-key ae55145d60840de457ff9e785eba68f0b39ab777 \
-          --batch-size 50
+                    --batch-size 50

@@ -22,6 +22,57 @@ if [ -z "$(git status --porcelain)" ]; then
     exit 0
 fi
 
+# Validate GitHub Actions workflows before committing
+echo "🔍 Validating GitHub Actions workflows..."
+if [ -d ".github/workflows" ]; then
+    for workflow in .github/workflows/*.yml .github/workflows/*.yaml; do
+        if [ -f "$workflow" ]; then
+            echo "   Checking: $(basename "$workflow")"
+            # Check for common syntax issues
+            if grep -q "github\.event\.schedule.*==" "$workflow"; then
+                echo "   ⚠️  Warning: Found potentially problematic schedule condition in $(basename "$workflow")"
+                echo "   💡 Tip: Consider using separate workflow files instead of complex conditionals"
+            fi
+            if grep -q "if:.*github\.event\.schedule.*!=" "$workflow"; then
+                echo "   ⚠️  Warning: Found potentially problematic schedule condition in $(basename "$workflow")"
+                echo "   💡 Tip: Consider using separate workflow files instead of complex conditionals"
+            fi
+            # Check for basic YAML syntax using a simple approach
+            if ! python3 -c "
+import sys
+try:
+    with open('$workflow', 'r') as f:
+        content = f.read()
+    # Basic YAML validation - check for common issues
+    lines = content.split('\n')
+    for i, line in enumerate(lines, 1):
+        # Check for mixed indentation (spaces and tabs)
+        if '  ' in line and '\t' in line:
+            print(f'Mixed indentation on line {i}')
+            sys.exit(1)
+        # Check for unclosed quotes
+        if line.count('\"') % 2 != 0:
+            print(f'Unclosed quotes on line {i}')
+            sys.exit(1)
+        if line.count(\"'\") % 2 != 0:
+            print(f'Unclosed single quotes on line {i}')
+            sys.exit(1)
+except Exception as e:
+    print(f'Error: {e}')
+    sys.exit(1)
+" 2>/dev/null; then
+                echo "   ❌ YAML syntax error in $(basename "$workflow")"
+                echo "   🔧 Please fix YAML syntax before committing"
+                exit 1
+            fi
+            echo "   ✅ $(basename "$workflow") syntax looks good"
+        fi
+    done
+    echo "   ✅ All workflow files validated"
+else
+    echo "   ℹ️  No .github/workflows directory found"
+fi
+
 # Get timestamp for commit message
 TIMESTAMP=$(date "+%Y-%m-%d %H:%M")
 COMMIT_MSG="End of day sync: $TIMESTAMP - Automated update"
