@@ -12,7 +12,6 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    if: github.event.schedule == '0,30 6-17 * * 1-5' || github.event_name == 'workflow_dispatch'
     
     steps:
     - name: Checkout code
@@ -38,7 +37,6 @@ jobs:
 
   catsub-backfill:
     runs-on: ubuntu-latest
-    if: github.event.schedule == '0 2 * * *' || github.event_name == 'workflow_dispatch'
     
     steps:
     - name: Checkout code
