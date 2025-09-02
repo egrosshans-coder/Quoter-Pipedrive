@@ -99,10 +99,11 @@ def handle_organization_webhook():
             logger.info(f"Organization {organization_id} not ready for quotes (status: {hid_status})")
             return jsonify({"status": "ignored", "reason": "not_ready_for_quotes"}), 200
         
-        # Process organizations from all owners (no owner restriction)
+        # Check if owned by Maurice (ID: 19103598)
         owner_id = organization_data.get('owner_id', {}).get('value')
-        owner_name = organization_data.get('owner_id', {}).get('name', 'Unknown')
-        logger.info(f"Processing organization {organization_id} owned by {owner_name} (ID: {owner_id})")
+        if owner_id != 19103598:
+            logger.info(f"Organization {organization_id} not owned by Maurice (owner: {owner_id})")
+            return jsonify({"status": "ignored", "reason": "wrong_owner"}), 200
         
         # Get organization name and deal ID
         organization_name = organization_data.get('name', 'Unknown Organization')
