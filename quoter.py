@@ -362,7 +362,7 @@ def create_or_find_contact_in_quoter(contact_name, contact_email=None, contact_p
         # Parse first and last name from contact_name
         name_parts = contact_name.split(" ", 1)
         first_name = name_parts[0] if name_parts else contact_name
-        last_name = name_parts[1] if len(name_parts) > 1 else ""
+        last_name = name_parts[1] if len(name_parts) > 1 else "Contact"  # Fallback for Quoter API requirement
         
         # Create contact with all required fields
         contact_data = {
@@ -519,7 +519,7 @@ def create_comprehensive_contact_from_pipedrive(pipedrive_contact_data, pipedriv
         # Parse first and last name from contact_name
         name_parts = contact_name.split(" ", 1)
         first_name = name_parts[0] if name_parts else contact_name
-        last_name = name_parts[1] if len(name_parts) > 1 else ""
+        last_name = name_parts[1] if len(name_parts) > 1 else "Contact"  # Fallback for Quoter API requirement
         
         # Create comprehensive contact data using standard Quoter fields
         contact_data = {
