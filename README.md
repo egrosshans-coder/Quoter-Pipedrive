@@ -14,6 +14,11 @@ A Python project that synchronizes data between Quoter and Pipedrive APIs, inclu
 - `notification.py` - Multi-channel notification system (Slack, Email, Pipedrive)
 - `session_manager.py` - CLI session management and command grouping
 
+### Monitoring & Troubleshooting
+- `automation_monitor.py` - Comprehensive monitoring of Pipedrive automation workflow
+- `quick_monitor.py` - Real-time monitoring of specific deals and webhook status
+- `webhook_logger.py` - Webhook activity logging and debugging
+
 ### Product/Item Management
 - `category_manager.py` - Consolidated category mapping system
 - `validate_import_categories.py` - Validates import categories against Pipedrive
@@ -178,6 +183,7 @@ NOTIFICATION_EMAILS=email1@domain.com,email2@domain.com
 - Links quotes to deals and organizations
 - Sends notifications to sales team
 - Handles Pipedrive automation integration
+- **✅ FULLY OPERATIONAL** - End-to-end automation working (Sept 2025)
 
 ### Progress Tracking
 - Automated chat session analysis
@@ -249,6 +255,69 @@ This project supports the complete Pipedrive → Quoter → QBO workflow:
 3. **Product Sync** keeps products synchronized between systems
 4. **Notifications** alert sales team when quotes are ready for editing
 5. **Progress Tracking** maintains context and documentation across sessions
+
+## Monitoring & Troubleshooting
+
+### Monitoring Programs
+
+#### **1. automation_monitor.py**
+- **Purpose:** Comprehensive monitoring of Pipedrive automation workflow
+- **Usage:** `python3 automation_monitor.py`
+- **Features:**
+  - Webhook server health checks
+  - Deal status monitoring
+  - Organization details tracking
+  - HID-QBO-Status progression alerts
+  - Webhook trigger verification
+  - Quote creation confirmation
+
+#### **2. quick_monitor.py**
+- **Purpose:** Real-time monitoring of specific deals
+- **Usage:** `python3 quick_monitor.py [DEAL_ID] [INTERVAL]`
+- **Example:** `python3 quick_monitor.py 2499 10` (monitor deal 2499 every 10 seconds)
+- **Features:**
+  - Real-time status updates
+  - Webhook trigger detection
+  - Quick troubleshooting for specific deals
+  - Owner and organization tracking
+
+#### **3. webhook_logger.py**
+- **Purpose:** Log all incoming webhook activity
+- **Usage:** `python3 webhook_logger.py`
+- **Features:**
+  - Webhook payload logging
+  - Error tracking
+  - Debugging support
+  - Activity monitoring
+
+### Monitoring Best Practices
+
+#### **When to Use Each Tool:**
+- **`quick_monitor.py`** - For immediate troubleshooting of specific deals
+- **`automation_monitor.py`** - For comprehensive system health checks
+- **`webhook_logger.py`** - For debugging webhook issues
+
+#### **Recommended Monitoring Schedule:**
+- **Real-time:** Use `quick_monitor.py` when testing new deals
+- **Daily:** Run `automation_monitor.py` for system health checks
+- **Debugging:** Use `webhook_logger.py` when investigating webhook issues
+
+### Recent Fixes (September 2025)
+
+#### **✅ Webhook Automation Fully Operational**
+- **Issue:** SyncQ "Required parameter Line is missing" error
+- **Solution:** Removed optional phone/email mappings from SyncQ
+- **Result:** QBO customer creation now works successfully
+
+#### **✅ Contact Creation Fixed**
+- **Issue:** Quoter API "last_name is required" error
+- **Solution:** Added fallback "Contact" for empty last_name fields
+- **Result:** Contact creation now works for all name formats
+
+#### **✅ Owner Restriction Removed**
+- **Issue:** Webhook only processed Maurice's organizations
+- **Solution:** Removed hardcoded owner restriction
+- **Result:** Webhook now processes all owners consistently
 
 ## Troubleshooting
 
