@@ -268,6 +268,68 @@ This project supports the complete Pipedrive → Quoter → QBO workflow:
 - **Error prevention:** Stops commits if workflow files have syntax errors
 - **Educational warnings:** Shows tips about better workflow patterns
 
+## Major Sync Issues Addressed
+
+### Phase 1: Pipedrive ↔ QBO Sync Issues (via SyncQ)
+
+#### **Problem**: QBO Sync Failures
+- **Error**: "Property Name:failed to parse json object; a property specified is unsupported or invalid"
+- **Root Cause**: Invalid enum values in Pipedrive "QuickBooks Item Type" custom field
+- **Solution**: Updated enum values to match QBO API requirements:
+  - ✅ **Valid**: Service, Inventory, NonInventory, Bundle
+  - ❌ **Invalid**: Category, Payment, Assembly, etc.
+
+#### **Problem**: Account Reference Issues
+- **Error**: "Required parameter ExpenseAccountRef or IncomeAccountRef is missing in the request"
+- **Root Cause**: SyncQ couldn't properly map Pipedrive account names to QBO internal IDs
+- **Specific Issues**:
+  - **Spelling Mismatch**: "Purchase" vs "Purchases" (singular vs plural)
+  - **Format Issues**: QBO expects `ReferenceType` objects, not plain strings
+  - **Mapping Failures**: "Contracted Labor" failed, "Purchases" worked inconsistently
+
+#### **Resolution**: 
+- ✅ **Fixed**: Item names, category formats, purchase flags, missing item types
+- ❌ **Unresolved**: Expense/Income account reference mapping (deferred to Quoter-QBO sync)
+
+### Phase 2: Pipedrive → Quoter Sync (New System)
+
+#### **Problem**: Data Discrepancies After QBO Sync
+- **Issue**: Modified data in Pipedrive needed to be synced back to Quoter
+- **Solution**: Built complete sync system with OAuth authentication
+- **Fixed Issues**:
+  - ✅ **AI DJ Item**: Code mismatch (`DJ-AI-001` → `AI-DJ-001`)
+  - ✅ **Draft Quote Instructions**: Code mismatch (`AI / DJ` → `QTE-DRFT-ITM`)
+  - ✅ **Silent Storm T**: Added missing item to Quoter
+  - ✅ **Orphaned Items**: Cleaned up 5 duplicate items from Quoter
+
+#### **Final Result**: Perfect sync between Pipedrive and Quoter (244 matches + 1 unique item)
+
+## Lessons Learned & Future Recommendations
+
+### **Source of Truth Strategy**
+- **Decision**: **Quoter should be the source of truth** (established weeks ago)
+- **Recommended Flow**: 
+  1. Create item in Quoter
+  2. Push item to QBO
+  3. QBO pushes item to Pipedrive
+- **Benefits**: Avoids SyncQ mapping issues and maintains data integrity
+
+### **What to Avoid in Future**
+1. **Direct Pipedrive → QBO sync** via SyncQ for account references
+2. **Enum field mismatches** - always validate against target API requirements
+3. **Plain string account references** - use proper `ReferenceType` objects
+4. **Inconsistent naming** - maintain strict naming conventions across systems
+
+### **SyncQ Limitations Identified**
+- **Account Reference Mapping**: Cannot handle QBO's `ReferenceType` format
+- **Real-time Sync Issues**: Batch import works, but real-time sync fails
+- **Field Format Conversion**: Sends plain strings instead of required JSON objects
+
+### **Future Implementation Strategy**
+- **Quoter → QBO**: Direct API integration with proper `ReferenceType` formatting
+- **QBO → Pipedrive**: Use QBO's native Pipedrive integration
+- **Avoid SyncQ**: For account reference fields due to format limitations
+
 ## Development Guidelines
 
 - **Shared files** (`quoter.py`, `pipedrive.py`, `utils/`) contain common functionality used across multiple features
