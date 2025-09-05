@@ -152,33 +152,57 @@ def get_access_token():
         logger.error(f"❌ Error getting OAuth token: {e}")
         return None
 
-def _fetch_items_with_date_filter(endpoint, headers, filter_type, filter_value):
+def get_quoter_products(since_date=None):
     """
-    Fetch items from Quoter API with a specific date filter.
+    Fetch products/items from Quoter API with optional date filtering.
+    
+    Based on Quoter API documentation: https://docs.quoter.com/api
     
     Args:
-        endpoint (str): API endpoint URL
-        headers (dict): Request headers
-        filter_type (str): Filter type (e.g., "created_at[gt]", "modified_at[gt]")
-        filter_value (str): Filter value (ISO date string)
+        since_date (str, optional): ISO date string (YYYY-MM-DD) to filter items 
+                                   modified since this date. If None, gets all items.
     
     Returns:
-        list: List of items from the API
+        list: List of product data from Quoter
     """
-    all_items = []
-    page = 1
-    limit = 100
+    # First get OAuth access token
+    access_token = get_access_token()
+    if not access_token:
+        return []
     
-    while True:
-        params = {
-            "limit": limit,
-            "page": page
-        }
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+    
+    # According to Quoter API docs, the correct endpoint is /items
+    endpoint = "https://api.quoter.com/v1/items"
+    
+    try:
+        if since_date:
+            logger.info(f"Fetching items from Quoter API modified since {since_date}: {endpoint}")
+        else:
+            logger.info(f"Fetching all items from Quoter API: {endpoint}")
         
-        if filter_type and filter_value:
-            params[filter_type] = filter_value
+        all_items = []
+        page = 1
+        limit = 100
         
-        try:
+        # Get all items with pagination using page parameter
+        while True:
+            # Add pagination parameters
+            params = {
+                "limit": limit,
+                "page": page
+            }
+            
+            # Add date filter if specified
+            if since_date:
+                # Convert date to ISO 8601 format (e.g., "2025-08-04" -> "2025-08-04T00:00:00.000Z")
+                if 'T' not in since_date:
+                    since_date = f"{since_date}T00:00:00.000Z"
+                params["modified_at[gt]"] = since_date
+            
             response = requests.get(endpoint, headers=headers, params=params, timeout=10)
             
             if response.status_code == 200:
@@ -204,101 +228,29 @@ def _fetch_items_with_date_filter(endpoint, headers, filter_type, filter_value):
             else:
                 logger.error(f"❌ API request failed with status {response.status_code}: {response.text}")
                 break
-                
-        except requests.exceptions.RequestException as e:
-            logger.error(f"❌ Error fetching items: {e}")
-            break
-    
-    return all_items
-
-def _combine_and_deduplicate_items(created_items, modified_items):
-    """
-    Combine two lists of items and remove duplicates.
-    
-    Args:
-        created_items (list): Items created since date
-        modified_items (list): Items modified since date
-    
-    Returns:
-        list: Combined unique items
-    """
-    all_items = created_items + modified_items
-    
-    # Remove duplicates based on item ID
-    unique_items = []
-    seen_ids = set()
-    
-    for item in all_items:
-        item_id = item.get('id')
-        if item_id and item_id not in seen_ids:
-            unique_items.append(item)
-            seen_ids.add(item_id)
-        elif not item_id:
-            # If no ID, use name as fallback
-            item_name = item.get('name', '')
-            if item_name not in seen_ids:
+        
+        # Remove duplicates based on item ID
+        unique_items = []
+        seen_ids = set()
+        
+        for item in all_items:
+            item_id = item.get('id')
+            if item_id and item_id not in seen_ids:
                 unique_items.append(item)
-                seen_ids.add(item_name)
-    
-    logger.info(f"Combined {len(created_items)} created + {len(modified_items)} modified = {len(unique_items)} unique items")
-    return unique_items
-
-def get_quoter_products(since_date=None):
-    """
-    Fetch products/items from Quoter API with optional date filtering.
-    
-    Based on Quoter API documentation: https://docs.quoter.com/api
-    
-    Args:
-        since_date (str, optional): ISO date string (YYYY-MM-DD) to filter items 
-                                   created or modified since this date. If None, gets all items.
-    
-    Returns:
-        list: List of product data from Quoter
-    """
-    # First get OAuth access token
-    access_token = get_access_token()
-    if not access_token:
+                seen_ids.add(item_id)
+            elif not item_id:
+                # If no ID, use name as fallback
+                item_name = item.get('name', '')
+                if item_name not in seen_ids:
+                    unique_items.append(item)
+                    seen_ids.add(item_name)
+        
+        logger.info(f"✅ Successfully retrieved {len(unique_items)} unique items from Quoter (removed {len(all_items) - len(unique_items)} duplicates)")
+        return unique_items
+            
+    except requests.exceptions.RequestException as e:
+        logger.error(f"❌ Error connecting to Quoter API: {e}")
         return []
-    
-    headers = {
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/json"
-    }
-    
-    # According to Quoter API docs, the correct endpoint is /items
-    endpoint = "https://api.quoter.com/v1/items"
-    
-    try:
-        if since_date:
-            logger.info(f"Fetching items from Quoter API created or modified since {since_date}: {endpoint}")
-        else:
-            logger.info(f"Fetching all items from Quoter API: {endpoint}")
-        
-        all_items = []
-        
-        if since_date:
-            # Convert date to ISO 8601 format
-            if 'T' not in since_date:
-                since_date = f"{since_date}T00:00:00.000Z"
-            
-            # Get items created since the date
-            created_items = _fetch_items_with_date_filter(endpoint, headers, "created_at[gt]", since_date)
-            logger.info(f"Found {len(created_items)} items created since {since_date}")
-            
-            # Get items modified since the date
-            modified_items = _fetch_items_with_date_filter(endpoint, headers, "modified_at[gt]", since_date)
-            logger.info(f"Found {len(modified_items)} items modified since {since_date}")
-            
-            # Combine and deduplicate items
-            all_items = _combine_and_deduplicate_items(created_items, modified_items)
-            logger.info(f"Combined total: {len(all_items)} unique items")
-        else:
-            # Get all items without date filtering
-            all_items = _fetch_items_with_date_filter(endpoint, headers, None, None)
-        
-        logger.info(f"✅ Successfully retrieved {len(all_items)} items from Quoter")
-        return all_items
             
     except requests.exceptions.RequestException as e:
         logger.error(f"❌ Error connecting to Quoter API: {e}")

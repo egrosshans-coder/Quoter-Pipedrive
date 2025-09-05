@@ -43,13 +43,33 @@ def update_or_create_products(products):
                 # Removed owner_id - let Pipedrive assign default owner
             }
             
-            # Add price if available
-            if product.get("price_decimal"):
-                pipedrive_product["price"] = int(product.get("price_decimal", 0))
+            # Add price and cost in Pipedrive's expected format (prices array)
+            price_value = None
+            cost_value = None
             
-            # Add cost if available (Pipedrive stores cost in prices array)
+            if product.get("price_decimal"):
+                price_value = product.get("price_decimal", 0)
+                # Handle both integer and decimal string values
+                if isinstance(price_value, str) and '.' in price_value:
+                    price_value = int(float(price_value))
+                else:
+                    price_value = int(price_value)
+            
             if product.get("cost_decimal"):
-                pipedrive_product["cost"] = int(product.get("cost_decimal", 0))
+                cost_value = product.get("cost_decimal", 0)
+                # Handle both integer and decimal string values
+                if isinstance(cost_value, str) and '.' in cost_value:
+                    cost_value = int(float(cost_value))
+                else:
+                    cost_value = int(cost_value)
+            
+            # Create prices array for Pipedrive
+            if price_value is not None or cost_value is not None:
+                pipedrive_product["prices"] = [{
+                    "price": price_value or 0,
+                    "cost": cost_value or 0,
+                    "currency": "USD"
+                }]
             
             # Add category and subcategory if available (Pipedrive has separate fields)
             if product.get("category_id"):
@@ -135,13 +155,16 @@ def update_or_create_products(products):
                     needs_update = True
                     update_reasons.append("description")
                 
-                if existing_product.get("price") != pipedrive_product.get("price"):
-                    needs_update = True
-                    update_reasons.append("price")
+                # Compare prices array
+                existing_prices = existing_product.get("prices", [])
+                new_prices = pipedrive_product.get("prices", [])
                 
-                if existing_product.get("cost") != pipedrive_product.get("cost"):
+                if existing_prices != new_prices:
                     needs_update = True
-                    update_reasons.append("cost")
+                    if new_prices:
+                        update_reasons.append("price")
+                        if new_prices[0].get("cost", 0) != 0:
+                            update_reasons.append("cost")
                 
                 if existing_product.get("category") != pipedrive_product.get("category"):
                     needs_update = True

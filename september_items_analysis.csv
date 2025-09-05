@@ -1,0 +1,42 @@
+Item Name,Code,Description,Category,Subcategory,SKU,Price,Cost,Sync Status,Missing Required Fields,Quoter ID
+"10ft 12"" boxtruss",EQP-TRS-001,<p>10ft pipe and heavy base</p>,AI,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32ChPkpNQpa5cZ4xwmFc7GIdeLY
+"10ft 20"" boxtruss",EQP-TRS-002,"<p>10ft  20 "" boxtruss</p>",AI,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32ChfNk0RDfnyGQtn92BtcI7AWg
+3 pin to 5 pin adapter,CBL-ADP-001,<p>converts 5pin XLR cables to 3 pin XLR cables</p>,Cables,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CXjDlaxeqJOZkmUYYOqK9qavM
+AC Cables,CBL-AC-001,<p>Electrical extension cords</p>,Cables,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CWVrA2KzZMjcGyyo63Y8ZDqyT
+Balloon drop net,BAL-DRP-001,<p>Netting for holding balloons before they drop</p>,Balloons,Drop,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32Cpy3rVdLA7PeRAUife6h8ix3L
+Balloon- 12 ft,BAL-LRG-003,<p>Large helium filled ballooon</p>,Balloons,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32ClHaQ9XI68hC0gYGKxUbNsGBL
+Balloon- 8 ft,BAL-LRG-002,<p>Large helium filled ballooon</p>,Balloons,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32Cl64wK7PBa0EEfB30SkN7vzDZ
+Balloons per package,BAL-PKG-001,<p>Latex balloons-per client colors ordered</p>,Balloons,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CkqCp8Ypradu4W1kaPlHLhNPQ
+CO2 high pressure lines,CO2-HOS-001,<p>High pressure gas lines</p>,CO2,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32Ck05GJ4oUWgmiUQUTHTcqL7Kt
+Confetti-synthetic rose petals,CNF-ROS-001,<p>Synthetic rose petals</p>,Confetti/Streamers,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32ClkHvszY0gBwiO29BadECSV6g
+Fan- standard,FOG-FAN-001,<p>Low volume fan to blow air </p>,Fog,Fan,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CRPuIaxDtkt9VdltvQQfo6ZBy
+Fan-RE2- high volume,FOG-FAN-002,<p>Profesional high volume effects fan</p>,Fans,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CRrCO5p8QzaeBTl2j02k6qoOV
+Fan-RE3- high volume,FOG-FAN-003,<p>Profesional high volume effects fan</p>,Fans,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CRyJIIxLtH5YM2H8grBXZ7ttn
+Fogger up-Right ,FOG-UP-001,<p>Fog blasts upwards to simulate co2 effect</p>,Fog,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CT6fK0GJzNAzKM291wLNErGyE
+Lanyard Branding Options,LED-LAN-BRAND,Adhesive backed label for face of wristband,Wristbands/Lanyards/Orbs,Branding,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_329lR3rnol12E626wN19ik4b2c5
+LED-lights,LED-LGT-001,<p>LED lights for uplight</p>,LED,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CbPPVbQUMNRaawCkT1dW603mL
+Nitrogen regulator,EQP-NTR-001,<p>Nitrogen regulator to fill streamer launchers with air</p>,Confetti/Streamers,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32Cjgz3lMIMt83FAeuEpwoNRBHA
+NSI board,CNTRL-NSI-001,<p>Control board for DMX</p>,Product,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CTwQasfH0nZVBRaqcGutMKXPk
+Pipe and base (10ft),EQP-PIP-001,<p>10ft pipe and base</p>,Product,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CmdUdjyPwxrlP8iAxsNZouq7p
+Pop up Pockets,FOG-router-001,<p>Stage pocket that rises to release fog</p>,Fog,director,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CQlBVDJSXheC1q4MyCqsre9eR
+Pryo- barge rental,Pyro-BRG-001,<p>Rental of barge for firework display</p>,Pyro,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CYj4bMYGvg3w1j3Sv37FrLiwZ
+Pyro-Canister ,PYRO-CNST-002,<p>Disposable cannisters for flame effect</p>,Pyro,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CZX88gyHOTzn9K3IWuuwyvQ1u
+Pyro-Canister flame generator,PYRO-CNST-001,<p>Flame effect with disposable cannisters</p>,Pyro,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CZPug0Javtt2sDj0PhSfNjJgi
+Pyro-Dragon fly,PYRO-DRG-001,<p>Flame generator-large</p>,Pyro,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CaDWnSOHwB8QyzB9Dm210t000
+Pyro-Fire exstinquishers,Pyro-EXST-001,<p>Fire exstinquishers</p>,Pyro,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CYGfC3fd0H4RDp4qJhqzFrzwW
+Pyro-Firefly,PYRO-DRG-002,<p>Flame generator-medium</p>,Pyro,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CaKUMpdp8nwMWICKyAOahYpa6
+Pyro-Flamable liquids ,PYRO-REAL-002,<p>Flamable liquids to create fire</p>,Pyro,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CZzxgJxMGV6Sm61feUEVUps8d
+Pyro-flame bar,PYRO-FLM-001,<p>Flame bar to create fire effect</p>,Pyro,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CYxjkqG37BgaLWvQKfMdvdOeO
+Pyro-Licensed pyrotechnician,PYRO-LIC-002,<p>Licensed pyrotechnician</p>,Pyro,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CaSKdgUGZhnpZYLMqEbMFOR6Y
+Pyro-permit,PYRO-PRM-001,<p>Permit for pyro or firework display</p>,Pyro,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CaYjc9RuOHkyXPiPFLkuxtzpM
+Pyro-Propane tank,PYRO-TNK-001,<p>Propane tanks for flame effect</p>,Pyro,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CZ9wBysR62itrQXFskkWg1Jpm
+Pyro-real fire ,PYRO-REAL-001,<p>Fire created with flamable liquids</p>,Pyro,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CZpkXMVzeXwO1WGm15Y0CWAaw
+Silent Storm Confetti Blowers - T,CNF-BLW-T,Silent Storm Confetti Blowers - Tall Version,Confetti/Streamers,Blowers,757,None,None,Synced,Price (REQUIRED); Cost (optional),item_327qKIpTWDZaOUq8o3ltB29eCN3
+"truss base plate for 12"" ",EQP-TRS-005,"<p>Base plate for 12"" boxtruss</p>",Product,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CiN9u0GHUpEEVsHqtKRK6jXOt
+"truss base plate for 20"" ",EQP-TRS-006,"<p>Base plate for 20"" boxtruss</p>",Product,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32Cinawulp1coJ6jdtjl8ULjjfP
+"truss corner block for 12"" ",EQP-TRS-003,"<p>Corner block for 12"" boxtruss</p>",AI,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32Chry5iNOEbCoI8Bn2qkNgVByR
+"truss corner block for 20"" ",EQP-TRS-004,"<p>Corner block for 20"" boxtruss</p>",Product,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32Ci35WTqzvonsV6CJXfs1ZX6yE
+UV/Black light,LGT-BLK-001,<p>Ultra violet light for black light effects</p>,Product,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32ClXGEy1uOawr2HWIimtRSgQdS
+White sparkle fountain granules,Pyro-WSF-002,<p>Granules to create white sparkle fountain effect</p>,Pyro,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32Cb9KmicxJlg0rAfO4bTniYbs5
+XLR cables-3pin,CBL-XLR-001,<p>Cables for DMX</p>,Cables,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CWpdcLCFN0zNcLmSKFfYOsSxJ
+XLR cables-5pin,CBL-XLR-002,<p>Cables for DMX</p>,Cables,None,None,None,None,Not Synced,Price (REQUIRED); SKU (for linking); Cost (optional),item_32CWs3xZHkd9bT0qOnDCEQpwXOm
