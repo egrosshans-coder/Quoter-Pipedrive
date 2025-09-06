@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 """
 Pipedrive Cat:Sub Backfill (Passive)
 ------------------------------------
@@ -117,6 +118,18 @@ def build_catsub(cat_id: Any, sub_value: Any, cat_map: Dict[str, str]) -> Option
         return f"{parent}:{child}"
     return parent
 
+def determine_item_types(product_code: Any, service_id: int, noninventory_id: int, 
+                        service_ps_id: int, noninventory_ps_id: int) -> tuple[int, int]:
+    """Determine both QBO item type and Product/Service type based on product code"""
+    if not product_code:
+        return noninventory_id, noninventory_ps_id  # Default to NonInventory if no code
+    
+    code = str(product_code).strip().upper()
+    if code.startswith("SVC"):
+        return service_id, service_ps_id
+    else:
+        return noninventory_id, noninventory_ps_id
+
 def should_skip(product: Dict[str, Any],
                 catsub_key: str,
                 desired_value: str,
@@ -156,8 +169,14 @@ def main():
     ap.add_argument("--api-token", default=os.getenv("PIPEDRIVE_API_TOKEN"), required=False, help="Pipedrive API token")
     ap.add_argument("--catsub-key", required=True, help="Custom field key for QBO-Category:Subcategory (text)")
     ap.add_argument("--subcategory-key", required=True, help="Custom field key for your Subcategory (text)")
-    ap.add_argument("--sync-key", required=False, help="Custom field key for Sync to QuickBooks (enum) to avoid touching 'Yes' records")
-    ap.add_argument("--sync-yes-id", type=int, required=False, help="Option ID that represents 'Yes' for the Sync field")
+    ap.add_argument("--sync-key", required=True, help="Custom field key for Sync to QuickBooks (enum) - now required to set Sync field")
+    ap.add_argument("--sync-yes-id", type=int, required=True, help="Option ID that represents 'Yes' for the Sync field - now required to set Sync field")
+    ap.add_argument("--qbo-itemtype-key", required=True, help="Custom field key for QuickBooks Item Type (enum)")
+    ap.add_argument("--service-id", type=int, required=True, help="Option ID for 'Service' in QuickBooks Item Type field")
+    ap.add_argument("--noninventory-id", type=int, required=True, help="Option ID for 'NonInventory' in QuickBooks Item Type field")
+    ap.add_argument("--product-service-key", required=True, help="Custom field key for Product/Service (enum)")
+    ap.add_argument("--service-ps-id", type=int, required=True, help="Option ID for 'Service' in Product/Service field")
+    ap.add_argument("--noninventory-ps-id", type=int, required=True, help="Option ID for 'Non-inventory' in Product/Service field")
     ap.add_argument("--category-field-id", type=int, help="Product field id for Category enum (optional; will auto-detect if omitted)")
     ap.add_argument("--filter-id", type=int, help="Pipedrive product filter_id to limit scope (recommended)")
     ap.add_argument("--batch-size", type=int, default=50, help="Page size for listing products (default 50)")
@@ -186,6 +205,8 @@ def main():
         pid = prod.get("id")
         cat_id = prod.get("category")
         sub_val = prod.get(args.subcategory_key)
+        product_code = prod.get("code")  # Get the product code for item type determination
+        
         if args.require_subcategory and not (isinstance(sub_val, str) and sub_val.strip()):
             skipped_missing_sub += 1
             continue
@@ -194,6 +215,12 @@ def main():
         if not catsub:
             # No category; nothing to do
             continue
+        
+        # Determine both QBO item type and Product/Service type based on product code
+        qbo_item_type_id, ps_item_type_id = determine_item_types(
+            product_code, args.service_id, args.noninventory_id, 
+            args.service_ps_id, args.noninventory_ps_id
+        )
 
         if should_skip(prod, args.catsub_key, catsub, args.sync_key, args.sync_yes_id):
             # Track why skipped
@@ -204,12 +231,20 @@ def main():
             continue
 
         processed += 1
-        print(f"[{processed}] Product {pid}: {prod.get('name','(no name)')} -> {catsub}")
+        qbo_type_name = "Service" if qbo_item_type_id == args.service_id else "NonInventory"
+        ps_type_name = "Service" if ps_item_type_id == args.service_ps_id else "Non-inventory"
+        print(f"[{processed}] Product {pid}: {prod.get('name','(no name)')} -> {catsub} (QBO: {qbo_type_name}, PS: {ps_type_name})")
         if args.dry_run:
             continue
 
         try:
-            body = {args.catsub_key: catsub}
+            # Set CatSub field, QBO Item Type, Product/Service, and Sync field (LAST) in one update
+            body = {
+                args.catsub_key: catsub,
+                args.qbo_itemtype_key: qbo_item_type_id,  # Set QBO Item Type based on product code
+                args.product_service_key: ps_item_type_id,  # Set Product/Service based on product code
+                args.sync_key: args.sync_yes_id  # Set Sync to QuickBooks to "Yes" (83) - LAST!
+            }
             _ = pd_call(args.domain, args.api_token, "PUT", f"/products/{pid}",
                         params={"strict_mode": 1, "return_item": 1}, json=body)
             updated += 1

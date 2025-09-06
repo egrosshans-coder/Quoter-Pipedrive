@@ -8,7 +8,7 @@ This script tests the connection and basic functionality of the QBO integration.
 import os
 import sys
 from dotenv import load_dotenv
-from quoter_to_qbo_sync import QuickBooksOnlineAPI
+from quoter_to_qbo_sync import QBOClient
 from quoter import get_quoter_products
 from utils.logger import logger
 
@@ -18,13 +18,11 @@ def test_qbo_connection():
     """Test QBO API connection and authentication."""
     logger.info("=== Testing QBO Connection ===")
     
-    qbo = QuickBooksOnlineAPI()
-    
-    # Test access token
-    if qbo.get_access_token():
-        logger.info("✅ QBO access token obtained successfully")
-    else:
-        logger.error("❌ Failed to get QBO access token")
+    try:
+        qbo = QBOClient()
+        logger.info("✅ QBO client initialized successfully")
+    except ValueError as e:
+        logger.error(f"❌ Failed to initialize QBO client: {e}")
         return False
     
     # Test getting existing items
@@ -63,16 +61,20 @@ def test_item_mapping():
         "category": "Test Category"
     }
     
-    qbo = QuickBooksOnlineAPI()
-    qbo_item = qbo._map_quoter_to_qbo_item(sample_quoter_item)
+    # Import the conversion function
+    from quoter_to_qbo_sync import convert_quoter_to_qbo_item
+    qbo_item = convert_quoter_to_qbo_item(sample_quoter_item)
     
-    logger.info(f"✅ Mapped Quoter item to QBO format:")
-    logger.info(f"   Name: {qbo_item['Name']}")
-    logger.info(f"   Description: {qbo_item['Description']}")
-    logger.info(f"   Unit Price: {qbo_item['UnitPrice']}")
-    logger.info(f"   Purchase Cost: {qbo_item['PurchaseCost']}")
-    
-    return True
+    if qbo_item:
+        logger.info(f"✅ Mapped Quoter item to QBO format:")
+        logger.info(f"   Name: {qbo_item['Name']}")
+        logger.info(f"   Description: {qbo_item.get('Description', 'N/A')}")
+        logger.info(f"   Unit Price: {qbo_item['UnitPrice']}")
+        logger.info(f"   Type: {qbo_item['Type']}")
+        return True
+    else:
+        logger.error("❌ Failed to map Quoter item to QBO format")
+        return False
 
 def main():
     """Run all tests."""
