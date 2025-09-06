@@ -278,9 +278,13 @@ def get_quoter_products(since_date=None):
         all_items = []
         
         if since_date:
-            # Convert date to ISO 8601 format
+            # Ensure date is in ISO 8601 format
             if 'T' not in since_date:
+                # Old date-only format, convert to datetime
                 since_date = f"{since_date}T00:00:00.000Z"
+            elif not since_date.endswith('Z'):
+                # Add timezone if missing
+                since_date = f"{since_date}Z"
             
             # Get items created since the date
             created_items = _fetch_items_with_date_filter(endpoint, headers, "created_at[gt]", since_date)

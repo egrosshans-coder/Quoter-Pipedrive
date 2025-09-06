@@ -6,10 +6,17 @@ A Python project that synchronizes data between Quoter and Pipedrive APIs, inclu
 
 ### Core Integration Files
 - `pipedrive.py` - Main Pipedrive API client with product sync functionality
+  - **Recent updates:** Fixed price structure to use `prices` array format
+  - **Recent updates:** Added decimal value handling for prices and costs
+  - **Recent updates:** Enhanced price comparison logic for updates
 - `quoter.py` - Quoter API client for authentication and data access
+  - **Recent updates:** Refactored to use both `created_at[gt]` and `modified_at[gt]` filters
+  - **Recent updates:** Added helper functions for date filtering and deduplication
 - `webhook_handler.py` - Pipedrive webhook processing and automation
 - `sync_with_date_filter.py` - Main Quoter-Pipedrive synchronization script
 - `pd_catsub_backfill.py` - CatSub field backfill script for Pipedrive products
+  - **Purpose:** Populates Category:Subcategory fields for QBO integration
+  - **Usage:** `python3 pd_catsub_backfill.py --domain your-domain --api-token your-token`
 - `last_sync_date.txt` - Tracks last successful sync date for performance
 - `notification.py` - Multi-channel notification system (Slack, Email, Pipedrive)
 - `session_manager.py` - CLI session management and command grouping
@@ -170,10 +177,11 @@ NOTIFICATION_EMAILS=email1@domain.com,email2@domain.com
 
 ### Product/Item Sync
 - Bidirectional synchronization between Quoter and Pipedrive
-- Date-filtered sync for performance optimization
-- Category mapping and management
-- Price synchronization with proper data type handling
-- Automatic conflict resolution
+- **Enhanced date filtering** - captures both newly created AND modified items
+- Category mapping and management with automatic backfill
+- **Proper price structure** - uses Pipedrive's `prices` array format
+- **Decimal value handling** - correctly processes decimal prices and costs
+- Automatic conflict resolution and deduplication
 - CatSub field backfill for existing products
 - GitHub Actions automation with workflow validation
 
@@ -319,6 +327,51 @@ This project supports the complete Pipedrive → Quoter → QBO workflow:
 - **Solution:** Removed hardcoded owner restriction
 - **Result:** Webhook now processes all owners consistently
 
+#### **✅ Date Filtering Sync Fixed (September 4, 2025)**
+- **Issue:** New items created in Quoter not syncing to Pipedrive
+- **Root Cause:** Sync script only checked `modified_at[gt]` filter, missing newly created items
+- **Solution:** Refactored `quoter.py` to use both `created_at[gt]` and `modified_at[gt]` filters
+- **Implementation:** 
+  - Added `_fetch_items_with_date_filter()` helper function
+  - Added `_combine_and_deduplicate_items()` helper function
+  - Made separate API calls for created and modified items
+- **Result:** All new items (41 September items) now sync correctly to Pipedrive
+
+#### **✅ Price Data Structure Fixed (September 4, 2025)**
+- **Issue:** Price data not appearing in Pipedrive for new items
+- **Root Cause:** Pipedrive expects prices in `prices` array format, not direct `price` field
+- **Solution:** Updated `pipedrive.py` to use correct Pipedrive price structure:
+  ```json
+  "prices": [{"price": 75, "cost": 0, "currency": "USD"}]
+  ```
+- **Result:** All new items now have correct price data in Pipedrive
+
+#### **✅ Decimal Value Handling Fixed (September 4, 2025)**
+- **Issue:** `ValueError: invalid literal for int() with base 10: '0.5'` when syncing items with decimal prices
+- **Root Cause:** Code tried to convert decimal strings directly to integers
+- **Solution:** Added proper decimal string handling in `pipedrive.py`:
+  ```python
+  if isinstance(price_value, str) and '.' in price_value:
+      pipedrive_product["price"] = int(float(price_value))
+  else:
+      pipedrive_product["price"] = int(price_value)
+  ```
+- **Result:** Items with decimal prices (e.g., "0.5") now sync without errors
+
+#### **✅ Category Mapping Enhanced (September 4, 2025)**
+- **Issue:** New categories "Equipment" and "DMX" had no Pipedrive mappings
+- **Solution:** Used `pd_catsub_backfill.py` to populate Category:Subcategory fields
+- **Result:** All new items now have proper category mappings:
+  - Equipment items → `Equipment:Truss`
+  - DMX items → `DMX:Cables`
+  - Pyro items → `Pyro:Propane`
+
+#### **✅ GitHub Authentication Fixed (September 4, 2025)**
+- **Issue:** `sync.sh` script failing with "Authentication failed" error
+- **Root Cause:** GitHub Personal Access Token expired (expired September 7, 2025)
+- **Solution:** Generated new token and updated Git remote URL
+- **Result:** `sync.sh` script now works correctly again
+
 ## Troubleshooting
 
 ### GitHub Actions Issues
@@ -331,6 +384,13 @@ This project supports the complete Pipedrive → Quoter → QBO workflow:
 - **Broken conditional logic:** Avoid complex `if` conditions in workflows
 - **Older commit fallback:** Ensure workflow syntax is correct to prevent GitHub Actions from using older code
 - **Missing secrets:** Verify all required secrets are configured in GitHub repository settings
+
+### Sync Issues
+- **New items not syncing:** Check if sync script uses both `created_at[gt]` and `modified_at[gt]` filters
+- **Price data missing:** Verify Pipedrive uses `prices` array format, not direct `price` field
+- **Decimal value errors:** Ensure proper handling of decimal strings (e.g., "0.5" → `int(float("0.5"))`)
+- **Category mapping warnings:** Use `pd_catsub_backfill.py` to populate Category:Subcategory fields
+- **Authentication failures:** Check GitHub Personal Access Token expiration and update Git remote URL
 
 ### Validation Features
 - **Pre-commit checks:** `sync.sh` validates YAML syntax and warns about problematic patterns

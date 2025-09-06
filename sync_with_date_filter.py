@@ -48,6 +48,7 @@ def sync_since_date(since_date=None):
 def get_last_sync_date():
     """
     Get the last sync date from a file or return a default date.
+    Handles both old date-only format and new datetime format.
     """
     last_sync_file = "last_sync_date.txt"
     
@@ -55,24 +56,31 @@ def get_last_sync_date():
         try:
             with open(last_sync_file, 'r') as f:
                 date_str = f.read().strip()
+                
+                # Check if it's old date-only format (YYYY-MM-DD)
+                if len(date_str) == 10 and date_str.count('-') == 2:
+                    # Convert old format to datetime format
+                    date_str = f"{date_str}T00:00:00.000Z"
+                    logger.info(f"Converted old date format to datetime: {date_str}")
+                
                 return date_str
         except Exception as e:
             logger.warning(f"Could not read last sync date: {e}")
     
     # Default to 7 days ago if no last sync date
-    default_date = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+    default_date = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%dT00:00:00.000Z")
     logger.info(f"Using default date (7 days ago): {default_date}")
     return default_date
 
 def save_sync_date():
     """
-    Save the current date as the last sync date.
+    Save the current datetime as the last sync date.
     """
-    current_date = datetime.now().strftime("%Y-%m-%d")
+    current_datetime = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
     try:
         with open("last_sync_date.txt", 'w') as f:
-            f.write(current_date)
-        logger.info(f"💾 Saved sync date: {current_date}")
+            f.write(current_datetime)
+        logger.info(f"💾 Saved sync datetime: {current_datetime}")
     except Exception as e:
         logger.error(f"Could not save sync date: {e}")
 
