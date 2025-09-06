@@ -100,6 +100,48 @@ A Python project that synchronizes data between Quoter and Pipedrive APIs, inclu
 - **Contents:** Timestamped backups of all production files
 - **Usage:** Safety backup and rollback capability
 
+## Recent Major Updates (September 2025)
+
+### Pipedrive Price Format Fix (`pipedrive.py`)
+**Problem:** Decimal prices were being stored as `$0.00` in Pipedrive due to incorrect API format usage.
+
+**Root Cause:** The code was using direct `price` and `cost` fields instead of Pipedrive's required `prices` array format.
+
+**Solution Applied:**
+```python
+# OLD (incorrect format):
+pipedrive_product["price"] = float(product.get("price_decimal", 0))
+pipedrive_product["cost"] = float(product.get("cost_decimal", 0))
+
+# NEW (correct format):
+pipedrive_product["prices"] = [
+    {
+        "price": price_value,
+        "cost": cost_value,
+        "currency": "USD"
+    }
+]
+```
+
+**Result:** Decimal prices now correctly preserved (e.g., `$2.50` instead of `$0.00`).
+
+### Quoter Date Filtering Enhancement (`quoter.py`)
+**Problem:** Incremental sync was missing items that were created but not modified since the last sync date.
+
+**Solution Applied:**
+- Added support for both `created_at[gt]` and `modified_at[gt]` filters
+- Enhanced date format handling to ensure proper ISO 8601 format with timezone
+- Improved deduplication logic for combining created and modified items
+
+**Result:** More comprehensive incremental sync that captures all relevant changes.
+
+### GitHub Actions Schedule Update
+**Problem:** Sync was running every 30 minutes, causing unnecessary API calls and potential rate limiting.
+
+**Solution Applied:**
+- Changed schedule from `*/30 * * * *` to `0 2 * * *` (daily at 2 AM UTC)
+- Reduced API load while maintaining daily synchronization
+
 ## Progress Summary System
 
 The progress summary system provides automated analysis and summarization of chat sessions:
