@@ -397,10 +397,74 @@ def health_check():
         "status": "healthy",
         "endpoints": {
             "health": "/health",
+            "env": "/env",
+            "qbo": "/qbo",
             "pipedrive_webhook": "/webhook/pipedrive/organization",
             "quoter_webhook": "/webhook/quoter/quote-published"
         }
     })
+
+@app.route('/env', methods=['GET'])
+def env_check():
+    """Check environment variables status."""
+    required_vars = [
+        'QBO_CLIENT_ID',
+        'QBO_CLIENT_SECRET', 
+        'QBO_COMPANY_ID',
+        'QBO_ACCESS_TOKEN',
+        'QBO_REFRESH_TOKEN',
+        'QBO_SANDBOX'
+    ]
+    
+    env_status = {}
+    missing_vars = []
+    
+    for var in required_vars:
+        value = os.getenv(var)
+        if value:
+            # Mask sensitive values
+            if 'SECRET' in var or 'TOKEN' in var:
+                env_status[var] = f"{value[:8]}...{value[-4:]}" if len(value) > 12 else "***"
+            else:
+                env_status[var] = value
+        else:
+            env_status[var] = "NOT_SET"
+            missing_vars.append(var)
+    
+    return jsonify({
+        "status": "healthy" if not missing_vars else "unhealthy",
+        "environment_variables": env_status,
+        "missing_variables": missing_vars,
+        "total_required": len(required_vars),
+        "total_present": len(required_vars) - len(missing_vars)
+    })
+
+@app.route('/qbo', methods=['GET'])
+def qbo_test():
+    """Test QBO connection."""
+    try:
+        from qbo_oauth import QBOOAuth
+        oauth = QBOOAuth()
+        token = oauth.get_valid_access_token()
+        
+        if token:
+            return jsonify({
+                "status": "success",
+                "message": "QBO connection successful",
+                "token_preview": f"{token[:20]}...",
+                "company_id": os.getenv('QBO_COMPANY_ID'),
+                "sandbox_mode": os.getenv('QBO_SANDBOX', 'true').lower() == 'true'
+            })
+        else:
+            return jsonify({
+                "status": "error", 
+                "message": "Failed to get QBO access token"
+            })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"QBO connection failed: {str(e)}"
+        })
 
 @app.route('/', methods=['GET'])
 def root():
@@ -411,12 +475,15 @@ def root():
         "status": "running",
         "endpoints": {
             "health": "/health",
+            "env": "/env (GET) - Check environment variables",
+            "qbo": "/qbo (GET) - Test QBO connection",
             "pipedrive_webhook": "/webhook/pipedrive/organization (POST)",
             "quoter_webhook": "/webhook/quoter/quote-published (POST)"
         },
         "usage": {
             "pipedrive": "Send organization updates to trigger quote creation",
-            "quoter": "Send quote published events to update Pipedrive deals"
+            "quoter": "Send quote published events to update Pipedrive deals",
+            "testing": "Use /env and /qbo to verify QBO integration setup"
         }
     })
 
