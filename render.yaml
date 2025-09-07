@@ -10,3 +10,14 @@ services:
         value: 3.9.0
       - key: PORT
         value: 10000
+    envVarsFrom:
+      - key: SLACK_WEBHOOK_URL
+        fromSecret: true
+      - key: GMAIL_USER
+        fromSecret: true
+      - key: GMAIL_APP_PASSWORD
+        fromSecret: true
+      - key: PIPEDRIVE_API_TOKEN
+        fromSecret: true
+      - key: NOTIFICATION_EMAILS
+        fromSecret: true

@@ -9,6 +9,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from utils.logger import logger
+from pipedrive import API_TOKEN, BASE_URL
 
 def send_slack_notification(message, channel="#d-quoter-alerts"):
     """
@@ -16,7 +17,7 @@ def send_slack_notification(message, channel="#d-quoter-alerts"):
     
     Args:
         message (str): Message to send
-        channel (str): Slack channel (default: #it-d-projects)
+        channel (str): Slack channel (default: #d-quoter-alerts)
     
     Returns:
         bool: True if notification sent successfully, False otherwise
@@ -132,6 +133,58 @@ def send_email_notification(subject, message, recipients=None):
         logger.error(f"❌ Unexpected error sending email: {str(e)}")
         return False
 
+def send_pipedrive_note_notification(deal_id, message):
+    """
+    Send notification as a note in Pipedrive deal.
+    
+    Args:
+        deal_id (str): Pipedrive deal ID
+        message (str): Note content to add to deal
+    
+    Returns:
+        bool: True if note created successfully, False otherwise
+    """
+    if not API_TOKEN:
+        logger.warning("⚠️ PIPEDRIVE_API_TOKEN not configured - skipping Pipedrive note")
+        return False
+    
+    if not deal_id:
+        logger.warning("⚠️ No deal ID provided - skipping Pipedrive note")
+        return False
+    
+    try:
+        headers = {"Content-Type": "application/json"}
+        params = {"api_token": API_TOKEN}
+        
+        # Create note data
+        note_data = {
+            "content": message,
+            "deal_id": int(deal_id)
+        }
+        
+        # Send note to Pipedrive
+        response = requests.post(
+            f"{BASE_URL}/notes",
+            headers=headers,
+            params=params,
+            json=note_data,
+            timeout=10
+        )
+        
+        if response.status_code == 201:
+            logger.info(f"📝 Pipedrive note created successfully for deal {deal_id}")
+            return True
+        else:
+            logger.error(f"❌ Pipedrive note creation failed: {response.status_code} - {response.text}")
+            return False
+            
+    except requests.exceptions.RequestException as e:
+        logger.error(f"❌ Pipedrive note error: {str(e)}")
+        return False
+    except Exception as e:
+        logger.error(f"❌ Unexpected error creating Pipedrive note: {str(e)}")
+        return False
+
 def send_quote_created_notification(quote_data, deal_data, organization_data):
     """
     Send notification when a new quote is created.
@@ -160,14 +213,103 @@ Please review and prepare the quote in Quoter.
     # Send to Slack
     send_slack_notification(message.strip())
     
-    # Send email (if configured)
+    # Send email (if configured) - use detailed message with instructions
     if os.getenv("NOTIFICATION_EMAILS"):
         recipients = os.getenv("NOTIFICATION_EMAILS").split(",")
+        
+        # Create detailed email message with instructions
+        from datetime import datetime, timedelta
+        formatted_deal_id = str(deal_id).zfill(5)
+        utc_now = datetime.utcnow()
+        pacific_offset = timedelta(hours=8)
+        pacific_time = utc_now - pacific_offset
+        date_str = pacific_time.strftime('%Y%m%d')
+        target_quote_number = f"{formatted_deal_id}-{date_str}"
+        
+        detailed_email_message = f"""🎯 NEW QUOTE CREATED
+
+Quote Number: Default
+Deal: {deal_title} (ID: {deal_id})
+Organization: {org_name}
+Status: Draft - Ready for editing
+
+📋 QUOTE PREPARATION INSTRUCTIONS:
+
+1. Login to Quoter > Quotes Tab
+
+2. Select Draft quote based on Notes Information
+
+3. Change the Quote number to: {target_quote_number}
+   (Format: 5-digit deal ID + today's date in Pacific timezone)
+
+4. Backspace over the organization name until dropdown appears and select the org name so it will sync with Pipedrive
+
+5. Update required fields (address, city, state, zip)
+
+6. In deals section (appears after you select the org), select the deal that the quote is associated with
+
+7. Add or modify items for the quote
+
+8. Publish the quote
+
+Please review and prepare the quote in Quoter."""
+        
         send_email_notification(
             subject=f"New Quote Created - {org_name}",
-            message=message.strip(),
+            message=detailed_email_message.strip(),
             recipients=recipients
         )
+    
+    # Send Pipedrive note (if deal ID available)
+    if deal_id and deal_id != "Unknown":
+        # Draft quotes don't have a number field - only published quotes do
+        # Get the quote ID for reference
+        quote_id = quote_data.get("id", "Unknown")
+        
+        # Calculate the target quote number using deal date logic
+        from datetime import datetime, timedelta
+        
+        # Zero-pad deal ID to 5 digits
+        formatted_deal_id = str(deal_id).zfill(5)
+        
+        # Get Pacific time (UTC - 8 hours)
+        utc_now = datetime.utcnow()
+        pacific_offset = timedelta(hours=8)  # PST is UTC-8
+        pacific_time = utc_now - pacific_offset
+        date_str = pacific_time.strftime('%Y%m%d')
+        
+        # Create target quote number format: dealid-yyyymmdd
+        target_quote_number = f"{formatted_deal_id}-{date_str}"
+        
+        pipedrive_message = f"""🎯 NEW QUOTE CREATED
+
+Quote Number: Default
+Deal: {deal_title} (ID: {deal_id})
+Organization: {org_name}
+Status: Draft - Ready for editing
+
+📋 QUOTE PREPARATION INSTRUCTIONS:
+
+1. Login to Quoter > Quotes Tab
+
+2. Select Draft quote based on Notes Information
+
+3. Change the Quote number to: {target_quote_number}
+   (Format: 5-digit deal ID + today's date in Pacific timezone)
+
+4. Backspace over the organization name until dropdown appears and select the org name so it will sync with Pipedrive
+
+5. Update required fields (address, city, state, zip)
+
+6. In deals section (appears after you select the org), select the deal that the quote is associated with
+
+7. Add or modify items for the quote
+
+8. Publish the quote
+
+Please review and prepare the quote in Quoter."""
+        
+        send_pipedrive_note_notification(deal_id, pipedrive_message.strip())
     
     logger.info(f"📢 Notification sent for quote {quote_id}")
     return True

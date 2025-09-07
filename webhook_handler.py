@@ -104,13 +104,17 @@ def handle_organization_webhook():
         owner_name = organization_data.get('owner_id', {}).get('name', 'Unknown')
         logger.info(f"Processing organization {organization_id} owned by {owner_name} (ID: {owner_id})")
         
-        # Get organization name and deal ID
+        # Get organization name and extract deal ID from the end of the name
         organization_name = organization_data.get('name', 'Unknown Organization')
-        deal_id = organization_data.get('15034cf07d05ceb15f0a89dcbdcc4f596348584e')  # Deal_ID field
         
-        if not deal_id:
-            logger.error(f"Organization {organization_id} has no associated deal ID")
-            return jsonify({"error": "No deal ID associated"}), 400
+        # Extract deal ID from organization name (e.g., "Blue Owl Capital-2096" -> "2096")
+        deal_id = None
+        if organization_name and '-' in organization_name:
+            deal_id = organization_name.split('-')[-1]
+            logger.info(f"Extracted deal ID: {deal_id} from organization: {organization_name}")
+        else:
+            logger.error(f"Organization {organization_id} name '{organization_name}' does not contain deal ID (expected format: 'Name-DealID')")
+            return jsonify({"error": "No deal ID in organization name"}), 400
         
         logger.info(f"Processing organization {organization_id} ({organization_name}) for deal {deal_id}")
         
