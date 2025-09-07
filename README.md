@@ -57,6 +57,11 @@ A Python project that synchronizes data between Quoter and Pipedrive APIs, inclu
 - **Purpose:** Traditional project documentation and research
 - **Contents:** Business logic analysis, category mapping solutions, API documentation
 - **Usage:** Reference for developers and project stakeholders
+- **Key Documents:**
+  - `DAILY_PRODUCT_ITEM_REPORT.md` - Complete documentation for the Daily Product / Item Report system
+  - `TEMPLATE_SYNC_SYSTEM.md` - Comprehensive template synchronization system documentation
+  - `NOTIFICATION_SYSTEM.md` - Multi-channel notification system documentation
+  - `SYNC_SYSTEM_DOCUMENTATION.md` - Comprehensive sync system technical documentation
 
 ### 📁 work_logs/ - Machine-Readable Chat Data
 - **Purpose:** JSON exports of chat sessions for automated analysis

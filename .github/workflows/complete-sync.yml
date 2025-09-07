@@ -92,14 +92,23 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         
-    - name: Send Sync Completion Notification
+    - name: Send Detailed Sync Notification
       env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         GMAIL_USER: ${{ secrets.GMAIL_USER }}
         GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
         NOTIFICATION_EMAILS: ${{ secrets.NOTIFICATION_EMAILS }}
+        QUOTER_API_KEY: ${{ secrets.QUOTER_API_KEY }}
+        PIPEDRIVE_API_TOKEN: ${{ secrets.PIPEDRIVE_API_TOKEN }}
+        QUOTER_CLIENT_SECRET: ${{ secrets.QUOTER_CLIENT_SECRET }}
+        QBO_CLIENT_ID: ${{ secrets.QBO_CLIENT_ID }}
+        QBO_CLIENT_SECRET: ${{ secrets.QBO_CLIENT_SECRET }}
+        QBO_COMPANY_ID: ${{ secrets.QBO_COMPANY_ID }}
+        QBO_ACCESS_TOKEN: ${{ secrets.QBO_ACCESS_TOKEN }}
+        QBO_REFRESH_TOKEN: ${{ secrets.QBO_REFRESH_TOKEN }}
+        QBO_SANDBOX: ${{ secrets.QBO_SANDBOX }}
+        QBO_INCOME_ACCOUNT_ID: ${{ secrets.QBO_INCOME_ACCOUNT_ID }}
+        QBO_EXPENSE_ACCOUNT_ID: ${{ secrets.QBO_EXPENSE_ACCOUNT_ID }}
       run: |
-        echo "📧 Daily sync workflow completed"
-        echo "🔄 Quoter → Pipedrive: ${{ needs.quoter-to-pipedrive.result }}"
-        echo "🔄 Quoter → QBO: ${{ needs.quoter-to-qbo.result }}"
-        echo "✅ Notification sent"
+        echo "📧 Generating detailed sync report..."
+        python detailed_sync_notification.py
+        echo "✅ Detailed notification sent"

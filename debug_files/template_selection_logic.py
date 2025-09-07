@@ -70,6 +70,7 @@ def get_template_id_by_name(template_name, access_token):
 def get_template_from_pipedrive_field(deal_data, access_token, field_id=None):
     """
     Get template selection from Pipedrive Deal custom field.
+    Handles enum fields that return numeric values.
     
     Args:
         deal_data (dict): Deal data from Pipedrive
@@ -83,22 +84,76 @@ def get_template_from_pipedrive_field(deal_data, access_token, field_id=None):
         logger.warning("⚠️ No field_id provided for Quote Template field")
         return None
     
-    # Get template name from Pipedrive custom field
-    template_name = deal_data.get(field_id)
+    # Get template enum value from Pipedrive custom field
+    template_enum_value = deal_data.get(field_id)
     
-    if not template_name:
+    if not template_enum_value:
         logger.info(f"📋 No template specified in Pipedrive field {field_id}")
         return None
     
-    logger.info(f"📋 Template specified in Pipedrive: '{template_name}'")
+    # Map enum values to template names
+    enum_mapping = {
+        441: 'Basic',
+        442: 'Confetti/Streamers',
+        443: 'LED Lanyards',
+        444: 'LED Wristbands',
+        451: 'Balloons',
+        452: 'CO2/Smoke/Upright Foggers',
+        453: 'Fireworks/pyro/fire',
+        454: 'Floating Video',
+        455: 'Low level fog',
+        456: 'Tank Delivery',
+        457: 'Robotics',
+    }
+    
+    # Alternative names for templates that might not match exactly
+    alternative_names = {
+        'Basic': ['Basic Template', 'Basic Quote', 'Standard', 'Default'],
+        'Confetti/Streamers': ['Confetti/streamers', 'Confetti Streamers', 'Streamers'],  # Case sensitivity issue
+        'Co2/smoke/upright foggers': ['CO2/smoke/upright foggers', 'Foggers', 'Smoke', 'CO2'],
+        'Fireworks/pyro/fire': ['Fireworks', 'Pyro', 'Fire', 'Pyrotechnics'],
+        'Floating Video': ['Video', 'Floating', 'Display'],
+        'Low level fog': ['Low level', 'Fog', 'Ground fog'],
+    }
+    
+    # Special handling for templates with known mismatches
+    # Map Pipedrive names to actual Quoter names to avoid warnings
+    template_name_mapping = {
+    }
+    
+    # Convert enum value to template name
+    template_name = enum_mapping.get(template_enum_value)
+    
+    if not template_name:
+        logger.error(f"❌ Unknown enum value {template_enum_value} for Quote Template field")
+        return None
+    
+    # Check if we need to map to the actual Quoter template name
+    actual_template_name = template_name_mapping.get(template_name, template_name)
+    
+    logger.info(f"📋 Template specified in Pipedrive: '{template_name}' (enum: {template_enum_value})")
+    if actual_template_name != template_name:
+        logger.info(f"📋 Mapped to Quoter template name: '{actual_template_name}'")
     
     # Convert template name to template ID
-    template_id = get_template_id_by_name(template_name, access_token)
+    template_id = get_template_id_by_name(actual_template_name, access_token)
     
     if template_id:
         logger.info(f"✅ Using template: '{template_name}' (ID: {template_id})")
     else:
-        logger.error(f"❌ Template '{template_name}' not found in Quoter")
+        # Try alternative names if the primary name is not found
+        logger.warning(f"⚠️ Template '{template_name}' not found in Quoter, trying alternatives...")
+        
+        alternatives = alternative_names.get(template_name, [])
+        for alt_name in alternatives:
+            logger.info(f"🔍 Trying alternative name: '{alt_name}'")
+            template_id = get_template_id_by_name(alt_name, access_token)
+            if template_id:
+                logger.info(f"✅ Found template with alternative name: '{alt_name}' (ID: {template_id})")
+                break
+        
+        if not template_id:
+            logger.warning(f"⚠️ No template found for '{template_name}' or its alternatives, will use fallback")
     
     return template_id
 
@@ -132,13 +187,13 @@ def get_default_template_fallback(access_token):
             templates = data.get("data", [])
             
             if templates:
-                # Look for the "test" template first, then "Managed Service Proposal" as fallback
+                # Look for the "Basic" template first, then "Managed Service Proposal" as fallback
                 preferred_template = None
                 fallback_template = None
                 
                 for template in templates:
                     title = template.get("title", "")
-                    if title == "test":  # Look for exact "test" template first
+                    if title == "Basic":  # Look for exact "Basic" template first
                         preferred_template = template
                         break
                     elif "Managed Service Proposal" in title:  # Use as fallback

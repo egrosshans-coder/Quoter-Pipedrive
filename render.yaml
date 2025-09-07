@@ -21,3 +21,29 @@ services:
         fromSecret: true
       - key: NOTIFICATION_EMAILS
         fromSecret: true
+      - key: QUOTER_API_KEY
+        fromSecret: true
+      - key: QUOTER_CLIENT_SECRET
+        fromSecret: true
+      - key: QUOTER_REDIRECT_URI
+        fromSecret: true
+      - key: QBO_CLIENT_ID
+        fromSecret: true
+      - key: QBO_CLIENT_SECRET
+        fromSecret: true
+      - key: QBO_REDIRECT_URI
+        fromSecret: true
+      - key: QBO_REALM_ID
+        fromSecret: true
+      - key: QBO_COMPANY_ID
+        fromSecret: true
+      - key: QBO_ACCESS_TOKEN
+        fromSecret: true
+      - key: QBO_REFRESH_TOKEN
+        fromSecret: true
+      - key: QBO_SANDBOX
+        fromSecret: true
+      - key: QBO_INCOME_ACCOUNT_ID
+        fromSecret: true
+      - key: QBO_EXPENSE_ACCOUNT_ID
+        fromSecret: true

@@ -1,0 +1,69 @@
+name: Smart Template Sync
+
+on:
+  # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      check_quoter:
+        description: 'Check Quoter for new templates'
+        required: false
+        default: 'true'
+        type: boolean
+  
+  # Check Quoter twice daily for new templates
+  schedule:
+    - cron: '0 10 * * *'  # Daily at 2 AM PT (10 AM UTC)
+    - cron: '0 22 * * *'  # Daily at 2 PM PT (10 PM UTC)
+
+jobs:
+  check-and-sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Get full history for comparison
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Set up environment variables
+      run: |
+        echo "QUOTER_CLIENT_ID=${{ secrets.QUOTER_CLIENT_ID }}" >> $GITHUB_ENV
+        echo "QUOTER_CLIENT_SECRET=${{ secrets.QUOTER_CLIENT_SECRET }}" >> $GITHUB_ENV
+        echo "QUOTER_REFRESH_TOKEN=${{ secrets.QUOTER_REFRESH_TOKEN }}" >> $GITHUB_ENV
+        echo "PIPEDRIVE_API_TOKEN=${{ secrets.PIPEDRIVE_API_TOKEN }}" >> $GITHUB_ENV
+        
+    - name: Check for changes
+      id: check_changes
+      run: |
+        echo "🔍 Checking for template changes..."
+        python check_template_changes.py
+        
+    - name: Run template sync
+      if: steps.check_changes.outputs.has_changes == 'true'
+      run: |
+        echo "🔄 Running template sync..."
+        python auto_sync_templates.py --auto
+        
+    - name: Skip sync
+      if: steps.check_changes.outputs.has_changes == 'false'
+      run: |
+        echo "⏭️  No template changes detected - skipping sync"
+        
+    - name: Create sync report
+      if: always()
+      run: |
+        echo "## Template Sync Report" >> $GITHUB_STEP_SUMMARY
+        echo "**Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Time:** $(date)" >> $GITHUB_STEP_SUMMARY
+        echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY

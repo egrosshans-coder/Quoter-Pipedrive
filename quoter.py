@@ -1064,13 +1064,13 @@ def get_quote_required_fields(access_token):
             data = response.json()
             templates = data.get("data", [])
             if templates:
-                # Look for the "test" template first, then "Managed Service Proposal" as fallback
+                # Look for the "Basic" template first, then "Managed Service Proposal" as fallback
                 preferred_template = None
                 fallback_template = None
                 
                 for template in templates:
                     title = template.get("title", "")
-                    if title == "test":  # Look for exact "test" template first
+                    if title == "Basic":  # Look for exact "Basic" template first
                         preferred_template = template
                         break
                     elif "Managed Service Proposal" in title:  # Use as fallback
@@ -1145,15 +1145,17 @@ def get_default_contact_id(access_token):
         logger.error(f"Error getting default contact: {e}")
         return None 
 
-def create_comprehensive_quote_from_pipedrive(organization_data):
+def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None):
     """
     Create a comprehensive draft quote in Quoter with maximum data mapping from Pipedrive.
     
     This function extracts ALL available data from Pipedrive and creates a rich draft quote
     that includes comprehensive contact information and organization details.
+    Now supports template selection from Pipedrive dropdown field.
     
     Args:
         organization_data (dict): Organization data from Pipedrive
+        deal_data (dict, optional): Deal data from Pipedrive for template selection
         
     Returns:
         dict: Quote data if created successfully, None otherwise
@@ -1168,11 +1170,31 @@ def create_comprehensive_quote_from_pipedrive(organization_data):
         "Content-Type": "application/json"
     }
     
-    # Get required fields for quote creation
-    required_fields = get_quote_required_fields(access_token)
-    if not required_fields:
-        logger.error("Failed to get required fields for quote creation")
-        return None
+    # Get template selection from Pipedrive dropdown field if deal_data is provided
+    template_id = None
+    if deal_data:
+        # Use the template selection logic with the Quote Template field
+        from debug_files.template_selection_logic import get_quote_template_id
+        template_field_id = "42ab0c919271cb24f3587f0b01ea2af166019c8d"  # Quote Template field API key
+        template_id = get_quote_template_id(deal_data, access_token, template_field_id)
+        
+        if template_id:
+            logger.info(f"✅ Using template from Pipedrive dropdown: {template_id}")
+        else:
+            logger.info("🔄 Pipedrive template not found, using fallback logic")
+    
+    # Get required fields for quote creation (with custom template if available)
+    if template_id:
+        required_fields = {
+            "template_id": template_id,
+            "currency_abbr": "USD"
+        }
+        logger.info(f"Using custom template: {template_id}")
+    else:
+        required_fields = get_quote_required_fields(access_token)
+        if not required_fields:
+            logger.error("Failed to get required fields for quote creation")
+            return None
     
     # Extract organization information
     org_name = organization_data.get("name", "Unknown Organization")
@@ -1188,12 +1210,15 @@ def create_comprehensive_quote_from_pipedrive(organization_data):
     logger.info(f"   Organization ID: {org_id}")
     logger.info(f"   Deal ID: {deal_id}")
     
-    # Get deal information from Pipedrive
-    from pipedrive import get_deal_by_id
-    deal_data = get_deal_by_id(deal_id)
+    # Get deal information from Pipedrive (use provided data or fetch it)
     if not deal_data:
-        logger.error(f"❌ Failed to get deal {deal_id} from Pipedrive")
-        return None
+        from pipedrive import get_deal_by_id
+        deal_data = get_deal_by_id(deal_id)
+        if not deal_data:
+            logger.error(f"❌ Failed to get deal {deal_id} from Pipedrive")
+            return None
+    else:
+        logger.info(f"✅ Using provided deal data for template selection")
     
     logger.info(f"📋 Deal found: {deal_data.get('title', 'Unknown Deal')}")
     

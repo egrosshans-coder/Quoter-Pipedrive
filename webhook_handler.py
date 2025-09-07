@@ -126,8 +126,9 @@ def handle_organization_webhook():
         
         deal_title = deal_data.get("title", f"Deal {deal_id}")
         
-        # Create comprehensive draft quote using our enhanced function
-        quote_data = create_comprehensive_quote_from_pipedrive(organization_data)
+        # Create comprehensive draft quote using our enhanced function with template selection
+        # Pass deal data to enable template selection from Pipedrive dropdown
+        quote_data = create_comprehensive_quote_from_pipedrive(organization_data, deal_data)
         
         if quote_data:
             # Send notification
