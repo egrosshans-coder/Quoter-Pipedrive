@@ -67,20 +67,20 @@ def get_last_sync_date():
         except Exception as e:
             logger.warning(f"Could not read last sync date: {e}")
     
-    # Default to 7 days ago if no last sync date
-    default_date = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%dT00:00:00.000Z")
-    logger.info(f"Using default date (7 days ago): {default_date}")
+    # Default to 7 days ago if no last sync date (in UTC)
+    default_date = (datetime.utcnow() - timedelta(days=7)).strftime("%Y-%m-%dT00:00:00.000Z")
+    logger.info(f"Using default date (7 days ago UTC): {default_date}")
     return default_date
 
 def save_sync_date():
     """
-    Save the current datetime as the last sync date.
+    Save the current datetime as the last sync date in UTC.
     """
-    current_datetime = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    current_datetime = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
     try:
         with open("last_sync_date.txt", 'w') as f:
             f.write(current_datetime)
-        logger.info(f"💾 Saved sync datetime: {current_datetime}")
+        logger.info(f"💾 Saved sync datetime (UTC): {current_datetime}")
     except Exception as e:
         logger.error(f"Could not save sync date: {e}")
 

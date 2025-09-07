@@ -1,0 +1,105 @@
+name: Complete Sync Workflow
+
+on:
+  schedule:
+    # Run daily at 2 PM UTC (6 AM Pacific, weekdays + Saturday)
+    # This replaces the individual sync workflows with a coordinated approach
+    - cron: '0 14 * * 1-6'  # Monday-Saturday, 2 PM UTC (6 AM Pacific)
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  quoter-to-pipedrive:
+    runs-on: ubuntu-latest
+    name: "Step 1: Quoter → Pipedrive Sync"
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Run Quoter → Pipedrive Sync
+      env:
+        QUOTER_API_KEY: ${{ secrets.QUOTER_API_KEY }}
+        PIPEDRIVE_API_TOKEN: ${{ secrets.PIPEDRIVE_API_TOKEN }}
+        QUOTER_CLIENT_SECRET: ${{ secrets.QUOTER_CLIENT_SECRET }}
+      run: |
+        echo "🔄 Starting Quoter → Pipedrive sync..."
+        python sync_with_date_filter.py
+        echo "✅ Quoter → Pipedrive sync completed"
+        
+  quoter-to-qbo:
+    runs-on: ubuntu-latest
+    name: "Step 2: Quoter → QBO Sync"
+    needs: quoter-to-pipedrive  # Wait for Pipedrive sync to complete
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Run Quoter → QBO Sync
+      env:
+        QUOTER_API_KEY: ${{ secrets.QUOTER_API_KEY }}
+        QUOTER_CLIENT_SECRET: ${{ secrets.QUOTER_CLIENT_SECRET }}
+        QBO_CLIENT_ID: ${{ secrets.QBO_CLIENT_ID }}
+        QBO_CLIENT_SECRET: ${{ secrets.QBO_CLIENT_SECRET }}
+        QBO_COMPANY_ID: ${{ secrets.QBO_COMPANY_ID }}
+        QBO_ACCESS_TOKEN: ${{ secrets.QBO_ACCESS_TOKEN }}
+        QBO_REFRESH_TOKEN: ${{ secrets.QBO_REFRESH_TOKEN }}
+        QBO_SANDBOX: ${{ secrets.QBO_SANDBOX }}
+        QBO_INCOME_ACCOUNT_ID: ${{ secrets.QBO_INCOME_ACCOUNT_ID }}
+        QBO_EXPENSE_ACCOUNT_ID: ${{ secrets.QBO_EXPENSE_ACCOUNT_ID }}
+      run: |
+        echo "🔄 Starting Quoter → QBO sync..."
+        python quoter_to_qbo_sync.py
+        echo "✅ Quoter → QBO sync completed"
+        
+  notification:
+    runs-on: ubuntu-latest
+    name: "Step 3: Send Completion Notification"
+    needs: [quoter-to-pipedrive, quoter-to-qbo]  # Wait for both syncs to complete
+    if: always()  # Run even if one of the syncs fails
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Send Sync Completion Notification
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        GMAIL_USER: ${{ secrets.GMAIL_USER }}
+        GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        NOTIFICATION_EMAILS: ${{ secrets.NOTIFICATION_EMAILS }}
+      run: |
+        echo "📧 Daily sync workflow completed"
+        echo "🔄 Quoter → Pipedrive: ${{ needs.quoter-to-pipedrive.result }}"
+        echo "🔄 Quoter → QBO: ${{ needs.quoter-to-qbo.result }}"
+        echo "✅ Notification sent"

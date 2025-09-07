@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+ #!/usr/bin/env python3
 
 """
 Pipedrive Cat:Sub Backfill (Passive)
@@ -179,6 +179,8 @@ def main():
     ap.add_argument("--noninventory-ps-id", type=int, required=True, help="Option ID for 'Non-inventory' in Product/Service field")
     ap.add_argument("--category-field-id", type=int, help="Product field id for Category enum (optional; will auto-detect if omitted)")
     ap.add_argument("--filter-id", type=int, help="Pipedrive product filter_id to limit scope (recommended)")
+    ap.add_argument("--product-ids", help="Comma-separated list of specific product IDs to update")
+    ap.add_argument("--product-names", help="Comma-separated list of specific product names to update")
     ap.add_argument("--batch-size", type=int, default=50, help="Page size for listing products (default 50)")
     ap.add_argument("--max", type=int, default=0, help="Max products to process (0 = no limit)")
     ap.add_argument("--require-subcategory", action="store_true", help="Skip if Subcategory value is empty")
@@ -201,8 +203,24 @@ def main():
     skipped_missing_sub = 0
     errors = 0
 
+    # Parse specific product filters
+    target_ids = set()
+    target_names = set()
+    if args.product_ids:
+        target_ids = set(int(x.strip()) for x in args.product_ids.split(',') if x.strip())
+    if args.product_names:
+        target_names = set(x.strip() for x in args.product_names.split(',') if x.strip())
+    
     for prod in iter_products(args.domain, args.api_token, args.filter_id, args.batch_size):
         pid = prod.get("id")
+        product_name = prod.get("name", "")
+        
+        # Skip if we have specific filters and this product doesn't match
+        if target_ids and pid not in target_ids:
+            continue
+        if target_names and product_name not in target_names:
+            continue
+            
         cat_id = prod.get("category")
         sub_val = prod.get(args.subcategory_key)
         product_code = prod.get("code")  # Get the product code for item type determination
@@ -221,20 +239,19 @@ def main():
             product_code, args.service_id, args.noninventory_id, 
             args.service_ps_id, args.noninventory_ps_id
         )
-
-        if should_skip(prod, args.catsub_key, catsub, args.sync_key, args.sync_yes_id):
-            # Track why skipped
-            if prod.get(args.catsub_key) == catsub:
-                skipped_equal += 1
-            elif args.sync_key and (str(prod.get(args.sync_key, "")).strip() == str(args.sync_yes_id)):
-                skipped_sync_yes += 1
-            continue
+        # Always process - we want to set all fields regardless of current values
 
         processed += 1
         qbo_type_name = "Service" if qbo_item_type_id == args.service_id else "NonInventory"
         ps_type_name = "Service" if ps_item_type_id == args.service_ps_id else "Non-inventory"
         print(f"[{processed}] Product {pid}: {prod.get('name','(no name)')} -> {catsub} (QBO: {qbo_type_name}, PS: {ps_type_name})")
+        
         if args.dry_run:
+            print(f"DRY RUN - Would update with body:")
+            print(f"  {args.catsub_key}: {catsub}")
+            print(f"  {args.qbo_itemtype_key}: {qbo_item_type_id}")
+            print(f"  {args.product_service_key}: {ps_item_type_id}")
+            print(f"  {args.sync_key}: {args.sync_yes_id}")
             continue
 
         try:
@@ -245,7 +262,7 @@ def main():
                 args.product_service_key: ps_item_type_id,  # Set Product/Service based on product code
                 args.sync_key: args.sync_yes_id  # Set Sync to QuickBooks to "Yes" (83) - LAST!
             }
-            _ = pd_call(args.domain, args.api_token, "PUT", f"/products/{pid}",
+            response = pd_call(args.domain, args.api_token, "PUT", f"/products/{pid}",
                         params={"strict_mode": 1, "return_item": 1}, json=body)
             updated += 1
         except Exception as e:

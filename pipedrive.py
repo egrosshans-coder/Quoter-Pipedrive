@@ -5,9 +5,117 @@ from utils.logger import logger
 from quoter import update_quoter_sku
 from category_manager import get_category_mapping, get_subcategory_mapping
 
+# Field keys for the 4-field update
+CATSUB_FIELD_KEY = "9c636133839b978b686bbc952fbd5dc41d5cd087"
+QBO_ITEMTYPE_FIELD_KEY = "b65439db55a0f1d772dc1570c8818f3b8a188b25"
+PRODUCT_SERVICE_FIELD_KEY = "b82ad04a30171b69c4649e6f66f956ade0a51886"
+SYNC_FIELD_KEY = "98ec4970ff4f9f9cc17926d27675eee823a4eb86"
+
+# Option IDs
+QBO_SERVICE_ID = 74
+QBO_NONINVENTORY_ID = 71
+PS_SERVICE_ID = 248
+PS_NONINVENTORY_ID = 435
+SYNC_YES_ID = 83
+
 load_dotenv()
 API_TOKEN = os.getenv("PIPEDRIVE_API_TOKEN")
 BASE_URL = "https://api.pipedrive.com/v1"
+
+def determine_item_types(product_code):
+    """Determine both QBO item type and Product/Service type based on product code"""
+    if not product_code:
+        return QBO_NONINVENTORY_ID, PS_NONINVENTORY_ID  # Default to NonInventory if no code
+    
+    code = str(product_code).strip().upper()
+    if code.startswith("SVC"):
+        return QBO_SERVICE_ID, PS_SERVICE_ID
+    else:
+        return QBO_NONINVENTORY_ID, PS_NONINVENTORY_ID
+
+def build_catsub(cat_id, subcategory, cat_map):
+    """Build CatSub field value from category and subcategory"""
+    if cat_id in (None, "", 0, "0"):
+        return None
+    
+    # Get category label from mapping
+    label = cat_map.get(str(cat_id), "").strip()
+    if not label:
+        label = str(cat_id).strip()
+    
+    # Clean and format
+    parent = label.replace(":", "-").strip()
+    child = subcategory.replace(":", "-").strip() if subcategory else ""
+    
+    if child:
+        return f"{parent}:{child}"
+    return parent
+
+def set_four_fields(product_id, product, headers, params):
+    """Set the 4 required fields: CatSub, QBO Item Type, Product/Service, and Sync"""
+    try:
+        # Build CatSub value using the stored category names
+        main_category = product.get("main_category", "")
+        subcategory = product.get("subcategory", "")
+        
+        if main_category and subcategory:
+            catsub = f"{main_category}:{subcategory}"
+        elif main_category:
+            catsub = main_category
+        else:
+            catsub = None
+        
+        # Determine item types based on product code
+        product_code = product.get("code", "")
+        qbo_item_type_id, ps_item_type_id = determine_item_types(product_code)
+        
+        # Build update body for first 3 fields (without Sync)
+        update_body = {
+            CATSUB_FIELD_KEY: catsub,
+            QBO_ITEMTYPE_FIELD_KEY: qbo_item_type_id,
+            PRODUCT_SERVICE_FIELD_KEY: ps_item_type_id
+        }
+        
+        logger.info(f"Setting first 3 fields for product {product_id}: {update_body}")
+        
+        # Update the product with first 3 fields
+        response = requests.put(
+            f"{BASE_URL}/products/{product_id}",
+            params=params,
+            headers=headers,
+            json=update_body
+        )
+        
+        if response.status_code == 200:
+            logger.info(f"✅ Successfully set first 3 fields for product {product_id}")
+            
+            # Now set the Sync field after the other fields are set
+            sync_body = {
+                SYNC_FIELD_KEY: SYNC_YES_ID
+            }
+            
+            logger.info(f"Setting Sync field for product {product_id}: {sync_body}")
+            
+            sync_response = requests.put(
+                f"{BASE_URL}/products/{product_id}",
+                params=params,
+                headers=headers,
+                json=sync_body
+            )
+            
+            if sync_response.status_code == 200:
+                logger.info(f"✅ Successfully set all 4 fields for product {product_id}")
+                return True
+            else:
+                logger.error(f"❌ Failed to set Sync field for product {product_id}: {sync_response.status_code} - {sync_response.text}")
+                return False
+        else:
+            logger.error(f"❌ Failed to set first 3 fields for product {product_id}: {response.status_code} - {response.text}")
+            return False
+            
+    except Exception as e:
+        logger.error(f"❌ Error setting 4 fields for product {product_id}: {e}")
+        return False
 
 def update_or_create_products(products):
     """
@@ -29,8 +137,21 @@ def update_or_create_products(products):
     # Use URL parameter method (Method 4 from testing)
     params = {"api_token": API_TOKEN}
     
+    processed_items = set()  # Track processed items to detect duplicates
+    
     for product in products:
         try:
+            # Debug: Log the product being processed
+            item_id = product.get('id')
+            item_name = product.get('name')
+            logger.info(f"🔄 Processing Quoter item: {item_name} (ID: {item_id}, SKU: {product.get('sku')})")
+            
+            # Check for duplicate processing
+            if item_id in processed_items:
+                logger.error(f"🚨 DUPLICATE PROCESSING DETECTED: {item_name} (ID: {item_id}) is being processed multiple times!")
+                continue
+            processed_items.add(item_id)
+            
             # Pipedrive product mapping - using supplier_sku as unique identifier
             pipedrive_product = {
                 "name": product.get("name", "Unknown Product"),
@@ -79,6 +200,9 @@ def update_or_create_products(products):
                     
                     if pipedrive_category_id:
                         pipedrive_product["category"] = pipedrive_category_id
+                        # Store the original category names for CatSub field
+                        pipedrive_product["main_category"] = main_category
+                        pipedrive_product["subcategory"] = subcategory
                         logger.info(f"Mapped main category '{main_category}' to Pipedrive ID {pipedrive_category_id}")
                     else:
                         logger.warning(f"No category mapping found for '{main_category}'")
@@ -99,6 +223,9 @@ def update_or_create_products(products):
                     
                     if pipedrive_category_id:
                         pipedrive_product["category"] = pipedrive_category_id
+                        # Store the original category name for CatSub field
+                        pipedrive_product["main_category"] = full_category_path
+                        pipedrive_product["subcategory"] = ""
                         logger.info(f"Mapped category '{full_category_path}' to Pipedrive ID {pipedrive_category_id}")
                     else:
                         logger.warning(f"No category mapping found for '{full_category_path}'")
@@ -107,17 +234,39 @@ def update_or_create_products(products):
             else:
                 logger.info(f"No category_id found for product: {product.get('name')}")
             
-            # Check if product exists by sku (which maps to Pipedrive ID)
+            # A, B, C Logic: Simple if-elif-elif structure
             sku = product.get("sku")
+            
             existing_product = None
+            product_id = None
             
             if sku:
-                # Product has sku, check if it exists in Pipedrive
+                # A. Has supplier_sku → Update existing Pipedrive product
+                logger.info(f"🔍 DEBUG: Looking for product with SKU: {sku} (type: {type(sku)})")
                 existing_product = find_product_by_id(sku, headers, params)
-                logger.info(f"Checking for existing product with sku: {sku}")
+                if existing_product:
+                    product_id = existing_product["id"]
+                    logger.info(f"Scenario A - Found existing product by SKU: {sku} (ID: {product_id})")
+                else:
+                    logger.error(f"Scenario A - Product with SKU {sku} not found in Pipedrive!")
             else:
-                # No sku, this is a new product
-                logger.info(f"New product (no sku): {product.get('name')}")
+                # No supplier_sku, check if product exists by name
+                product_name = product.get("name")
+                existing_product = find_product_by_name(product_name, headers, params)
+                
+                if existing_product:
+                    # Check if the Pipedrive product has QBO ID
+                    qb_id = existing_product.get("1213a9ae4c45178ff7c81bde38c3cdfbdc71bbd4")
+                    if qb_id:
+                        # B. No supplier_sku BUT Pipedrive has QuickBooks ID → Update existing (from QBO/SyncQ)
+                        product_id = existing_product["id"]
+                        logger.info(f"Scenario B - Found existing product by name with QBO ID: {product_name} (ID: {product_id}, QBO ID: {qb_id})")
+                    else:
+                        # C. No supplier_sku AND no QuickBooks ID → Create new product
+                        logger.info(f"Scenario C - Creating new product: {product_name}")
+                else:
+                    # C. No supplier_sku AND no name match → Create new product
+                    logger.info(f"Scenario C - Creating new product: {product_name}")
             
             if existing_product:
                 # Debug: Log what we're comparing against
@@ -156,9 +305,10 @@ def update_or_create_products(products):
                     needs_update = True
                     update_reasons.append("subcategory")
                 
+                # product_id already set above
+                
                 if needs_update:
                     # Update existing product
-                    product_id = existing_product["id"]
                     
                     # Debug: Log what we're sending
                     logger.info(f"🔍 DEBUG: Updating product {product_id}")
@@ -174,9 +324,39 @@ def update_or_create_products(products):
                     response.raise_for_status()
                     logger.info(f"Updated product: {pipedrive_product['name']} (ID: {product_id}) - Changes: {', '.join(update_reasons)}")
                 else:
-                    logger.info(f"No updates needed for: {pipedrive_product['name']} (ID: {existing_product['id']})")
+                    logger.info(f"No updates needed for: {pipedrive_product['name']} (ID: {product_id})")
+                
+                # Set the 4 required fields after update (always)
+                set_four_fields(product_id, pipedrive_product, headers, params)
+                
+                # Update Quoter with the Pipedrive product ID for scenarios B and C
+                if not sku:  # Only update if no supplier_sku (scenarios B and C)
+                    update_quoter_sku(product.get("id"), product_id)
             else:
-                # Create new product
+                # Create new product with all fields in one call
+                # Build CatSub value
+                main_category = pipedrive_product.get("main_category", "")
+                subcategory = pipedrive_product.get("subcategory", "")
+                
+                if main_category and subcategory:
+                    catsub = f"{main_category}:{subcategory}"
+                elif main_category:
+                    catsub = main_category
+                else:
+                    catsub = None
+                
+                # Determine item types
+                product_code = pipedrive_product.get("code", "")
+                qbo_item_type_id, ps_item_type_id = determine_item_types(product_code)
+                
+                # Add the 4 fields to the creation payload
+                pipedrive_product[CATSUB_FIELD_KEY] = catsub
+                pipedrive_product[QBO_ITEMTYPE_FIELD_KEY] = qbo_item_type_id
+                pipedrive_product[PRODUCT_SERVICE_FIELD_KEY] = ps_item_type_id
+                pipedrive_product[SYNC_FIELD_KEY] = SYNC_YES_ID
+                
+                logger.info(f"🚀 Creating product with all fields: {pipedrive_product['name']}")
+                
                 response = requests.post(
                     f"{BASE_URL}/products",
                     json=pipedrive_product,
@@ -236,23 +416,58 @@ def find_product_by_id(product_id, headers, params):
         logger.error(f"Error searching for product with ID {product_id}: {e}")
         return None
 
-def update_quoter_supplier_sku(quoter_item_id, pipedrive_product_id):
+def find_product_by_name(product_name, headers, params):
     """
-    Update Quoter item with the new Pipedrive product ID.
+    Find a product in Pipedrive by its name.
     
     Args:
-        quoter_item_id (str): Quoter item ID
-        pipedrive_product_id (str): Pipedrive product ID
+        product_name (str): Product name to search for
+        headers (dict): Request headers
+        params (dict): URL parameters with authentication
+        
+    Returns:
+        dict: Product data if found, None otherwise
     """
-    # This would require a PATCH request to Quoter API
-    # For now, just log the update that would be needed
-    logger.info(f"Would update Quoter item {quoter_item_id} with supplier_sku: {pipedrive_product_id}")
-    
-    # TODO: Implement actual Quoter API update
-    # This would require:
-    # 1. OAuth access token
-    # 2. PATCH request to https://api.quoter.com/v1/items/{quoter_item_id}
-    # 3. Request body: {"supplier_sku": pipedrive_product_id} 
+    if not product_name:
+        return None
+        
+    try:
+        # Search for products by name
+        search_params = params.copy()
+        search_params["term"] = product_name
+        search_params["limit"] = 10  # Limit results
+        
+        response = requests.get(
+            f"{BASE_URL}/products/search",
+            headers=headers,
+            params=search_params
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            search_results = data.get("data", {}).get("items", [])
+            
+            # Look for exact name match in the nested item structure
+            for result in search_results:
+                product = result.get("item", {})
+                if product.get("name") == product_name:
+                    product_id = product.get("id")
+                    logger.info(f"Found product by name: {product_name} (ID: {product_id})")
+                    # Get full product data with all custom fields
+                    full_product = find_product_by_id(product_id, headers, params)
+                    return full_product
+            
+            # No exact match found
+            logger.info(f"No exact name match found for: {product_name}")
+            return None
+        else:
+            logger.error(f"Error searching for product by name '{product_name}': {response.status_code}")
+            return None
+            
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error searching for product by name '{product_name}': {e}")
+        return None
+
 
 def get_sub_organizations_ready_for_quotes():
     """

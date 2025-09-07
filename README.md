@@ -102,6 +102,115 @@ A Python project that synchronizes data between Quoter and Pipedrive APIs, inclu
 
 ## Recent Major Updates (September 2025)
 
+### September 6, 2025: Critical Sync System Overhaul
+
+#### **A, B, C Product Matching Logic Rewrite (`pipedrive.py`)**
+**Problem:** Duplicate products being created in Pipedrive due to flawed if-then-else logic that could trigger multiple scenarios.
+
+**Root Cause:** Nested if statements allowed both Scenario B and C to execute, creating duplicate products with identical Pipedrive IDs.
+
+**Solution Applied:**
+```python
+# OLD (nested if statements - flawed):
+if sku:
+    # Scenario A logic
+else:
+    if name_match:
+        if qb_id:
+            # Scenario B logic
+        else:
+            # Scenario C logic
+    else:
+        # Scenario C logic
+
+# NEW (clean if-elif-elif structure):
+if sku:
+    # A. Has supplier_sku → Update existing Pipedrive product
+elif name_match and qb_id:
+    # B. No supplier_sku BUT has QuickBooks ID → Update existing (from QBO/SyncQ)
+else:
+    # C. No supplier_sku AND no QuickBooks ID → Create new product
+```
+
+**Result:** Eliminated duplicate product creation. Each item now follows exactly one scenario.
+
+#### **Timezone Consistency Fix (`sync_with_date_filter.py`)**
+**Problem:** Date filtering was processing too many items due to timezone mismatch between `last_sync_date.txt` (Pacific time) and Quoter/Pipedrive APIs (UTC).
+
+**Root Cause:** `datetime.now()` saves local time but APIs expect UTC timestamps.
+
+**Solution Applied:**
+```python
+# OLD (inconsistent timezone):
+datetime.now().strftime("%Y-%m-%dT%H:%M:%S.000Z")
+
+# NEW (consistent UTC):
+datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.000Z")
+```
+
+**Result:** Date filtering now works correctly, processing only items modified since last sync.
+
+#### **Pipedrive Search API Enhancement (`pipedrive.py`)**
+**Problem:** `find_product_by_name()` using Pipedrive search API returned `None` for custom fields like QuickBooks ID, causing Scenario B logic to fail.
+
+**Root Cause:** Pipedrive search API doesn't reliably return custom field values.
+
+**Solution Applied:**
+```python
+# After finding product by name via search API:
+full_product = find_product_by_id(product_id, headers, params)
+return full_product  # Now includes all custom fields
+```
+
+**Result:** Scenario B (name match + QBO ID check) now works correctly.
+
+#### **4-Field Update Integration (`pipedrive.py`)**
+**Problem:** Product creation required separate API calls for 4 custom fields, causing timing issues and potential race conditions.
+
+**Solution Applied:**
+- Consolidated all 4 fields (CatSub, QBO Item Type, Product/Service, Sync to QuickBooks) into single product creation API call
+- Added proper category mapping using `category_manager.py`
+- Fixed CatSub field formatting to show "Category:Subcategory" instead of just "Subcategory"
+
+**Result:** Cleaner, more reliable product creation with all fields set atomically.
+
+#### **Bidirectional Sync Enhancement (`pipedrive.py`)**
+**Problem:** Pipedrive product IDs weren't being written back to Quoter `supplier_sku` field for new products.
+
+**Solution Applied:**
+- Added `update_quoter_sku()` call for both updated AND new products
+- Added condition to only update `supplier_sku` if it's initially empty
+- Ensured proper error handling for Quoter API calls
+
+**Result:** Complete bidirectional sync - Quoter items get Pipedrive IDs, Pipedrive products get Quoter data.
+
+#### **Project Cleanup and Organization (September 6, 2025)**
+**Problem:** Production directory cluttered with test files, debug scripts, and temporary analysis files.
+
+**Solution Applied:**
+- **Moved to `test_files/`:** `test_qbo_integration.py`, `qbo_validation_test.py`, `verify_two_step_process.py`, `comprehensive_qbo_analysis.py`, `deep_quoter_analysis.py`
+- **Moved to `chat_backups/`:** `PROGRESS_SUMMARY_20250901_091202.md`
+- **Moved to `docs/`:** `QBO_SYNC_ERROR_FIX.md`
+- **Deleted redundant files:** `bulk_sync_items.py`, `september_items_analysis.csv`, `qbo_items_analysis.json`, `qbo_raw_items.json`, `retrieve_latest.py`, `pd_catsub_backfill_github.py`
+- **Kept essential test files:** `test_email_notification.py`, `test_slack_notification.py`
+
+**Result:** Clean production directory with only essential files, proper organization of test and documentation files.
+
+#### **Comprehensive System Documentation (September 6, 2025)**
+**Problem:** Complex sync system lacked comprehensive documentation covering all scenarios, logic flows, and troubleshooting.
+
+**Solution Applied:**
+- **Created `docs/SYNC_SYSTEM_DOCUMENTATION.md`** - Complete technical documentation covering:
+  - Timestamp management and UTC consistency
+  - A, B, C product matching logic with detailed scenarios
+  - Get by name vs get by ID API patterns
+  - 4-field update process and field mapping
+  - Error handling and troubleshooting guides
+  - Performance optimization and monitoring
+  - Configuration and deployment details
+
+**Result:** Complete reference documentation for developers and future maintenance.
+
 ### Pipedrive Price Format Fix (`pipedrive.py`)
 **Problem:** Decimal prices were being stored as `$0.00` in Pipedrive due to incorrect API format usage.
 
@@ -247,23 +356,25 @@ NOTIFICATION_EMAILS=email1@domain.com,email2@domain.com
 ### Automated Workflows
 The project uses GitHub Actions for automated synchronization:
 
-#### **Job 1: Regular Product Sync** (`sync.yml`)
-- **Schedule:** Every 30 minutes, 6 AM-6 PM UTC, weekdays
-- **Script:** `sync_with_date_filter.py`
-- **Purpose:** Syncs products from Quoter to Pipedrive
+#### **Job 1: Complete Sync Workflow** (`complete-sync.yml`)
+- **Schedule:** Daily at 2 PM UTC
+- **Scripts:** `sync_with_date_filter.py` → `quoter_to_qbo_sync.py` (sequential)
+- **Purpose:** Complete end-to-end sync from Quoter to Pipedrive to QBO
 - **Features:** 
-  - Bidirectional sync (new products get Pipedrive ID written back to Quoter)
+  - **Step 1:** Quoter → Pipedrive sync with A, B, C logic
+  - **Step 2:** Quoter → QBO sync for new/updated items
+  - Bidirectional sync (Pipedrive IDs written back to Quoter)
   - Date-filtered updates for performance
-  - Category mapping and price synchronization
+  - Category mapping and 4-field updates
 
-#### **Job 2: CatSub Backfill** (`catsub-backfill.yml`)
-- **Schedule:** Daily at 2 AM UTC
-- **Script:** `pd_catsub_backfill.py`
-- **Purpose:** Backfills Cat:Sub fields for existing Pipedrive products
+#### **Job 2: QBO Sync Only** (`qbo-sync.yml`)
+- **Schedule:** Daily at 2:30 PM UTC (30 minutes after complete sync)
+- **Script:** `quoter_to_qbo_sync.py`
+- **Purpose:** Additional QBO sync for any items missed in main workflow
 - **Features:**
-  - Combines Category (enum) and Subcategory (text) into "Parent:Child" format
-  - Updates custom field (e.g., "QBO-Category:Subcategory")
-  - Idempotent - safe to run multiple times
+  - Standalone QBO synchronization
+  - Handles any timing issues from main workflow
+  - Dry-run validation and error handling
 
 ### Workflow Validation
 - **Pre-commit validation** in `sync.sh` checks workflow syntax
