@@ -85,7 +85,8 @@ def handle_organization_webhook():
         if request.content_type == 'application/json':
             data = request.get_json()
             logger.info(f"Received JSON webhook: {json.dumps(data, indent=2)}")
-            organization_data = data.get('data', {})
+            # Check if data is nested under 'data' key or direct
+            organization_data = data.get('data', data) if 'data' in data else data
         else:
             # Handle form data (key-value pairs from Pipedrive automation)
             form_data = request.form.to_dict()
