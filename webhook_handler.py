@@ -71,6 +71,7 @@ def update_quote_with_sequential_number(quote_id, deal_id):
         return False
 
 @app.route('/webhook/pipedrive/organization', methods=['POST'])
+@app.route('/webhook/pipedrive/organization/', methods=['POST'])
 def handle_organization_webhook():
     """
     Handle webhook events from Pipedrive when organizations are updated.
