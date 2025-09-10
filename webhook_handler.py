@@ -179,14 +179,33 @@ def handle_organization_webhook():
         # Get organization name and extract deal ID from the end of the name
         organization_name = organization_data.get('name', 'Unknown Organization')
         
-        # Extract deal ID from organization name (e.g., "Blue Owl Capital-2096" -> "2096")
-        deal_id = None
-        if organization_name and '-' in organization_name:
-            deal_id = organization_name.split('-')[-1]
-            logger.info(f"Extracted deal ID: {deal_id} from organization: {organization_name}")
+        # If organization name is not provided in webhook data, fetch it from Pipedrive API
+        if organization_name == 'Unknown Organization':
+            logger.info(f"Organization name not in webhook data, fetching from Pipedrive API for org {organization_id}")
+            try:
+                org_data = get_organization_by_id(organization_id)
+                if org_data and org_data.get('name'):
+                    organization_name = org_data['name']
+                    logger.info(f"Retrieved organization name from API: {organization_name}")
+                else:
+                    logger.error(f"Could not retrieve organization name for ID {organization_id}")
+                    return jsonify({"error": "Could not retrieve organization name"}), 404
+            except Exception as e:
+                logger.error(f"Error fetching organization name: {e}")
+                return jsonify({"error": "Failed to fetch organization name"}), 500
+        
+        # Extract deal ID - try direct deal_id first, then from organization name
+        deal_id = organization_data.get('deal_id')
+        if deal_id:
+            logger.info(f"Using deal ID from webhook data: {deal_id}")
         else:
-            logger.error(f"Organization {organization_id} name '{organization_name}' does not contain deal ID (expected format: 'Name-DealID')")
-            return jsonify({"error": "No deal ID in organization name"}), 400
+            # Extract deal ID from organization name (e.g., "Blue Owl Capital-2096" -> "2096")
+            if organization_name and '-' in organization_name:
+                deal_id = organization_name.split('-')[-1]
+                logger.info(f"Extracted deal ID: {deal_id} from organization: {organization_name}")
+            else:
+                logger.error(f"Organization {organization_id} name '{organization_name}' does not contain deal ID (expected format: 'Name-DealID')")
+                return jsonify({"error": "No deal ID in organization name"}), 400
         
         logger.info(f"Processing organization {organization_id} ({organization_name}) for deal {deal_id}")
         
