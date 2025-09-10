@@ -91,6 +91,13 @@ def get_template_from_pipedrive_field(deal_data, access_token, field_id=None):
         logger.info(f"📋 No template specified in Pipedrive field {field_id}")
         return None
     
+    # Convert to integer if it's a string (Pipedrive sometimes returns string enum values)
+    try:
+        template_enum_value = int(template_enum_value)
+    except (ValueError, TypeError):
+        logger.warning(f"⚠️ Could not convert enum value '{template_enum_value}' to integer")
+        return None
+    
     # Map enum values to template names
     enum_mapping = {
         441: 'Basic',

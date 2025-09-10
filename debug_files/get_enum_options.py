@@ -88,7 +88,7 @@ def main():
     Main function to get Quote Template enum options.
     """
     # Quote Template field ID
-    field_id = "90"  # From the previous output
+    field_id = "90"
     
     try:
         enum_mapping = get_enum_options(field_id)

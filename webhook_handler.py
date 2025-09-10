@@ -220,13 +220,17 @@ def handle_organization_webhook():
         
         deal_title = deal_data.get("title", f"Deal {deal_id}")
         
-        # Add deal ID to organization data for the quote creation function
-        # The function expects deal ID in a specific custom field
-        organization_data["15034cf07d05ceb15f0a89dcbdcc4f596348584e"] = deal_id
+        # Normalize organization data for the quote creation function
+        # The function expects specific keys: 'id', 'name', and deal ID in custom field
+        normalized_org_data = {
+            "id": organization_id,
+            "name": organization_name,
+            "15034cf07d05ceb15f0a89dcbdcc4f596348584e": deal_id
+        }
         
         # Create comprehensive draft quote using our enhanced function with template selection
         # Pass deal data to enable template selection from Pipedrive dropdown
-        quote_data = create_comprehensive_quote_from_pipedrive(organization_data, deal_data)
+        quote_data = create_comprehensive_quote_from_pipedrive(normalized_org_data, deal_data)
         
         if quote_data:
             # Send notification
