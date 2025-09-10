@@ -92,7 +92,11 @@ def handle_organization_webhook():
             logger.info(f"Received form webhook: {json.dumps(form_data, indent=2)}")
             organization_data = form_data
         
+        # Handle Pipedrive automation format where organization ID might be in {{organization.name}} key
         organization_id = organization_data.get('id')
+        if not organization_id:
+            # Try the Pipedrive automation format
+            organization_id = organization_data.get('{{organization.name}}')
         
         if not organization_id:
             logger.error("No organization ID in webhook data")
