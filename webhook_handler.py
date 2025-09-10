@@ -80,11 +80,17 @@ def handle_organization_webhook():
         # Verify webhook authenticity (optional but recommended)
         # TODO: Add webhook signature verification
         
-        data = request.get_json()
-        logger.info(f"Received webhook: {json.dumps(data, indent=2)}")
+        # Handle both JSON and form data formats
+        if request.content_type == 'application/json':
+            data = request.get_json()
+            logger.info(f"Received JSON webhook: {json.dumps(data, indent=2)}")
+            organization_data = data.get('data', {})
+        else:
+            # Handle form data (key-value pairs from Pipedrive automation)
+            form_data = request.form.to_dict()
+            logger.info(f"Received form webhook: {json.dumps(form_data, indent=2)}")
+            organization_data = form_data
         
-        # Extract organization data
-        organization_data = data.get('data', {})
         organization_id = organization_data.get('id')
         
         if not organization_id:
