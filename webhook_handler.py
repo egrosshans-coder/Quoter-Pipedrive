@@ -108,8 +108,12 @@ def handle_organization_webhook():
         # Check if this is a sub-organization ready for quotes
         # Look for HID-QBO-Status = 289 (QBO-SubCust)
         hid_status = organization_data.get('454a3767bce03a880b31d78a38c480d6870e0f1b')
+        if not hid_status:
+            # Try the Pipedrive automation format
+            hid_status = organization_data.get('{{organization.454a3767bce03a880b31d78a38c480d6870e0f1b}}')
         
-        if hid_status != 289:  # Not QBO-SubCust
+        # Check if status is ready for quotes (289 or "QBO-SubCust")
+        if hid_status not in [289, "289", "QBO-SubCust"]:
             logger.info(f"Organization {organization_id} not ready for quotes (status: {hid_status})")
             return jsonify({"status": "ignored", "reason": "not_ready_for_quotes"}), 200
         
