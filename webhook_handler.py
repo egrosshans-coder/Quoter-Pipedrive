@@ -92,6 +92,11 @@ def handle_organization_webhook():
             logger.info(f"Received form webhook: {json.dumps(form_data, indent=2)}")
             organization_data = form_data
         
+        # Handle empty data from Pipedrive retries/timeouts
+        if not organization_data:
+            logger.info("Received empty webhook data (likely from Pipedrive retry/timeout)")
+            return jsonify({"status": "ignored", "reason": "empty_data"}), 200
+        
         # Handle Pipedrive automation format where organization ID might be in {{organization.name}} key
         logger.info(f"DEBUG: Looking for organization ID in data: {organization_data}")
         organization_id = organization_data.get('id')
