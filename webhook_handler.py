@@ -7,6 +7,8 @@ Triggers quote creation when sub-organization is ready.
 import json
 import os
 import requests
+import time
+import threading
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 from quoter import create_draft_quote, create_comprehensive_quote_from_pipedrive
@@ -17,6 +19,44 @@ from utils.logger import logger
 load_dotenv()
 
 app = Flask(__name__)
+
+# Rate limiting and queue management
+class WebhookRateLimiter:
+    def __init__(self, max_concurrent=1, delay_seconds=2):
+        self.max_concurrent = max_concurrent
+        self.delay_seconds = delay_seconds
+        self.active_requests = 0
+        self.lock = threading.Lock()
+        self.queue = []
+        self.processing = False
+    
+    def can_process(self):
+        """Check if we can process a new request"""
+        with self.lock:
+            return self.active_requests < self.max_concurrent
+    
+    def start_processing(self):
+        """Mark that we're starting to process a request"""
+        with self.lock:
+            self.active_requests += 1
+            logger.info(f"🔄 Starting webhook processing. Active requests: {self.active_requests}")
+    
+    def finish_processing(self):
+        """Mark that we've finished processing a request"""
+        with self.lock:
+            self.active_requests = max(0, self.active_requests - 1)
+            logger.info(f"✅ Finished webhook processing. Active requests: {self.active_requests}")
+    
+    def wait_if_needed(self):
+        """Wait if we're at capacity"""
+        if not self.can_process():
+            logger.info(f"⏳ Rate limit reached. Waiting {self.delay_seconds} seconds...")
+            time.sleep(self.delay_seconds)
+            return self.wait_if_needed()  # Recursive wait
+        return True
+
+# Global rate limiter
+rate_limiter = WebhookRateLimiter(max_concurrent=1, delay_seconds=3)
 
 def update_quote_with_sequential_number(quote_id, deal_id):
     """
@@ -77,6 +117,14 @@ def handle_organization_webhook():
     Handle webhook events from Pipedrive when organizations are updated.
     Specifically triggers when HID-QBO-Status changes to 'QBO-SubCust'.
     """
+    # Rate limiting: wait if we're at capacity
+    if not rate_limiter.wait_if_needed():
+        logger.warning("⏳ Rate limit exceeded, rejecting webhook request")
+        return jsonify({"status": "rate_limited", "message": "Server busy, please retry"}), 429
+    
+    # Mark that we're starting to process this request
+    rate_limiter.start_processing()
+    
     try:
         # Verify webhook authenticity (optional but recommended)
         # TODO: Add webhook signature verification
@@ -172,6 +220,9 @@ def handle_organization_webhook():
     except Exception as e:
         logger.error(f"❌ Error processing webhook: {e}")
         return jsonify({"error": str(e)}), 500
+    finally:
+        # Always mark that we've finished processing
+        rate_limiter.finish_processing()
 
 @app.route('/webhook/quoter/quote-published', methods=['POST'])
 def handle_quoter_quote_published():
@@ -179,6 +230,14 @@ def handle_quoter_quote_published():
     Handle webhook events from Quoter when quotes are published.
     Updates Pipedrive with quote information and completes the quote lifecycle.
     """
+    # Rate limiting: wait if we're at capacity
+    if not rate_limiter.wait_if_needed():
+        logger.warning("⏳ Rate limit exceeded, rejecting Quoter webhook request")
+        return jsonify({"status": "rate_limited", "message": "Server busy, please retry"}), 429
+    
+    # Mark that we're starting to process this request
+    rate_limiter.start_processing()
+    
     try:
         # Verify webhook authenticity (optional but recommended)
         # TODO: Add webhook signature verification
@@ -272,12 +331,31 @@ def handle_quoter_quote_published():
         # Extract deal ID from organization name (e.g., "Blue Owl Capital-2096" -> "2096")
         organization_name = contact_data.get('organization', '')
         deal_id = None
+        
+        # Try to extract deal ID from organization name
         if organization_name and '-' in organization_name:
-            deal_id = organization_name.split('-')[-1]
-            logger.info(f"Extracted deal ID: {deal_id} from organization: {organization_name}")
+            # Split by '-' and try to find a numeric deal ID
+            parts = organization_name.split('-')
+            for part in reversed(parts):  # Check from right to left
+                if part.isdigit():
+                    deal_id = part
+                    logger.info(f"Extracted deal ID: {deal_id} from organization: {organization_name}")
+                    break
+            
+            # If no numeric part found, try the last part anyway
+            if not deal_id:
+                deal_id = parts[-1]
+                logger.info(f"Using last part as deal ID: {deal_id} from organization: {organization_name}")
+        else:
+            logger.warning(f"Organization name '{organization_name}' does not contain '-' separator")
         
         # Extract total amount
         total_amount = quote_total.get('upfront', '0') if isinstance(quote_total, dict) else str(quote_total)
+        
+        # Validate deal ID is numeric
+        if deal_id and not deal_id.isdigit():
+            logger.error(f"❌ Invalid deal ID format: {deal_id} - must be numeric")
+            return jsonify({"error": f"Invalid deal ID format: {deal_id}"}), 400
         
         # Get contact information to find Pipedrive organization
         if contact_id and deal_id:
@@ -294,14 +372,9 @@ def handle_quoter_quote_published():
             
             # Update Pipedrive with quote information
             try:
-                # Extract deal ID from organization name (e.g., "Blue Owl Capital-2096" -> "2096")
+                # Use the deal_id we already extracted above
                 org_name = contact_data.get('organization', '')
-                if '-' in org_name:
-                    deal_id = org_name.split('-')[-1]
-                    logger.info(f"Extracted deal ID: {deal_id} from organization: {org_name}")
-                else:
-                    logger.error(f"Could not extract deal ID from organization name: {org_name}")
-                    return jsonify({"error": "Invalid organization name format"}), 400
+                logger.info(f"Using deal ID: {deal_id} from organization: {org_name}")
                 
                 # Update the deal with quote information
                 from pipedrive import update_deal_with_quote_info
@@ -395,6 +468,9 @@ def handle_quoter_quote_published():
     except Exception as e:
         logger.error(f"❌ Error processing Quoter webhook: {e}")
         return jsonify({"error": str(e)}), 500
+    finally:
+        # Always mark that we've finished processing
+        rate_limiter.finish_processing()
 
 def cleanup_old_processed_quotes():
     """Clean up old processed quotes to prevent file from growing indefinitely."""
