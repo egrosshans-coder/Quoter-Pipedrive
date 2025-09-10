@@ -146,14 +146,17 @@ def handle_organization_webhook():
             logger.info("Received empty webhook data (likely from Pipedrive retry/timeout)")
             return jsonify({"status": "ignored", "reason": "empty_data"}), 200
         
-        # Handle Pipedrive automation format where organization ID might be in {{organization.name}} key
+        # Handle Pipedrive automation format where organization ID is in {{organization.id}} key
         logger.info(f"DEBUG: Looking for organization ID in data: {organization_data}")
-        organization_id = organization_data.get('id')
-        logger.info(f"DEBUG: organization_id from 'id': {organization_id}")
+        organization_id = organization_data.get('{{organization.id}}')
+        logger.info(f"DEBUG: organization_id from '{{organization.id}}': {organization_id}")
         if not organization_id:
-            # Try the Pipedrive automation format
-            organization_id = organization_data.get('{{organization.name}}')
-            logger.info(f"DEBUG: organization_id from '{{organization.name}}': {organization_id}")
+            # Fallback to old format
+            organization_id = organization_data.get('id')
+            logger.info(f"DEBUG: organization_id from 'id': {organization_id}")
+            if not organization_id:
+                organization_id = organization_data.get('{{organization.name}}')
+                logger.info(f"DEBUG: organization_id from '{{organization.name}}': {organization_id}")
         
         if not organization_id:
             logger.error(f"DEBUG: No organization ID found. Available keys: {list(organization_data.keys())}")
@@ -177,7 +180,7 @@ def handle_organization_webhook():
         logger.info(f"Processing organization {organization_id} owned by {owner_name} (ID: {owner_id})")
         
         # Get organization name and extract deal ID from the end of the name
-        organization_name = organization_data.get('name', 'Unknown Organization')
+        organization_name = organization_data.get('{{organization.name}}', 'Unknown Organization')
         
         # If organization name is not provided in webhook data, fetch it from Pipedrive API
         if organization_name == 'Unknown Organization':
