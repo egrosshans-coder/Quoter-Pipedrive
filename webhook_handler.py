@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+n #!/usr/bin/env python3
 """
 Webhook Handler - Receives events from Pipedrive automation
 Triggers quote creation when sub-organization is ready.
@@ -212,6 +212,20 @@ def handle_organization_webhook():
         
         logger.info(f"Processing organization {organization_id} ({organization_name}) for deal {deal_id}")
         
+        # Check if we've already processed this organization recently
+        processed_orgs_file = "processed_organizations.txt"
+        org_key = f"{organization_id}:{deal_id}"
+        
+        try:
+            with open(processed_orgs_file, 'r') as f:
+                processed_orgs = f.read().splitlines()
+        except FileNotFoundError:
+            processed_orgs = []
+        
+        if org_key in processed_orgs:
+            logger.info(f"Organization {organization_id} (deal {deal_id}) already processed recently, skipping")
+            return jsonify({"status": "ignored", "reason": "already_processed"}), 200
+        
         # Get deal information
         deal_data = get_deal_by_id(deal_id)
         if not deal_data:
@@ -233,6 +247,14 @@ def handle_organization_webhook():
         quote_data = create_comprehensive_quote_from_pipedrive(normalized_org_data, deal_data)
         
         if quote_data:
+            # Mark this organization as processed to prevent duplicates
+            try:
+                with open(processed_orgs_file, 'a') as f:
+                    f.write(f"{org_key}\n")
+                logger.info(f"✅ Marked organization {organization_id} (deal {deal_id}) as processed")
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to mark organization as processed: {e}")
+            
             # Send notification
             send_quote_created_notification(quote_data, deal_data, organization_data)
             
@@ -521,11 +543,31 @@ def cleanup_old_processed_quotes():
     except Exception as e:
         logger.warning(f"⚠️ Failed to cleanup processed quotes: {e}")
 
+def cleanup_old_processed_organizations():
+    """Clean up old processed organizations to prevent file from growing indefinitely."""
+    processed_orgs_file = "processed_organizations.txt"
+    try:
+        with open(processed_orgs_file, 'r') as f:
+            processed_orgs = f.read().splitlines()
+        
+        # Keep only the last 500 processed organizations
+        if len(processed_orgs) > 500:
+            processed_orgs = processed_orgs[-500:]
+            with open(processed_orgs_file, 'w') as f:
+                f.write('\n'.join(processed_orgs) + '\n')
+            logger.info(f"🧹 Cleaned up processed organizations file, kept last 500 entries")
+            
+    except FileNotFoundError:
+        pass
+    except Exception as e:
+        logger.warning(f"⚠️ Failed to cleanup processed organizations: {e}")
+
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint."""
-    # Clean up old processed quotes on health check
+    # Clean up old processed quotes and organizations on health check
     cleanup_old_processed_quotes()
+    cleanup_old_processed_organizations()
     
     return jsonify({
         "service": "quote-automation-webhook",

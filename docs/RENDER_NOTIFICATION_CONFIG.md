@@ -41,7 +41,7 @@ services:
 ## Required Secrets in Render Dashboard
 
 ### **1. SLACK_WEBHOOK_URL**
-- **Value:** `https://hooks.slack.com/services/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`
+- **Value:** `https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK/URL`
 - **Purpose:** Slack webhook for #d-quoter-alerts channel
 - **Status:** ✅ Configured and tested
 
