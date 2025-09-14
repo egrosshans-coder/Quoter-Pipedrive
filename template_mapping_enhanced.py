@@ -10,22 +10,25 @@ import requests
 TEMPLATE_BUNDLES = {
     "floating-video": {
         "name": "Floating Video",
-        "cover_letter": """<p>Hi {{person.first_name}},</p>
+        "cover_letter": """<h2>Proposal for ##CustomerOrganization##</h2>
 
-<p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote using the links below:</p>
+<p>Dear ##CustomerFirstName##,</p>
 
-<p>
-  <a href="{{quote.url}}" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; margin-right: 10px;">View Online</a>
-  <a href="{{quote.pdf_url}}" style="background: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Download PDF</a>
-</p>
+<p>Thank you for the opportunity to work with ##CustomerOrganization##. We've prepared a custom proposal to support your upcoming project. This quote was created on ##QuoteCreatedDate## and is valid through ##QuoteExpiryDate##.</p>
 
-<p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
+<p>Below you'll find a breakdown of services, equipment, and pricing. Our goal is to deliver the highest quality experience with a focus on creativity, reliability, and flawless execution.</p>
 
-<p>Should you have any questions, clarifications, or special requests, please do not hesitate to reach out. We are here to accommodate your needs and ensure a seamless process leading up to the event.</p>
+<p>You can review the proposal using the links below:</p>
 
-<p>Sincerely,<br><br>
-{{deal.owner_name}}<br>
-{% if deal.owner_name == 'Maurice Capillaire' %}Sales and Logistics{% elif deal.owner_name == 'Jeff Ward' %}Sales and Logistics{% elif deal.owner_name == 'Eric Grosshans' %}Technical Director{% else %}Sales Team{% endif %}<br>
+<p><a href="##QuoteLink##" style="display: inline-block; background-color: #007cba; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin-right: 10px;">View Online</a>
+<a href="##QuotePDFURL##" style="display: inline-block; background-color: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">Download PDF</a></p>
+
+<p>If you have any questions, please feel free to reach out to me directly. You can accept the proposal online by clicking the "Accept Quote" button.</p>
+
+<p>Sincerely,</p>
+
+<p><strong>##UserFirstName## ##UserLastName##</strong><br>
+Sales Team<br>
 TLC Creative</p>""",
         "appended_content": """<h3>Important Notes for {{deal.title}} - {{deal.id}}:</h3>
 

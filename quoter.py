@@ -3,9 +3,55 @@ import os
 from dotenv import load_dotenv
 from utils.logger import logger
 
+# Import the enhanced template mapping system
+from template_mapping_enhanced import get_template_line_items, get_template_info
+
 load_dotenv()
 CLIENT_ID = os.getenv("QUOTER_API_KEY")  # Your Client ID
 CLIENT_SECRET = os.getenv("QUOTER_CLIENT_SECRET")  # Your Client Secret
+
+def get_template_name_from_id(template_id, access_token):
+    """
+    Get template name from template ID for bundle mapping
+    
+    Args:
+        template_id (str): Quoter template ID
+        access_token (str): Quoter API access token
+        
+    Returns:
+        str: Template name/slug or None if not found
+    """
+    headers = {'Authorization': f'Bearer {access_token}', 'Content-Type': 'application/json'}
+    
+    try:
+        response = requests.get('https://api.quoter.com/v1/templates', headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            templates = data.get('data', [])
+            
+            for template in templates:
+                if template.get('id') == template_id:
+                    # Try to get slug or name for mapping
+                    template_slug = template.get('slug', '').lower().replace('-', '_')
+                    template_name = template.get('name', '').lower().replace(' ', '-')
+                    
+                    # Map to our bundle names
+                    if 'floating' in template_slug or 'floating' in template_name:
+                        return 'floating-video'
+                    elif 'led' in template_slug or 'wristband' in template_slug:
+                        return 'led-wristbands'
+                    
+                    logger.info(f"📋 Template found: {template.get('name')} (ID: {template_id})")
+                    return template_slug or template_name
+            
+            logger.warning(f"⚠️ Template ID {template_id} not found in templates list")
+            return None
+        else:
+            logger.warning(f"⚠️ Failed to get templates: {response.status_code}")
+            return None
+    except Exception as e:
+        logger.error(f"❌ Error getting template name: {e}")
+        return None
 
 def generate_sequential_quote_number(deal_id):
     """
@@ -1264,12 +1310,30 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
     
     logger.info(f"✅ Contact created/updated in Quoter: {contact_id}")
     
+    # Get template name for cover letter
+    template_name = get_template_name_from_id(required_fields["template_id"], access_token)
+    cover_letter = ""
+    appended_content = ""
+    
+    if template_name:
+        template_info = get_template_info(template_name)
+        if template_info:
+            cover_letter = template_info.get('cover_letter', '')
+            appended_content = template_info.get('appended_content', '')
+            logger.info(f"📝 Using cover letter for template: {template_name}")
+        else:
+            logger.warning(f"⚠️ No template info found for: {template_name}")
+    else:
+        logger.warning(f"⚠️ Could not determine template name for cover letter")
+    
     # Prepare comprehensive quote data (quote number will be assigned by Quoter after publication)
     quote_data = {
         "contact_id": contact_id,
         "template_id": required_fields["template_id"],
         "currency_abbr": required_fields["currency_abbr"],
-        "name": f"Quote for {org_name}"
+        "name": f"Quote for {org_name}",
+        "cover_letter": cover_letter,  # Writes to Cover Page section (API bug - should be Cover Letter)
+        "appended_content": appended_content  # Writes to Appended Content section
     }
     
     try:

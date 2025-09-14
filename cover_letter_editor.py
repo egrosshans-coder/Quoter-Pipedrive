@@ -231,6 +231,17 @@ EDITOR_TEMPLATE = """
             border-radius: 5px;
             padding: 20px;
             min-height: 200px;
+            line-height: 2.0;
+        }
+        
+        .preview-content p {
+            margin-bottom: 1em;
+            line-height: 2.0;
+        }
+        
+        .preview-content h1, .preview-content h2, .preview-content h3 {
+            margin-bottom: 0.5em;
+            line-height: 1.5;
         }
         
         .field-help {
@@ -290,53 +301,101 @@ EDITOR_TEMPLATE = """
         
         <div class="main-content">
             <div class="sidebar">
-                <h3 style="color: #2c3e50; margin-bottom: 20px; font-size: 1.3em;">📋 Field Code Legend</h3>
+                <h3 style="color: #2c3e50; margin-bottom: 20px; font-size: 1.3em;">📋 Quoter Merge Fields</h3>
                 
-                <div style="margin-bottom: 25px;">
-                    <h4 style="color: #495057; margin-bottom: 10px;">👤 Person Fields</h4>
-                    <div style="background: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{ '{{' }}person.first_name{{ '}}' }}</code>
-                        <div style="font-size: 0.8em; color: #6c757d; margin-top: 3px;">Contact's first name</div>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #495057; margin-bottom: 10px;">🏢 Business Fields</h4>
+                    <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85em;">
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px;">##BusinessName##</code>
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px; margin-left: 5px;">##BusinessAddress##</code>
+                    </div>
+                    <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85em;">
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px;">##BusinessCity##</code>
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px; margin-left: 5px;">##BusinessPostalCode##</code>
+                    </div>
+                    <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85em;">
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px;">##BusinessPhone##</code>
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px; margin-left: 5px;">##BusinessEmail##</code>
+                    </div>
+                    <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85em;">
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px;">##BusinessWebsite##</code>
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px; margin-left: 5px;">##BusinessLogo##</code>
                     </div>
                 </div>
                 
-                <div style="margin-bottom: 25px;">
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #495057; margin-bottom: 10px;">👤 Customer Fields</h4>
+                    <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85em;">
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px;">##CustomerOrganization##</code>
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px; margin-left: 5px;">##CustomerTitle##</code>
+                    </div>
+                    <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85em;">
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px;">##CustomerFirstName##</code>
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px; margin-left: 5px;">##CustomerLastName##</code>
+                    </div>
+                    <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85em;">
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px;">##CustomerStreetAddress##</code>
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px; margin-left: 5px;">##CustomerCity##</code>
+                    </div>
+                    <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85em;">
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px;">##CustomerPostalCode##</code>
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px; margin-left: 5px;">##CustomerCountry##</code>
+                    </div>
+                    <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85em;">
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px;">##CustomerWorkPhone##</code>
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px; margin-left: 5px;">##CustomerEmail##</code>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #495057; margin-bottom: 10px;">🚚 Shipping Fields</h4>
+                    <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85em;">
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px;">##CustomerShippingFirstName##</code>
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px; margin-left: 5px;">##CustomerShippingLastName##</code>
+                    </div>
+                    <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85em;">
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px;">##CustomerShippingStreetAddress##</code>
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px; margin-left: 5px;">##CustomerShippingCity##</code>
+                    </div>
+                    <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85em;">
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px;">##CustomerShippingPostalCode##</code>
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px; margin-left: 5px;">##CustomerShippingCountry##</code>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
                     <h4 style="color: #495057; margin-bottom: 10px;">📄 Quote Fields</h4>
-                    <div style="background: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{ '{{' }}quote.url{{ '}}' }}</code>
-                        <div style="font-size: 0.8em; color: #6c757d; margin-top: 3px;">Public web view link to the quote</div>
+                    <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85em;">
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px;">##QuoteNumber##</code>
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px; margin-left: 5px;">##QuoteLink##</code>
                     </div>
-                    <div style="background: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{ '{{' }}quote.pdf_url{{ '}}' }}</code>
-                        <div style="font-size: 0.8em; color: #6c757d; margin-top: 3px;">Direct PDF download link</div>
+                    <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85em;">
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px;">##QuoteWebViewURL##</code>
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px; margin-left: 5px;">##QuotePDFURL##</code>
                     </div>
-                </div>
-                
-                <div style="margin-bottom: 25px;">
-                    <h4 style="color: #495057; margin-bottom: 10px;">🏢 Deal Fields</h4>
-                    <div style="background: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{ '{{' }}deal.title{{ '}}' }}</code>
-                        <div style="font-size: 0.8em; color: #6c757d; margin-top: 3px;">Deal title</div>
+                    <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85em;">
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px;">##QuoteTotal##</code>
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px; margin-left: 5px;">##QuoteUpfrontTotal##</code>
                     </div>
-                    <div style="background: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{ '{{' }}deal.id{{ '}}' }}</code>
-                        <div style="font-size: 0.8em; color: #6c757d; margin-top: 3px;">Deal ID number</div>
+                    <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85em;">
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px;">##QuoteRecurringTotal##</code>
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px; margin-left: 5px;">##QuoteCreatedDate##</code>
                     </div>
-                    <div style="background: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{ '{{' }}deal.owner_name{{ '}}' }}</code>
-                        <div style="font-size: 0.8em; color: #6c757d; margin-top: 3px;">Deal owner name</div>
+                    <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85em;">
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px;">##QuoteExpiryDate##</code>
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px; margin-left: 5px;">##QuoteFormName##</code>
                     </div>
                 </div>
                 
-                <div style="margin-bottom: 25px;">
-                    <h4 style="color: #495057; margin-bottom: 10px;">📄 Quote Fields</h4>
-                    <div style="background: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{ '{{' }}quote.owner.name{{ '}}' }}</code>
-                        <div style="font-size: 0.8em; color: #6c757d; margin-top: 3px;">Quote owner name</div>
+                <div style="margin-bottom: 20px;">
+                    <h4 style="color: #495057; margin-bottom: 10px;">👤 User Fields</h4>
+                    <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85em;">
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px;">##UserFirstName##</code>
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px; margin-left: 5px;">##UserLastName##</code>
                     </div>
-                    <div style="background: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{ '{{' }}quote.owner.email{{ '}}' }}</code>
-                        <div style="font-size: 0.8em; color: #6c757d; margin-top: 3px;">Quote owner email</div>
+                    <div style="background: white; padding: 8px; border-radius: 5px; margin-bottom: 8px; font-size: 0.85em;">
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px;">##UserEmail##</code>
+                        <code style="background: #e9ecef; padding: 2px 4px; border-radius: 3px; margin-left: 5px;">##Signature##</code>
                     </div>
                 </div>
                 
@@ -428,16 +487,54 @@ EDITOR_TEMPLATE = """
             const content = document.getElementById('coverLetterEditor').value;
             const preview = document.getElementById('previewContent');
             
-            // Replace field codes with example values
+            // Replace field codes with example values using correct ##FieldName## syntax
             let previewContent = content
-                .replace(/\{\{person\.first_name\}\}/g, 'John')
-                .replace(/\{\{quote\.url\}\}/g, 'https://tlciscreative.quoter.com/quote/webview/2778-7b6f2af1-6bdb-42bf-bc6f-d865d0795578')
-                .replace(/\{\{quote\.pdf_url\}\}/g, 'https://tlciscreative.quoter.com/quote/download/2778-7b6f2af1-6bdb-42bf-bc6f-d865d0795578')
-                .replace(/\{\{deal\.title\}\}/g, 'Sample Event')
-                .replace(/\{\{deal\.id\}\}/g, '1234')
-                .replace(/\{\{deal\.owner_name\}\}/g, 'Maurice Capillaire')
-                .replace(/\{\{quote\.owner\.name\}\}/g, 'Eric Grosshans')
-                .replace(/\{\{quote\.owner\.email\}\}/g, 'eric@tlciscreative.com');
+                // Business Fields
+                .replace(/##BusinessName##/g, 'TLC Creative')
+                .replace(/##BusinessAddress##/g, '123 Main Street')
+                .replace(/##BusinessCity##/g, 'Toronto')
+                .replace(/##BusinessPostalCode##/g, 'M5V 3A8')
+                .replace(/##BusinessPhone##/g, '(416) 555-0123')
+                .replace(/##BusinessEmail##/g, 'info@tlciscreative.com')
+                .replace(/##BusinessWebsite##/g, 'www.tlciscreative.com')
+                
+                // Customer Fields
+                .replace(/##CustomerOrganization##/g, 'ZZ19-Org')
+                .replace(/##CustomerTitle##/g, 'Mr.')
+                .replace(/##CustomerFirstName##/g, 'John')
+                .replace(/##CustomerLastName##/g, 'Smith')
+                .replace(/##CustomerStreetAddress##/g, '456 Oak Avenue')
+                .replace(/##CustomerCity##/g, 'Vancouver')
+                .replace(/##CustomerPostalCode##/g, 'V6B 1A1')
+                .replace(/##CustomerCountry##/g, 'Canada')
+                .replace(/##CustomerWorkPhone##/g, '(604) 555-0456')
+                .replace(/##CustomerEmail##/g, 'john.smith@example.com')
+                
+                // Shipping Fields
+                .replace(/##CustomerShippingFirstName##/g, 'John')
+                .replace(/##CustomerShippingLastName##/g, 'Smith')
+                .replace(/##CustomerShippingStreetAddress##/g, '456 Oak Avenue')
+                .replace(/##CustomerShippingCity##/g, 'Vancouver')
+                .replace(/##CustomerShippingPostalCode##/g, 'V6B 1A1')
+                .replace(/##CustomerShippingCountry##/g, 'Canada')
+                
+                // Quote Fields
+                .replace(/##QuoteNumber##/g, 'Q-2025-001')
+                .replace(/##QuoteLink##/g, 'https://tlciscreative.quoter.com/quote/webview/2778-7b6f2af1-6bdb-42bf-bc6f-d865d0795578')
+                .replace(/##QuoteWebViewURL##/g, 'https://tlciscreative.quoter.com/quote/webview/2778-7b6f2af1-6bdb-42bf-bc6f-d865d0795578')
+                .replace(/##QuotePDFURL##/g, 'https://tlciscreative.quoter.com/quote/download/2778-7b6f2af1-6bdb-42bf-bc6f-d865d0795578')
+                .replace(/##QuoteTotal##/g, '$2,500.00')
+                .replace(/##QuoteUpfrontTotal##/g, '$1,000.00')
+                .replace(/##QuoteRecurringTotal##/g, '$1,500.00')
+                .replace(/##QuoteCreatedDate##/g, '2025/09/14')
+                .replace(/##QuoteExpiryDate##/g, '2025/10/14')
+                .replace(/##QuoteFormName##/g, 'Wedding Photography Package')
+                
+                // User Fields
+                .replace(/##UserFirstName##/g, 'Maurice')
+                .replace(/##UserLastName##/g, 'Capillaire')
+                .replace(/##UserEmail##/g, 'maurice@tlciscreative.com')
+                .replace(/##Signature##/g, 'Maurice Capillaire<br>Sales and Logistics');
             
             preview.innerHTML = previewContent;
         }
@@ -544,15 +641,54 @@ def preview_template(template_key):
     
     cover_letter = TEMPLATE_BUNDLES[template_key]['cover_letter']
     
-    # Replace field codes with sample data
-    preview = cover_letter.replace('{{person.first_name}}', 'John')
-    preview = preview.replace('{{deal.title}}', 'Sample Corporate Event')
-    preview = preview.replace('{{deal.id}}', '1234')
-    preview = preview.replace('{{deal.owner_name}}', 'Maurice Capillaire')
-    preview = preview.replace('{{quote.owner.name}}', 'Eric Grosshans')
-    preview = preview.replace('{{quote.owner.email}}', 'eric@tlciscreative.com')
-    preview = preview.replace('{{quote.url}}', 'https://tlciscreative.quoter.com/quote/webview/2778-7b6f2af1-6bdb-42bf-bc6f-d865d0795578')
-    preview = preview.replace('{{quote.pdf_url}}', 'https://tlciscreative.quoter.com/quote/download/2778-7b6f2af1-6bdb-42bf-bc6f-d865d0795578')
+    # Replace field codes with sample data using correct ##FieldName## syntax
+    preview = cover_letter
+    # Business Fields
+    preview = preview.replace('##BusinessName##', 'TLC Creative')
+    preview = preview.replace('##BusinessAddress##', '123 Main Street')
+    preview = preview.replace('##BusinessCity##', 'Toronto')
+    preview = preview.replace('##BusinessPostalCode##', 'M5V 3A8')
+    preview = preview.replace('##BusinessPhone##', '(416) 555-0123')
+    preview = preview.replace('##BusinessEmail##', 'info@tlciscreative.com')
+    preview = preview.replace('##BusinessWebsite##', 'www.tlciscreative.com')
+    
+    # Customer Fields
+    preview = preview.replace('##CustomerOrganization##', 'ZZ19-Org')
+    preview = preview.replace('##CustomerTitle##', 'Mr.')
+    preview = preview.replace('##CustomerFirstName##', 'John')
+    preview = preview.replace('##CustomerLastName##', 'Smith')
+    preview = preview.replace('##CustomerStreetAddress##', '456 Oak Avenue')
+    preview = preview.replace('##CustomerCity##', 'Vancouver')
+    preview = preview.replace('##CustomerPostalCode##', 'V6B 1A1')
+    preview = preview.replace('##CustomerCountry##', 'Canada')
+    preview = preview.replace('##CustomerWorkPhone##', '(604) 555-0456')
+    preview = preview.replace('##CustomerEmail##', 'john.smith@example.com')
+    
+    # Shipping Fields
+    preview = preview.replace('##CustomerShippingFirstName##', 'John')
+    preview = preview.replace('##CustomerShippingLastName##', 'Smith')
+    preview = preview.replace('##CustomerShippingStreetAddress##', '456 Oak Avenue')
+    preview = preview.replace('##CustomerShippingCity##', 'Vancouver')
+    preview = preview.replace('##CustomerShippingPostalCode##', 'V6B 1A1')
+    preview = preview.replace('##CustomerShippingCountry##', 'Canada')
+    
+    # Quote Fields
+    preview = preview.replace('##QuoteNumber##', 'Q-2025-001')
+    preview = preview.replace('##QuoteLink##', 'https://tlciscreative.quoter.com/quote/webview/2778-7b6f2af1-6bdb-42bf-bc6f-d865d0795578')
+    preview = preview.replace('##QuoteWebViewURL##', 'https://tlciscreative.quoter.com/quote/webview/2778-7b6f2af1-6bdb-42bf-bc6f-d865d0795578')
+    preview = preview.replace('##QuotePDFURL##', 'https://tlciscreative.quoter.com/quote/download/2778-7b6f2af1-6bdb-42bf-bc6f-d865d0795578')
+    preview = preview.replace('##QuoteTotal##', '$2,500.00')
+    preview = preview.replace('##QuoteUpfrontTotal##', '$1,000.00')
+    preview = preview.replace('##QuoteRecurringTotal##', '$1,500.00')
+    preview = preview.replace('##QuoteCreatedDate##', '2025/09/14')
+    preview = preview.replace('##QuoteExpiryDate##', '2025/10/14')
+    preview = preview.replace('##QuoteFormName##', 'Wedding Photography Package')
+    
+    # User Fields
+    preview = preview.replace('##UserFirstName##', 'Maurice')
+    preview = preview.replace('##UserLastName##', 'Capillaire')
+    preview = preview.replace('##UserEmail##', 'maurice@tlciscreative.com')
+    preview = preview.replace('##Signature##', 'Maurice Capillaire<br>Sales and Logistics')
     
     return f"""
     <html>
