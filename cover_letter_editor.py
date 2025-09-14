@@ -304,7 +304,7 @@ EDITOR_TEMPLATE = """
                     <h4 style="color: #495057; margin-bottom: 10px;">📄 Quote Fields</h4>
                     <div style="background: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
                         <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{ '{{' }}quote.url{{ '}}' }}</code>
-                        <div style="font-size: 0.8em; color: #6c757d; margin-top: 3px;">Direct link to view the quote</div>
+                        <div style="font-size: 0.8em; color: #6c757d; margin-top: 3px;">Public web view link to the quote</div>
                     </div>
                 </div>
                 
@@ -427,7 +427,7 @@ EDITOR_TEMPLATE = """
             // Replace field codes with example values
             let previewContent = content
                 .replace(/\{\{person\.first_name\}\}/g, 'John')
-                .replace(/\{\{quote\.url\}\}/g, 'https://app.quoter.com/quotes/7228156')
+                .replace(/\{\{quote\.url\}\}/g, 'https://tlciscreative.quoter.com/quote/webview/2778-7b6f2af1-6bdb-42bf-bc6f-d865d0795578')
                 .replace(/\{\{deal\.title\}\}/g, 'Sample Event')
                 .replace(/\{\{deal\.id\}\}/g, '1234')
                 .replace(/\{\{deal\.owner_name\}\}/g, 'Maurice Capillaire')
@@ -546,7 +546,7 @@ def preview_template(template_key):
     preview = preview.replace('{{deal.owner_name}}', 'Maurice Capillaire')
     preview = preview.replace('{{quote.owner.name}}', 'Eric Grosshans')
     preview = preview.replace('{{quote.owner.email}}', 'eric@tlciscreative.com')
-    preview = preview.replace('{{quote.url}}', 'https://app.quoter.com/quotes/7228156')
+    preview = preview.replace('{{quote.url}}', 'https://tlciscreative.quoter.com/quote/webview/2778-7b6f2af1-6bdb-42bf-bc6f-d865d0795578')
     
     return f"""
     <html>
