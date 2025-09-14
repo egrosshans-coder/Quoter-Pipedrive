@@ -398,6 +398,11 @@ def handle_quoter_quote_published():
             if not deal_id:
                 deal_id = parts[-1]
                 logger.info(f"Using last part as deal ID: {deal_id} from organization: {organization_name}")
+                
+                # Skip if the last part is not numeric (like "Org")
+                if not deal_id.isdigit():
+                    logger.warning(f"Last part '{deal_id}' is not numeric, skipping quote creation")
+                    deal_id = None
         else:
             logger.warning(f"Organization name '{organization_name}' does not contain '-' separator")
         
