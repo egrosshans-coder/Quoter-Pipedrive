@@ -32,8 +32,34 @@ TLC Creative</p>""",
 <li><strong>Support:</strong> 24/7 technical support during your event</li>
 </ul>"""
     },
-    "balloon-package": {
-        "name": "Balloon Package",
+    "led-wristbands": {
+        "name": "LED Wristbands",
+        "cover_letter": """<h2>Proposal for ##CustomerOrganization##</h2>
+
+<p>Dear ##CustomerFirstName##,</p>
+
+<p>Thank you for the opportunity to work with ##CustomerOrganization##. We've prepared a custom proposal to support your upcoming project. This quote was created on ##QuoteCreatedDate## and is valid through ##QuoteExpiryDate##.</p>
+
+<p>Below you'll find a breakdown of services, equipment, and pricing. Our goal is to deliver the highest quality experience with a focus on creativity, reliability, and flawless execution.</p>
+
+<p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
+
+<p>Should you have any questions, clarifications, or special requests, please do not hesitate to reach out. We are here to accommodate your needs and ensure a seamless process leading up to the event.</p>
+
+<p>Sincerely,<br><br>
+##UserFirstName## ##UserLastName##<br>
+{% if deal.owner_name == 'Maurice Capillaire' %}Sales and Logistics{% elif deal.owner_name == 'Jeff Ward' %}Sales and Logistics{% elif deal.owner_name == 'Eric Grosshans' %}Technical Director{% else %}Sales Team{% endif %}<br>
+TLC Creative</p>""",
+        "appended_content": """<h3>LED Wristband System Details for {{deal.title}} - {{deal.id}}:</h3>
+<ul>
+<li><strong>LED Wristbands:</strong> Custom-programmed LED wristband systems</li>
+<li><strong>Programming:</strong> Custom light patterns and sequences</li>
+<li><strong>Control System:</strong> Centralized control for all wristbands</li>
+<li><strong>Battery Life:</strong> Long-lasting battery systems for extended use</li>
+</ul>"""
+    },
+    "balloons": {
+        "name": "Balloons",
         "cover_letter": """<h2>Proposal for ##CustomerOrganization##</h2>
 
 <p>Dear ##CustomerFirstName##,</p>
@@ -110,8 +136,8 @@ TLC Creative</p>""",
 <li><strong>Timing Control:</strong> Precise activation for perfect moments</li>
 </ul>"""
     },
-    "pyrotechnics": {
-        "name": "Pyrotechnics",
+    "fireworks-pyro-fire": {
+        "name": "Fireworks/Pyro/Fire",
         "cover_letter": """<h2>Proposal for ##CustomerOrganization##</h2>
 
 <p>Dear ##CustomerFirstName##,</p>
@@ -136,8 +162,8 @@ TLC Creative</p>""",
 <li><strong>Professional Setup:</strong> Licensed pyrotechnicians on-site</li>
 </ul>"""
     },
-    "basic-template": {
-        "name": "Basic Template",
+    "basic": {
+        "name": "Basic",
         "cover_letter": """<h2>Proposal for ##CustomerOrganization##</h2>
 
 <p>Dear ##CustomerFirstName##,</p>
@@ -240,8 +266,8 @@ TLC Creative</p>""",
 <li><strong>Pickup Service:</strong> Post-event pickup and cleanup</li>
 </ul>"""
     },
-    "led-lanyard": {
-        "name": "LED Lanyard",
+    "led-lanyards": {
+        "name": "LED Lanyards",
         "cover_letter": """<h2>Proposal for ##CustomerOrganization##</h2>
 
 <p>Dear ##CustomerFirstName##,</p>
