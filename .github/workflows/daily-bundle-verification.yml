@@ -1,0 +1,103 @@
+name: Daily Bundle Verification
+
+on:
+  schedule:
+    # Run twice daily to align with existing workflows:
+    # - 2 AM PT (10 AM UTC) - aligns with smart-template-sync
+    # - 2 PM PT (10 PM UTC) - aligns with smart-template-sync  
+    - cron: '0 10 * * *'  # Daily at 2 AM PT (10 AM UTC)
+    - cron: '0 22 * * *'  # Daily at 2 PM PT (10 PM UTC)
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  verify-bundles:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Run bundle verification
+      env:
+        QUOTER_CLIENT_ID: ${{ secrets.QUOTER_CLIENT_ID }}
+        QUOTER_CLIENT_SECRET: ${{ secrets.QUOTER_CLIENT_SECRET }}
+        QUOTER_REDIRECT_URI: ${{ secrets.QUOTER_REDIRECT_URI }}
+        QUOTER_REFRESH_TOKEN: ${{ secrets.QUOTER_REFRESH_TOKEN }}
+      run: |
+        python3 -c "
+        from quoter import get_access_token
+        from template_mapping_enhanced import verify_bundle_against_quoter
+        import sys
+        
+        print('🔍 DAILY BUNDLE VERIFICATION')
+        print('=' * 50)
+        print(f'Run time: $(date)')
+        
+        access_token = get_access_token()
+        if access_token:
+            # Verify floating-video template
+            verification_results = verify_bundle_against_quoter('floating-video', access_token)
+            
+            print(f'\\n📊 VERIFICATION SUMMARY:')
+            print(f'   Total items: {verification_results[\"total_items\"]}')
+            print(f'   Items verified: {verification_results[\"items_verified\"]}')
+            print(f'   Items changed: {len(verification_results[\"items_changed\"])}')
+            print(f'   Items not found: {len(verification_results[\"items_not_found\"])}')
+            print(f'   Items unchanged: {len(verification_results[\"items_unchanged\"])}')
+            
+            # Check if there are any changes
+            if verification_results['items_changed']:
+                print(f'\\n⚠️  CHANGES DETECTED:')
+                for item in verification_results['items_changed']:
+                    print(f'   {item[\"sku\"]}: {item[\"changes\"]}')
+                
+                # Exit with error code to notify of changes
+                sys.exit(1)
+            else:
+                print(f'\\n✅ ALL ITEMS VERIFIED - NO CHANGES DETECTED')
+                sys.exit(0)
+        else:
+            print('❌ Failed to get access token')
+            sys.exit(1)
+        "
+        
+    - name: Create issue on changes
+      if: failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const title = `Bundle Verification Alert - Changes Detected`;
+          const body = `🚨 **Daily Bundle Verification Failed**
+          
+          Changes were detected in the Quoter bundle verification.
+          
+          **Run Details:**
+          - Time: ${new Date().toISOString()}
+          - Workflow: ${{ github.workflow }}
+          - Run ID: ${{ github.run_id }}
+          
+          Please check the workflow logs for details and update the bundle if necessary.
+          
+          **Next Steps:**
+          1. Review the verification results in the workflow logs
+          2. Update the bundle in \`template_mapping_enhanced.py\` if needed
+          3. Test the changes
+          4. Close this issue when resolved`;
+          
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: title,
+            body: body,
+            labels: ['automation', 'bundle-verification']
+          });
