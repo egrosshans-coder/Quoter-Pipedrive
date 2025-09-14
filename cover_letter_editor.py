@@ -6,7 +6,7 @@ A web-based interface to modify cover letters for all templates
 
 from flask import Flask, render_template_string, request, jsonify, redirect, url_for
 import os
-from template_mapping_enhanced import TEMPLATE_BUNDLES, get_template_cover_letter, get_template_appended_content
+from template_mapping_simple import TEMPLATE_BUNDLES, get_template_cover_letter, get_template_appended_content
 
 app = Flask(__name__)
 
