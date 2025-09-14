@@ -1,7 +1,7 @@
 # Template Line Items Solution
 
-**Last Updated:** September 10, 2025  
-**Version:** 1.0 (Production Ready)
+**Last Updated:** September 13, 2025  
+**Version:** 2.0 (Production Ready - 11 Templates)
 
 ## Overview
 
@@ -250,18 +250,80 @@ For each line_item in template_bundle:
 
 ## Current Template Mappings
 
-### Floating Video Template
-- **Template Name:** "Floating Video"
-- **Line Items:** 4 items (FV-Standard Graphics, FV-Advanced Graphics, FV-Ultimate Graphics, FV-MasterBox)
-- **Categories:** FV, FV-Graphics
-- **Cover Letter:** ✅ Included
-- **Appended Content:** ✅ Included
+The system now supports **11 comprehensive templates** with **244 total items**:
 
-### Default Fallback
-- **Item:** "01-Draft Quote-Instructions (delete before sending quote)"
-- **Purpose:** Completion instructions for sales team
-- **Category:** DJ
-- **Price:** $1.00 (symbolic)
+### Production Templates:
+
+#### 1. Floating Video Template
+- **Template Name:** "Floating Video"
+- **Items:** 22 items (13 FV hardware + 9 universal T&E/shipping)
+- **Categories:** FV, FV-Graphics, Labor, Shipping, T&E
+- **Total Value:** $39,895.00
+
+#### 2. LED Wristbands Template
+- **Template Name:** "LED Wristbands"
+- **Items:** 27 items (18 template-specific + 9 universal)
+- **Categories:** Wristbands, Branding, Control Systems, Labor
+- **Total Value:** $8,812.00
+
+#### 3. Balloons Template
+- **Template Name:** "Balloons"
+- **Items:** 16 items (7 balloon hardware + 9 universal)
+- **Categories:** Balloons, Labor, Shipping, T&E
+- **Total Value:** $6,320.00
+
+#### 4. CO2/Smoke/Upright Foggers Template
+- **Template Name:** "CO2/Smoke/Upright Foggers"
+- **Items:** 20 items (11 fogger equipment + 9 universal)
+- **Categories:** CO2, Tanks, Additional, Labor
+- **Total Value:** $6,845.00
+
+#### 5. Confetti/Streamers Template
+- **Template Name:** "Confetti/Streamers"
+- **Items:** 22 items (13 effects hardware + 9 universal)
+- **Categories:** Hardware, Confetti/Streamers, Additional, Labor
+- **Total Value:** $6,645.00
+
+#### 6. Fireworks/Pyro/Fire Template
+- **Template Name:** "Fireworks/Pyro/Fire"
+- **Items:** 25 items (16 pyro equipment + 9 universal)
+- **Categories:** Firework/Pyrotechnic, Fire Effects, Labor
+- **Total Value:** $11,745.00
+
+#### 7. LED Lanyards Template
+- **Template Name:** "LED Lanyards"
+- **Items:** 23 items (14 lanyard equipment + 9 universal)
+- **Categories:** LED Lanyards, Programming, Branding, Labor
+- **Total Value:** $8,695.00
+
+#### 8. Basic Template
+- **Template Name:** "Basic"
+- **Items:** 10 items (1 instructional + 9 universal)
+- **Categories:** Rental Items, Shipping, T&E
+- **Total Value:** $2,445.00
+
+#### 9. Low Level Fog Template
+- **Template Name:** "Low Level Fog"
+- **Items:** 18 items (9 fog equipment + 9 universal)
+- **Categories:** Hardware, CO2 tanks, Additional items, Labor
+- **Total Value:** $5,870.00
+
+#### 10. Robotics Template
+- **Template Name:** "Robotics"
+- **Items:** 40 items (31 robotic equipment + 9 universal)
+- **Categories:** Robot packages, Robot Dog, Robot (Not Dog), Robot Branding, Additional Options, Services - Labor
+- **Total Value:** $33,595.00
+
+#### 11. Tank Delivery Template
+- **Template Name:** "Tank Delivery"
+- **Items:** 21 items (12 tank services + 9 universal)
+- **Categories:** Tanks, Shipping, Additional Items
+- **Total Value:** $5,995.00
+
+### Universal Bundle (Included with All Templates)
+- **Items:** 9 standard items
+- **Categories:** Shipping, T&E (Buyout, Baggage, Flights, Ground, Meals, Parking, Per Diem, Rooms)
+- **Total Value:** $2,445.00 per template
 
 ## Testing and Validation
 
