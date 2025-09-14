@@ -306,6 +306,10 @@ EDITOR_TEMPLATE = """
                         <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{ '{{' }}quote.url{{ '}}' }}</code>
                         <div style="font-size: 0.8em; color: #6c757d; margin-top: 3px;">Public web view link to the quote</div>
                     </div>
+                    <div style="background: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{ '{{' }}quote.pdf_url{{ '}}' }}</code>
+                        <div style="font-size: 0.8em; color: #6c757d; margin-top: 3px;">Direct PDF download link</div>
+                    </div>
                 </div>
                 
                 <div style="margin-bottom: 25px;">
@@ -428,6 +432,7 @@ EDITOR_TEMPLATE = """
             let previewContent = content
                 .replace(/\{\{person\.first_name\}\}/g, 'John')
                 .replace(/\{\{quote\.url\}\}/g, 'https://tlciscreative.quoter.com/quote/webview/2778-7b6f2af1-6bdb-42bf-bc6f-d865d0795578')
+                .replace(/\{\{quote\.pdf_url\}\}/g, 'https://tlciscreative.quoter.com/quote/download/2778-7b6f2af1-6bdb-42bf-bc6f-d865d0795578')
                 .replace(/\{\{deal\.title\}\}/g, 'Sample Event')
                 .replace(/\{\{deal\.id\}\}/g, '1234')
                 .replace(/\{\{deal\.owner_name\}\}/g, 'Maurice Capillaire')
@@ -547,6 +552,7 @@ def preview_template(template_key):
     preview = preview.replace('{{quote.owner.name}}', 'Eric Grosshans')
     preview = preview.replace('{{quote.owner.email}}', 'eric@tlciscreative.com')
     preview = preview.replace('{{quote.url}}', 'https://tlciscreative.quoter.com/quote/webview/2778-7b6f2af1-6bdb-42bf-bc6f-d865d0795578')
+    preview = preview.replace('{{quote.pdf_url}}', 'https://tlciscreative.quoter.com/quote/download/2778-7b6f2af1-6bdb-42bf-bc6f-d865d0795578')
     
     return f"""
     <html>

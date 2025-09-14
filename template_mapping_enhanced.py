@@ -12,9 +12,12 @@ TEMPLATE_BUNDLES = {
         "name": "Floating Video",
         "cover_letter": """<p>Hi {{person.first_name}},</p>
 
-<p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
+<p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote using the links below:</p>
 
-<p><a href="{{quote.url}}" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">View Your Quote</a></p>
+<p>
+  <a href="{{quote.url}}" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; margin-right: 10px;">View Online</a>
+  <a href="{{quote.pdf_url}}" style="background: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Download PDF</a>
+</p>
 
 <p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
 
