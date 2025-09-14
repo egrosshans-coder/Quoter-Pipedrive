@@ -14,6 +14,8 @@ TEMPLATE_BUNDLES = {
 
 <p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
 
+<p><a href="{{quote.url}}" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">View Your Quote</a></p>
+
 <p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
 
 <p>Should you have any questions, clarifications, or special requests, please do not hesitate to reach out. We are here to accommodate your needs and ensure a seamless process leading up to the event.</p>
@@ -71,6 +73,8 @@ TLC Creative</p>""",
         "cover_letter": """<p>Hi {{person.first_name}},</p>
 
 <p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
+
+<p><a href="{{quote.url}}" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">View Your Quote</a></p>
 
 <p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
 
@@ -147,6 +151,8 @@ TLC Creative</p>""",
 
 <p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
 
+<p><a href="{{quote.url}}" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">View Your Quote</a></p>
+
 <p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
 
 <p>Should you have any questions, clarifications, or special requests, please do not hesitate to reach out. We are here to accommodate your needs and ensure a seamless process leading up to the event.</p>
@@ -206,6 +212,8 @@ TLC Creative</p>""",
         "cover_letter": """<p>Hi {{person.first_name}},</p>
 
 <p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
+
+<p><a href="{{quote.url}}" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">View Your Quote</a></p>
 
 <p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
 
@@ -274,6 +282,8 @@ TLC Creative</p>""",
         "cover_letter": """<p>Hi {{person.first_name}},</p>
 
 <p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
+
+<p><a href="{{quote.url}}" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">View Your Quote</a></p>
 
 <p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
 
@@ -350,6 +360,8 @@ TLC Creative</p>""",
         "cover_letter": """<p>Hi {{person.first_name}},</p>
 
 <p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
+
+<p><a href="{{quote.url}}" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">View Your Quote</a></p>
 
 <p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
 
@@ -432,6 +444,8 @@ TLC Creative</p>""",
 
 <p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
 
+<p><a href="{{quote.url}}" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">View Your Quote</a></p>
+
 <p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
 
 <p>Should you have any questions, clarifications, or special requests, please do not hesitate to reach out. We are here to accommodate your needs and ensure a seamless process leading up to the event.</p>
@@ -476,6 +490,8 @@ TLC Creative</p>""",
         "cover_letter": """<p>Hi {{person.first_name}},</p>
 
 <p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
+
+<p><a href="{{quote.url}}" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">View Your Quote</a></p>
 
 <p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
 
@@ -548,6 +564,8 @@ TLC Creative</p>""",
         "cover_letter": """<p>Hi {{person.first_name}},</p>
 
 <p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
+
+<p><a href="{{quote.url}}" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">View Your Quote</a></p>
 
 <p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
 
@@ -650,6 +668,8 @@ TLC Creative</p>""",
 
 <p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
 
+<p><a href="{{quote.url}}" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">View Your Quote</a></p>
+
 <p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
 
 <p>Should you have any questions, clarifications, or special requests, please do not hesitate to reach out. We are here to accommodate your needs and ensure a seamless process leading up to the event.</p>
@@ -725,6 +745,8 @@ TLC Creative</p>""",
         "cover_letter": """<p>Hi {{person.first_name}},</p>
 
 <p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
+
+<p><a href="{{quote.url}}" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">View Your Quote</a></p>
 
 <p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
 

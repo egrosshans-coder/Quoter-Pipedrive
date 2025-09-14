@@ -295,23 +295,31 @@ EDITOR_TEMPLATE = """
                 <div style="margin-bottom: 25px;">
                     <h4 style="color: #495057; margin-bottom: 10px;">👤 Person Fields</h4>
                     <div style="background: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{person.first_name}}</code>
+                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{ '{{' }}person.first_name{{ '}}' }}</code>
                         <div style="font-size: 0.8em; color: #6c757d; margin-top: 3px;">Contact's first name</div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 25px;">
+                    <h4 style="color: #495057; margin-bottom: 10px;">📄 Quote Fields</h4>
+                    <div style="background: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
+                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{ '{{' }}quote.url{{ '}}' }}</code>
+                        <div style="font-size: 0.8em; color: #6c757d; margin-top: 3px;">Direct link to view the quote</div>
                     </div>
                 </div>
                 
                 <div style="margin-bottom: 25px;">
                     <h4 style="color: #495057; margin-bottom: 10px;">🏢 Deal Fields</h4>
                     <div style="background: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{deal.title}}</code>
+                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{ '{{' }}deal.title{{ '}}' }}</code>
                         <div style="font-size: 0.8em; color: #6c757d; margin-top: 3px;">Deal title</div>
                     </div>
                     <div style="background: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{deal.id}}</code>
+                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{ '{{' }}deal.id{{ '}}' }}</code>
                         <div style="font-size: 0.8em; color: #6c757d; margin-top: 3px;">Deal ID number</div>
                     </div>
                     <div style="background: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{deal.owner_name}}</code>
+                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{ '{{' }}deal.owner_name{{ '}}' }}</code>
                         <div style="font-size: 0.8em; color: #6c757d; margin-top: 3px;">Deal owner name</div>
                     </div>
                 </div>
@@ -319,11 +327,11 @@ EDITOR_TEMPLATE = """
                 <div style="margin-bottom: 25px;">
                     <h4 style="color: #495057; margin-bottom: 10px;">📄 Quote Fields</h4>
                     <div style="background: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{quote.owner.name}}</code>
+                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{ '{{' }}quote.owner.name{{ '}}' }}</code>
                         <div style="font-size: 0.8em; color: #6c757d; margin-top: 3px;">Quote owner name</div>
                     </div>
                     <div style="background: white; padding: 10px; border-radius: 5px; margin-bottom: 10px;">
-                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{quote.owner.email}}</code>
+                        <code style="background: #e9ecef; padding: 3px 6px; border-radius: 3px; font-size: 0.9em;">{{ '{{' }}quote.owner.email{{ '}}' }}</code>
                         <div style="font-size: 0.8em; color: #6c757d; margin-top: 3px;">Quote owner email</div>
                     </div>
                 </div>
@@ -419,6 +427,7 @@ EDITOR_TEMPLATE = """
             // Replace field codes with example values
             let previewContent = content
                 .replace(/\{\{person\.first_name\}\}/g, 'John')
+                .replace(/\{\{quote\.url\}\}/g, 'https://app.quoter.com/quotes/7228156')
                 .replace(/\{\{deal\.title\}\}/g, 'Sample Event')
                 .replace(/\{\{deal\.id\}\}/g, '1234')
                 .replace(/\{\{deal\.owner_name\}\}/g, 'Maurice Capillaire')
@@ -537,6 +546,7 @@ def preview_template(template_key):
     preview = preview.replace('{{deal.owner_name}}', 'Maurice Capillaire')
     preview = preview.replace('{{quote.owner.name}}', 'Eric Grosshans')
     preview = preview.replace('{{quote.owner.email}}', 'eric@tlciscreative.com')
+    preview = preview.replace('{{quote.url}}', 'https://app.quoter.com/quotes/7228156')
     
     return f"""
     <html>
