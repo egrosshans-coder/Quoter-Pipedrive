@@ -1,4 +1,4 @@
-n #!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Webhook Handler - Receives events from Pipedrive automation
 Triggers quote creation when sub-organization is ready.
