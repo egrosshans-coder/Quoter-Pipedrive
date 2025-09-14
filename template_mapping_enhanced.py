@@ -10,6 +10,43 @@ import requests
 TEMPLATE_BUNDLES = {
     "floating-video": {
         "name": "Floating Video",
+        "cover_letter": """<p>Hi {{person.first_name}},</p>
+
+<p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
+
+<p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
+
+<p>Should you have any questions, clarifications, or special requests, please do not hesitate to reach out. We are here to accommodate your needs and ensure a seamless process leading up to the event.</p>
+
+<p>Sincerely,<br><br>
+{{deal.owner_name}}<br>
+{% if deal.owner_name == 'Maurice Capillaire' %}Sales and Logistics{% elif deal.owner_name == 'Jeff Ward' %}Sales and Logistics{% elif deal.owner_name == 'Eric Grosshans' %}Technical Director{% else %}Sales Team{% endif %}<br>
+TLC Creative</p>""",
+        "appended_content": """<h3>Important Notes for {{deal.title}} - {{deal.id}}:</h3>
+
+<p><strong>Setup Requirements:</strong></p>
+<ul>
+    <li>Power requirements: Standard 120V outlets (quantity varies by package)</li>
+    <li>Space requirements: Minimum ceiling height and clear viewing areas</li>
+    <li>Content preparation: Graphics files must be provided in specified formats</li>
+</ul>
+
+<p><strong>Timeline:</strong></p>
+<ul>
+    <li>Setup: 2-4 hours depending on package complexity</li>
+    <li>Testing: 1 hour for system verification</li>
+    <li>Strike: 1-2 hours for equipment breakdown</li>
+</ul>
+
+<p><strong>Next Steps:</strong></p>
+<ol>
+    <li>Review this quote and confirm package selection</li>
+    <li>Schedule site visit for technical assessment</li>
+    <li>Provide content files for graphics preparation</li>
+    <li>Confirm event timeline and access requirements</li>
+</ol>
+
+<p>Questions? Contact us at {{quote.owner.email}} or call us directly.</p>""",
         "items": [
             # FV Category - Using ACTUAL Quoter Item Codes with simple categories (like Bundle 2)
             {"sku": "HG-FV-Graph-001", "name": "FV-Standard Graphics Pkg", "type": "FV-Graphics", "price": 500.00},
@@ -31,6 +68,51 @@ TEMPLATE_BUNDLES = {
     },
     "led-wristbands": {
         "name": "LED Wristbands",
+        "cover_letter": """<p>Hi {{person.first_name}},</p>
+
+<p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
+
+<p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
+
+<p>Should you have any questions, clarifications, or special requests, please do not hesitate to reach out. We are here to accommodate your needs and ensure a seamless process leading up to the event.</p>
+
+<p>Sincerely,<br><br>
+{{deal.owner_name}}<br>
+{% if deal.owner_name == 'Maurice Capillaire' %}Sales and Logistics{% elif deal.owner_name == 'Jeff Ward' %}Sales and Logistics{% elif deal.owner_name == 'Eric Grosshans' %}Technical Director{% else %}Sales Team{% endif %}<br>
+TLC Creative</p>""",
+        "appended_content": """<h3>Technical Specifications for {{deal.title}} - {{deal.id}}:</h3>
+
+<p><strong>Wristband Options:</strong></p>
+<ul>
+    <li><strong>Xylo Wristbands:</strong> 8-LED and 12-LED options with premium features</li>
+    <li><strong>TLC Wristbands:</strong> 2-LED, 4-LED with/without button options</li>
+    <li><strong>Battery Life:</strong> 8-12 hours continuous operation</li>
+    <li><strong>Range:</strong> 300+ feet from controller</li>
+</ul>
+
+<p><strong>Control Systems:</strong></p>
+<ul>
+    <li>Professional laptop with specialized software</li>
+    <li>Launchpad for live control and synchronization</li>
+    <li>Remote control options for operator mobility</li>
+    <li>HTX Controller with refundable deposit</li>
+</ul>
+
+<p><strong>Programming Services:</strong></p>
+<ul>
+    <li><strong>Standard:</strong> Basic color patterns and simple sequences</li>
+    <li><strong>Mid-Level:</strong> Complex patterns and audience interaction</li>
+    <li><strong>Advanced:</strong> Custom programming and music synchronization</li>
+</ul>
+
+<p><strong>Setup Requirements:</strong></p>
+<ul>
+    <li>Power: Standard 120V outlets for control systems</li>
+    <li>Space: Clear line-of-sight for controller communication</li>
+    <li>Timing: 2-3 hours for setup and testing</li>
+</ul>
+
+<p>Questions? Contact {{quote.owner.email}} for technical specifications.</p>""",
         "items": [
             # Wristbands Section
             {"sku": "LED-WBX-MK4-001", "name": "Xylo 8-LED Wristband", "type": "Wristbands", "price": 25.00},
@@ -61,6 +143,51 @@ TEMPLATE_BUNDLES = {
     },
     "balloons": {
         "name": "Balloons",
+        "cover_letter": """<p>Hi {{person.first_name}},</p>
+
+<p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
+
+<p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
+
+<p>Should you have any questions, clarifications, or special requests, please do not hesitate to reach out. We are here to accommodate your needs and ensure a seamless process leading up to the event.</p>
+
+<p>Sincerely,<br><br>
+{{deal.owner_name}}<br>
+{% if deal.owner_name == 'Maurice Capillaire' %}Sales and Logistics{% elif deal.owner_name == 'Jeff Ward' %}Sales and Logistics{% elif deal.owner_name == 'Eric Grosshans' %}Technical Director{% else %}Sales Team{% endif %}<br>
+TLC Creative</p>""",
+        "appended_content": """<h3>Balloon Package Details for {{deal.title}} - {{deal.id}}:</h3>
+
+<p><strong>Available Effects:</strong></p>
+<ul>
+    <li><strong>Balloon Drop:</strong> Ceiling-mounted net system for dramatic releases</li>
+    <li><strong>Balloon Moon LED:</strong> Large illuminated balloon for evening ambiance</li>
+    <li><strong>Disappearing Balloon Wall:</strong> Interactive wall effect</li>
+    <li><strong>Flying Balloon Wall:</strong> Suspended balloon display</li>
+</ul>
+
+<p><strong>Equipment Included:</strong></p>
+<ul>
+    <li>Professional balloon air filler for efficient inflation</li>
+    <li>Balloon drop net system (ceiling mounted)</li>
+    <li>Balloon packages (quantity varies by package)</li>
+</ul>
+
+<p><strong>Setup Requirements:</strong></p>
+<ul>
+    <li>Ceiling access for balloon drop installation</li>
+    <li>Power outlets for LED balloon displays</li>
+    <li>Setup time: 1-2 hours depending on package</li>
+    <li>Strike time: 30 minutes</li>
+</ul>
+
+<p><strong>Safety Notes:</strong></p>
+<ul>
+    <li>All installations performed by certified technicians</li>
+    <li>Venue requirements: Ceiling height minimum 10 feet</li>
+    <li>Safety inspections included in labor</li>
+</ul>
+
+<p>Questions? Contact {{quote.owner.email}} for venue-specific requirements.</p>""",
         "items": [
             # Balloon hardware items
             {"sku": "BAL-FII-001", "name": "Balloon air filler", "type": "Balloons", "price": 150.00},
@@ -76,6 +203,51 @@ TEMPLATE_BUNDLES = {
     },
     "co2-smoke-foggers": {
         "name": "CO2/Smoke/Upright Foggers",
+        "cover_letter": """<p>Hi {{person.first_name}},</p>
+
+<p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
+
+<p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
+
+<p>Should you have any questions, clarifications, or special requests, please do not hesitate to reach out. We are here to accommodate your needs and ensure a seamless process leading up to the event.</p>
+
+<p>Sincerely,<br><br>
+{{deal.owner_name}}<br>
+{% if deal.owner_name == 'Maurice Capillaire' %}Sales and Logistics{% elif deal.owner_name == 'Jeff Ward' %}Sales and Logistics{% elif deal.owner_name == 'Eric Grosshans' %}Technical Director{% else %}Sales Team{% endif %}<br>
+TLC Creative</p>""",
+        "appended_content": """<h3>CO2/Smoke System Specifications for {{deal.title}} - {{deal.id}}:</h3>
+
+<p><strong>CO2 Effects:</strong></p>
+<ul>
+    <li><strong>Cryo Jet:</strong> High-impact CO2 burst effects</li>
+    <li><strong>Fogger:</strong> Professional atmospheric fog system</li>
+    <li><strong>Relay Pack:</strong> Control system for synchronized effects</li>
+</ul>
+
+<p><strong>Tank Systems:</strong></p>
+<ul>
+    <li><strong>Dewar Tanks:</strong> Tall (180) and New Footprint (230) options</li>
+    <li><strong>CO2 Syphon Tank:</strong> Specialized CO2 delivery system</li>
+    <li><strong>3-to-1 Splitter:</strong> Multiple effect distribution</li>
+</ul>
+
+<p><strong>Safety & Service:</strong></p>
+<ul>
+    <li>CO2 Jet Repair service included</li>
+    <li>Professional technician setup and operation</li>
+    <li>Safety inspections and equipment testing</li>
+    <li>Venue compliance verification</li>
+</ul>
+
+<p><strong>Setup Requirements:</strong></p>
+<ul>
+    <li>Access to venue for tank placement</li>
+    <li>Clear pathways for effect distribution</li>
+    <li>Setup time: 2-3 hours</li>
+    <li>Strike time: 1-2 hours</li>
+</ul>
+
+<p>Questions? Contact {{quote.owner.email}} for safety requirements and venue specifications.</p>""",
         "items": [
             # CO2 Jets Section
             {"sku": "CO2-CRY-JET", "name": "Cryo Jet", "type": "CO2", "price": 250.00},
@@ -99,6 +271,57 @@ TEMPLATE_BUNDLES = {
     },
     "confetti-streamers": {
         "name": "Confetti/Streamers",
+        "cover_letter": """<p>Hi {{person.first_name}},</p>
+
+<p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
+
+<p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
+
+<p>Should you have any questions, clarifications, or special requests, please do not hesitate to reach out. We are here to accommodate your needs and ensure a seamless process leading up to the event.</p>
+
+<p>Sincerely,<br><br>
+{{deal.owner_name}}<br>
+{% if deal.owner_name == 'Maurice Capillaire' %}Sales and Logistics{% elif deal.owner_name == 'Jeff Ward' %}Sales and Logistics{% elif deal.owner_name == 'Eric Grosshans' %}Technical Director{% else %}Sales Team{% endif %}<br>
+TLC Creative</p>""",
+        "appended_content": """<h3>Confetti/Streamers Package Details for {{deal.title}} - {{deal.id}}:</h3>
+
+<p><strong>Cannon Systems:</strong></p>
+<ul>
+    <li><strong>Confetti Cannons:</strong> Professional-grade cannon systems</li>
+    <li><strong>Silent Storm Blowers:</strong> SS and T models for different effects</li>
+    <li><strong>Confetti Blower Rental:</strong> Additional blower options</li>
+</ul>
+
+<p><strong>Materials:</strong></p>
+<ul>
+    <li><strong>Streamers:</strong> Standard and custom options</li>
+    <li><strong>Confetti:</strong> Various colors and materials</li>
+    <li><strong>Custom Streamers:</strong> Branded or themed options</li>
+</ul>
+
+<p><strong>Control Systems:</strong></p>
+<ul>
+    <li>Nitrogen tank for propellant</li>
+    <li>Relay pack for synchronized timing</li>
+    <li>Custom launch coordination</li>
+</ul>
+
+<p><strong>Setup Requirements:</strong></p>
+<ul>
+    <li>Ceiling mounting for cannon systems</li>
+    <li>Clear firing zones for safety</li>
+    <li>Setup time: 2-3 hours</li>
+    <li>Strike time: 1 hour</li>
+</ul>
+
+<p><strong>Safety Notes:</strong></p>
+<ul>
+    <li>Professional installation and operation</li>
+    <li>Venue safety compliance verification</li>
+    <li>Cleanup service included</li>
+</ul>
+
+<p>Questions? Contact {{quote.owner.email}} for venue-specific requirements.</p>""",
         "items": [
             # Hardware Section
             {"sku": "CNF-CAN-001", "name": "Confetti/Streamer Cannons", "type": "Hardware", "price": 300.00},
@@ -124,6 +347,59 @@ TEMPLATE_BUNDLES = {
     },
     "fireworks-pyro-fire": {
         "name": "Fireworks/Pyro/Fire",
+        "cover_letter": """<p>Hi {{person.first_name}},</p>
+
+<p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
+
+<p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
+
+<p>Should you have any questions, clarifications, or special requests, please do not hesitate to reach out. We are here to accommodate your needs and ensure a seamless process leading up to the event.</p>
+
+<p>Sincerely,<br><br>
+{{deal.owner_name}}<br>
+{% if deal.owner_name == 'Maurice Capillaire' %}Sales and Logistics{% elif deal.owner_name == 'Jeff Ward' %}Sales and Logistics{% elif deal.owner_name == 'Eric Grosshans' %}Technical Director{% else %}Sales Team{% endif %}<br>
+TLC Creative</p>""",
+        "appended_content": """<h3>Pyrotechnic System Specifications for {{deal.title}} - {{deal.id}}:</h3>
+
+<p><strong>Fireworks & Pyro Effects:</strong></p>
+<ul>
+    <li><strong>Fireworks:</strong> Professional-grade pyrotechnic displays</li>
+    <li><strong>Pyro Effects:</strong> Custom effect estimates and designs</li>
+    <li><strong>Flame Generators:</strong> Canister and propane-based systems</li>
+    <li><strong>Real Fire Effects:</strong> Controlled fire displays</li>
+</ul>
+
+<p><strong>Special Effects:</strong></p>
+<ul>
+    <li><strong>White Sparkle Fountains:</strong> Elegant sparkle effects</li>
+    <li><strong>Simulated Fire:</strong> Safe fire simulation systems</li>
+    <li><strong>Dragon Fly & Firefly:</strong> Specialized fire effect systems</li>
+</ul>
+
+<p><strong>Professional Services:</strong></p>
+<ul>
+    <li><strong>Licensed Pyrotechnician:</strong> Certified professional on-site</li>
+    <li><strong>Pyro Permits:</strong> All necessary permits and approvals</li>
+    <li><strong>Safety Coordination:</strong> Venue compliance and safety protocols</li>
+</ul>
+
+<p><strong>⚠️ Safety Requirements:</strong></p>
+<ul>
+    <li>Venue must meet fire department requirements</li>
+    <li>Proper permits and approvals required</li>
+    <li>Safety inspections and fire marshal approval</li>
+    <li>Professional operation and supervision mandatory</li>
+</ul>
+
+<p><strong>Setup Requirements:</strong></p>
+<ul>
+    <li>Site inspection and safety assessment</li>
+    <li>Permit application and approval process</li>
+    <li>Setup time: 4-6 hours (including safety checks)</li>
+    <li>Strike time: 2-3 hours (including cleanup)</li>
+</ul>
+
+<p>Questions? Contact {{quote.owner.email}} for permit requirements and safety specifications.</p>""",
         "items": [
             # Firework/Pyrotechnic display Section
             {"sku": "PYR-FIR-WRK-001", "name": "Fireworks", "type": "Firework/Pyrotechnic", "price": 1500.00},
@@ -152,6 +428,44 @@ TEMPLATE_BUNDLES = {
     },
     "basic": {
         "name": "Basic",
+        "cover_letter": """<p>Hi {{person.first_name}},</p>
+
+<p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
+
+<p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
+
+<p>Should you have any questions, clarifications, or special requests, please do not hesitate to reach out. We are here to accommodate your needs and ensure a seamless process leading up to the event.</p>
+
+<p>Sincerely,<br><br>
+{{deal.owner_name}}<br>
+{% if deal.owner_name == 'Maurice Capillaire' %}Sales and Logistics{% elif deal.owner_name == 'Jeff Ward' %}Sales and Logistics{% elif deal.owner_name == 'Eric Grosshans' %}Technical Director{% else %}Sales Team{% endif %}<br>
+TLC Creative</p>""",
+        "appended_content": """<h3>Basic Template Instructions for {{deal.title}} - {{deal.id}}:</h3>
+
+<p><strong>⚠️ Important:</strong> This is a draft template. Please complete the following steps:</p>
+
+<ol>
+    <li><strong>Delete Instruction Item:</strong> Remove the "01-Draft Quote-Instructions" item from the quote</li>
+    <li><strong>Add Services:</strong> Add the specific services and equipment needed for this event</li>
+    <li><strong>Review Pricing:</strong> Verify all pricing is accurate and up-to-date</li>
+    <li><strong>Add Details:</strong> Include any special requirements or notes</li>
+    <li><strong>Final Review:</strong> Double-check all items before publishing</li>
+</ol>
+
+<p><strong>Available Services:</strong></p>
+<ul>
+    <li>LED Wristbands & Lanyards</li>
+    <li>Floating Video Holographic Systems</li>
+    <li>Atmospheric Effects (CO2, Fog, Smoke)</li>
+    <li>Balloon Effects & Displays</li>
+    <li>Confetti & Streamer Systems</li>
+    <li>Pyrotechnic & Fire Effects</li>
+    <li>Robotic Entertainment</li>
+    <li>Tank Delivery Services</li>
+</ul>
+
+<p><strong>Need Help?</strong></p>
+<p>Contact {{quote.owner.email}} for assistance with quote customization or to discuss your specific event requirements.</p>""",
         "items": [
             # Rental Items Section
             {"sku": "QTE-DRFT-ITM", "name": "01-Draft Quote-Instructions (delete before sending quote)", "type": "Rental Items", "price": 0.00}
@@ -159,6 +473,57 @@ TEMPLATE_BUNDLES = {
     },
     "low-level-fog": {
         "name": "Low Level Fog",
+        "cover_letter": """<p>Hi {{person.first_name}},</p>
+
+<p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
+
+<p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
+
+<p>Should you have any questions, clarifications, or special requests, please do not hesitate to reach out. We are here to accommodate your needs and ensure a seamless process leading up to the event.</p>
+
+<p>Sincerely,<br><br>
+{{deal.owner_name}}<br>
+{% if deal.owner_name == 'Maurice Capillaire' %}Sales and Logistics{% elif deal.owner_name == 'Jeff Ward' %}Sales and Logistics{% elif deal.owner_name == 'Eric Grosshans' %}Technical Director{% else %}Sales Team{% endif %}<br>
+TLC Creative</p>""",
+        "appended_content": """<h3>Low Level Fog System Specifications for {{deal.title}} - {{deal.id}}:</h3>
+
+<p><strong>Fog Equipment:</strong></p>
+<ul>
+    <li><strong>Low Lying Fog:</strong> Professional fog machine for ground-level effects</li>
+    <li><strong>Control System:</strong> Advanced control system for fog management</li>
+    <li><strong>Fog Fluid:</strong> Specialized low-lying fog fluid</li>
+</ul>
+
+<p><strong>Tank Systems:</strong></p>
+<ul>
+    <li><strong>Dewar CO2 Tanks:</strong> New Footprint (230) and Tall (180) options</li>
+    <li><strong>CO2 Syphon Tank:</strong> Specialized CO2 delivery system</li>
+    <li><strong>3-to-1 Splitter:</strong> Multiple effect distribution</li>
+</ul>
+
+<p><strong>Professional Services:</strong></p>
+<ul>
+    <li>Professional technician setup and operation</li>
+    <li>System testing and calibration</li>
+    <li>Safety inspections and equipment verification</li>
+</ul>
+
+<p><strong>Setup Requirements:</strong></p>
+<ul>
+    <li>Access to venue for tank and equipment placement</li>
+    <li>Clear pathways for fog distribution</li>
+    <li>Setup time: 2-3 hours</li>
+    <li>Strike time: 1-2 hours</li>
+</ul>
+
+<p><strong>Safety Notes:</strong></p>
+<ul>
+    <li>All installations performed by certified technicians</li>
+    <li>Venue compliance verification included</li>
+    <li>Equipment testing and safety checks</li>
+</ul>
+
+<p>Questions? Contact {{quote.owner.email}} for venue-specific requirements.</p>""",
         "items": [
             # Hardware Section
             {"sku": "FOG-LLF-001", "name": "Low Lying Fog", "type": "Hardware", "price": 250.00},
@@ -180,6 +545,60 @@ TEMPLATE_BUNDLES = {
     },
     "robotics": {
         "name": "Robotics",
+        "cover_letter": """<p>Hi {{person.first_name}},</p>
+
+<p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
+
+<p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
+
+<p>Should you have any questions, clarifications, or special requests, please do not hesitate to reach out. We are here to accommodate your needs and ensure a seamless process leading up to the event.</p>
+
+<p>Sincerely,<br><br>
+{{deal.owner_name}}<br>
+{% if deal.owner_name == 'Maurice Capillaire' %}Sales and Logistics{% elif deal.owner_name == 'Jeff Ward' %}Sales and Logistics{% elif deal.owner_name == 'Eric Grosshans' %}Technical Director{% else %}Sales Team{% endif %}<br>
+TLC Creative</p>""",
+        "appended_content": """<h3>Robotics System Specifications for {{deal.title}} - {{deal.id}}:</h3>
+
+<p><strong>Robot Packages:</strong></p>
+<ul>
+    <li><strong>AI Robotics Bulk Package:</strong> Comprehensive robotics solution</li>
+    <li><strong>Event Technology Package:</strong> Standard robotics package</li>
+    <li><strong>Robot Fleet:</strong> Multiple robot deployment</li>
+</ul>
+
+<p><strong>Robot Dogs:</strong></p>
+<ul>
+    <li><strong>Robotic Dog:</strong> AI-powered robotic companion</li>
+    <li><strong>R Dog AI with Lidar:</strong> Advanced AI with spatial awareness</li>
+    <li><strong>Dual iPad Mount:</strong> Interactive display system</li>
+    <li><strong>Robot Dog Cart/Wagon:</strong> Mobile platform for robot</li>
+</ul>
+
+<p><strong>Specialized Robots:</strong></p>
+<ul>
+    <li><strong>Robotic Arm:</strong> Precision robotic arm system</li>
+    <li><strong>Robotic Chess:</strong> AI chess playing robot</li>
+    <li><strong>Robotic Draw:</strong> Artistic drawing robot</li>
+    <li><strong>Robot Bartenders:</strong> Mixmaster I & II systems</li>
+    <li><strong>Humanoid Robots:</strong> HRAI (Henry) and TRON robots</li>
+</ul>
+
+<p><strong>Professional Services:</strong></p>
+<ul>
+    <li><strong>Robot Supervisors:</strong> Professional robot oversight</li>
+    <li><strong>Robot Handlers:</strong> Trained robot operators</li>
+    <li><strong>Programming Techs:</strong> Custom programming services</li>
+</ul>
+
+<p><strong>Setup Requirements:</strong></p>
+<ul>
+    <li>Power: Standard 120V outlets for robot charging</li>
+    <li>Space: Clear pathways for robot movement</li>
+    <li>Setup time: 3-4 hours for full system deployment</li>
+    <li>Programming time: 2-3 hours for custom sequences</li>
+</ul>
+
+<p>Questions? Contact {{quote.owner.email}} for robotics specifications.</p>""",
         "items": [
             # Robot packages Section
             {"sku": "ROB-PACK-001", "name": "AI Robotics Bulk Package", "type": "Robot packages", "price": 2500.00},
@@ -227,6 +646,60 @@ TEMPLATE_BUNDLES = {
     },
     "tank-delivery": {
         "name": "Tank Delivery",
+        "cover_letter": """<p>Hi {{person.first_name}},</p>
+
+<p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
+
+<p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
+
+<p>Should you have any questions, clarifications, or special requests, please do not hesitate to reach out. We are here to accommodate your needs and ensure a seamless process leading up to the event.</p>
+
+<p>Sincerely,<br><br>
+{{deal.owner_name}}<br>
+{% if deal.owner_name == 'Maurice Capillaire' %}Sales and Logistics{% elif deal.owner_name == 'Jeff Ward' %}Sales and Logistics{% elif deal.owner_name == 'Eric Grosshans' %}Technical Director{% else %}Sales Team{% endif %}<br>
+TLC Creative</p>""",
+        "appended_content": """<h3>Tank Delivery Service Details for {{deal.title}} - {{deal.id}}:</h3>
+
+<p><strong>Available Tank Types:</strong></p>
+<ul>
+    <li><strong>CO2 Dewar Tanks:</strong> Tall (180) and New Footprint (230) options</li>
+    <li><strong>CO2 Syphon Tanks:</strong> Specialized CO2 delivery systems</li>
+    <li><strong>Helium Tanks:</strong> For balloon and special effects</li>
+    <li><strong>Propane Tanks:</strong> For pyrotechnic and fire effects</li>
+    <li><strong>Nitrogen Tanks:</strong> For confetti and streamer systems</li>
+</ul>
+
+<p><strong>Service Options:</strong></p>
+<ul>
+    <li><strong>Standard Delivery:</strong> Regular delivery and pickup service</li>
+    <li><strong>Force Majeure:</strong> Emergency delivery service</li>
+    <li><strong>Rental Fees:</strong> Tank rental charges</li>
+    <li><strong>Service Fees:</strong> Delivery and setup charges</li>
+</ul>
+
+<p><strong>Additional Services:</strong></p>
+<ul>
+    <li><strong>Last Minute Orders:</strong> Rush delivery service</li>
+    <li><strong>CO2 Jet Repair:</strong> On-site repair services</li>
+    <li><strong>Hose Repair:</strong> Tank connection repairs</li>
+</ul>
+
+<p><strong>Delivery Requirements:</strong></p>
+<ul>
+    <li>Access to venue for tank delivery</li>
+    <li>Clear pathways for tank placement</li>
+    <li>Setup time: 1-2 hours</li>
+    <li>Pickup time: 30 minutes</li>
+</ul>
+
+<p><strong>Safety Notes:</strong></p>
+<ul>
+    <li>All tanks delivered by certified technicians</li>
+    <li>Safety inspections included with delivery</li>
+    <li>Proper handling and storage instructions provided</li>
+</ul>
+
+<p>Questions? Contact {{quote.owner.email}} for delivery scheduling and requirements.</p>""",
         "items": [
             # Tanks Section
             {"sku": "TNK-DEW-180", "name": "Tanks - Dewar Tall", "type": "Tanks", "price": 400.00},
@@ -249,6 +722,52 @@ TEMPLATE_BUNDLES = {
     },
     "led-lanyards": {
         "name": "LED Lanyards",
+        "cover_letter": """<p>Hi {{person.first_name}},</p>
+
+<p>You have a quote from <strong>TLC Creative</strong> for '{{deal.title}} - {{deal.id}}'. You can review the quote by following the link below.</p>
+
+<p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
+
+<p>Should you have any questions, clarifications, or special requests, please do not hesitate to reach out. We are here to accommodate your needs and ensure a seamless process leading up to the event.</p>
+
+<p>Sincerely,<br><br>
+{{deal.owner_name}}<br>
+{% if deal.owner_name == 'Maurice Capillaire' %}Sales and Logistics{% elif deal.owner_name == 'Jeff Ward' %}Sales and Logistics{% elif deal.owner_name == 'Eric Grosshans' %}Technical Director{% else %}Sales Team{% endif %}<br>
+TLC Creative</p>""",
+        "appended_content": """<h3>LED Lanyard System Details for {{deal.title}} - {{deal.id}}:</h3>
+
+<p><strong>Lanyard Options:</strong></p>
+<ul>
+    <li><strong>LED-Xylo-Lanyard:</strong> Premium LED lanyard system</li>
+    <li><strong>TLC 12-LED Lanyard:</strong> High-brightness LED option</li>
+    <li><strong>Battery Life:</strong> 8-12 hours continuous operation</li>
+    <li><strong>Range:</strong> 300+ feet from controller</li>
+</ul>
+
+<p><strong>Control & Programming:</strong></p>
+<ul>
+    <li><strong>TLC Controller:</strong> 306-pixel control system</li>
+    <li><strong>Xylobands Controller:</strong> Specialized Xylo control</li>
+    <li><strong>Remote Control:</strong> Wireless control options</li>
+    <li><strong>Programming Levels:</strong> Standard, Mid-Level, and Advanced</li>
+</ul>
+
+<p><strong>Branding & Customization:</strong></p>
+<ul>
+    <li>Custom lanyard branding options</li>
+    <li>HTX Controller with refundable deposit</li>
+    <li>Professional service technician support</li>
+</ul>
+
+<p><strong>Setup Requirements:</strong></p>
+<ul>
+    <li>Power: Standard 120V outlets for control systems</li>
+    <li>Space: Clear line-of-sight for controller communication</li>
+    <li>Setup time: 2-3 hours for system configuration</li>
+    <li>Programming time: 1-2 hours for custom sequences</li>
+</ul>
+
+<p>Questions? Contact {{quote.owner.email}} for programming specifications.</p>""",
         "items": [
             # LED Lanyards Section
             {"sku": "LED-LYX-001", "name": "LED-Xylo-Lanyard", "type": "LED Lanyards", "price": 150.00},
@@ -538,6 +1057,32 @@ def get_item_by_sku(sku, template_name=None):
             return item
     
     return None
+
+def get_template_cover_letter(template_name):
+    """
+    Get cover letter for a specific template.
+    
+    Args:
+        template_name (str): Template name
+        
+    Returns:
+        str: Cover letter HTML content
+    """
+    bundle = TEMPLATE_BUNDLES.get(template_name)
+    return bundle.get('cover_letter', '') if bundle else ''
+
+def get_template_appended_content(template_name):
+    """
+    Get appended content for a specific template.
+    
+    Args:
+        template_name (str): Template name
+        
+    Returns:
+        str: Appended content HTML
+    """
+    bundle = TEMPLATE_BUNDLES.get(template_name)
+    return bundle.get('appended_content', '') if bundle else ''
 
 # Test function
 if __name__ == "__main__":
