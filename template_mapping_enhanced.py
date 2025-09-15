@@ -18,10 +18,48 @@ TEMPLATE_BUNDLES = {
 
 <p>Below you'll find a breakdown of services, equipment, and pricing. Our goal is to deliver the highest quality experience with a focus on creativity, reliability, and flawless execution.</p>
 
-<p>You can review the proposal using the links below:</p>
+<p>You can review the proposal using the buttons below:</p>
 
-<p><a href="##QuoteLink##" style="display: inline-block; background-color: #007cba; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; margin-right: 10px;">View Online</a>
-<a href="##QuotePDFURL##" style="display: inline-block; background-color: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">Download PDF</a></p>
+<!-- Two buttons: green left, blue right (Quoter-safe) -->
+<table border="0" cellspacing="0" cellpadding="0" align="center" width="100%">
+  <tr>
+    <!-- Green (View Online) -->
+    <td align="left" valign="middle">
+      <table border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td bgcolor="#28a745">
+            <table border="0" cellspacing="0" cellpadding="10">
+              <tr>
+                <td align="center">
+                  <a href="##QuoteLink##"><font color="#ffffff"><b>View Online</b></font></a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+
+    <td width="24">&nbsp;</td>
+
+    <!-- Blue (Download PDF) -->
+    <td align="right" valign="middle">
+      <table border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td bgcolor="#007bff">
+            <table border="0" cellspacing="0" cellpadding="10">
+              <tr>
+                <td align="center">
+                  <a href="##QuotePDFURL##"><font color="#ffffff"><b>Download PDF</b></font></a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
 
 <p>If you have any questions, please feel free to reach out to me directly. You can accept the proposal online by clicking the "Accept Quote" button.</p>
 
@@ -30,7 +68,7 @@ TEMPLATE_BUNDLES = {
 <p><strong>##UserFirstName## ##UserLastName##</strong><br>
 Sales Team<br>
 TLC Creative</p>""",
-        "appended_content": """<h3>Important Notes for {{deal.title}} - {{deal.id}}:</h3>
+        "appended_content": """<h3>Important Notes for ##QuoteFormName## - ##QuoteNumber##:</h3>
 
 <p><strong>Setup Requirements:</strong></p>
 <ul>
@@ -199,7 +237,7 @@ TLC Creative</p>""",
     <li>Safety inspections included in labor</li>
 </ul>
 
-<p>Questions? Contact {{quote.owner.email}} for venue-specific requirements.</p>""",
+<p>Questions? Contact ##QuoteOwnerEmail## for venue-specific requirements.</p>""",
         "items": [
             # Balloon hardware items
             {"sku": "BAL-FII-001", "name": "Balloon air filler", "type": "Balloons", "price": 150.00},
@@ -863,7 +901,8 @@ def find_item_details_by_sku(sku, access_token):
                         'id': item.get('id'),
                         'name': item.get('name'),
                         'code': item.get('code'),
-                        'price': float(item.get('base_price', 0)),
+                        'price': float(item.get('price_decimal', 0)),
+                        'price_decimal': item.get('price_decimal', 0),
                         'category': item.get('category', 'Unknown')
                     }
 
@@ -897,11 +936,13 @@ def get_template_line_items(template_name, access_token=None):
                 if item_details:
                     item['id'] = item_details['id']
                     item['price'] = item_details['price']
+                    item['price_decimal'] = item_details['price_decimal']
                     item['real_name'] = item_details['name']
                     print(f"✅ Found {item_details['name']} - ${item_details['price']:,.2f} (Code: {item['sku']})")
                 else:
                     item['id'] = None
                     item['price'] = item.get('price', 100.00)  # Fallback price
+                    item['price_decimal'] = item.get('price', 100.00)  # Fallback price_decimal
                     print(f"⚠️ Item not found in Quoter: {item['sku']} - using fallback ${item['price']:,.2f}")
         
         items.extend(template_items)
@@ -919,11 +960,13 @@ def get_template_line_items(template_name, access_token=None):
             if item_details:
                 item['id'] = item_details['id']
                 item['price'] = item_details['price']
+                item['price_decimal'] = item_details['price_decimal']
                 item['real_name'] = item_details['name']
                 print(f"✅ Found {item_details['name']} - ${item_details['price']:,.2f}")
             else:
                 item['id'] = None
                 item['price'] = item.get('price', 100.00)  # Fallback price
+                item['price_decimal'] = item.get('price', 100.00)  # Fallback price_decimal
                 print(f"⚠️ Item not found in Quoter: {item['sku']} - using fallback ${item['price']:,.2f}")
     
     items.extend(universal_items)

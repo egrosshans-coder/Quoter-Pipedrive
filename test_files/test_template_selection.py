@@ -10,7 +10,7 @@ import os
 # Add the current directory to the path so we can import modules
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from debug_files.template_selection_logic import get_quote_template_id, test_template_selection
+from template_selection_logic import get_quote_template_id, test_template_selection
 from quoter import get_access_token
 from pipedrive import get_deal_by_id
 from utils.logger import logger
@@ -58,7 +58,7 @@ def test_pipedrive_template_selection():
         print(f"   Selected template ID: {template_id}")
         
         # Get template name for verification
-        from debug_files.template_selection_logic import get_template_id_by_name
+        from template_selection_logic import get_template_id_by_name
         # This is a reverse lookup - we'd need to implement this
         print(f"   Template selection working correctly")
     else:
@@ -70,7 +70,7 @@ def test_pipedrive_template_selection():
     print("🔄 Testing fallback logic...")
     
     # Test the fallback logic
-    from debug_files.template_selection_logic import get_default_template_fallback
+    from template_selection_logic import get_default_template_fallback
     fallback_id = get_default_template_fallback(access_token)
     
     if fallback_id:

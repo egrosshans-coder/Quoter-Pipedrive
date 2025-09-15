@@ -1279,7 +1279,7 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
     template_id = None
     if deal_data:
         # Use the template selection logic with the Quote Template field
-        from debug_files.template_selection_logic import get_quote_template_id
+        from template_selection_logic import get_quote_template_id
         template_field_id = "42ab0c919271cb24f3587f0b01ea2af166019c8d"  # Quote Template field key
         template_id = get_quote_template_id(deal_data, access_token, template_field_id)
         

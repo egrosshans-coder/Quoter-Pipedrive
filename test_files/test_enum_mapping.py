@@ -10,7 +10,7 @@ import os
 # Add the current directory to the path so we can import modules
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from debug_files.template_selection_logic import get_template_from_pipedrive_field
+from template_selection_logic import get_template_from_pipedrive_field
 from quoter import get_access_token
 from utils.logger import logger
 

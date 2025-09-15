@@ -78,25 +78,25 @@ def get_template_from_pipedrive_field(deal_data, access_token, field_id=None):
         field_id (str): Custom field ID for "Quote Template" field
         
     Returns:
-        str: Template ID or None if not found
+        tuple: (template_id, mapped_name) or (None, None) if not found
     """
     if not field_id:
         logger.warning("⚠️ No field_id provided for Quote Template field")
-        return None
+        return None, None
     
     # Get template enum value from Pipedrive custom field
     template_enum_value = deal_data.get(field_id)
     
     if not template_enum_value:
         logger.info(f"📋 No template specified in Pipedrive field {field_id}")
-        return None
+        return None, None
     
     # Convert to integer if it's a string (Pipedrive sometimes returns string enum values)
     try:
         template_enum_value = int(template_enum_value)
     except (ValueError, TypeError):
         logger.warning(f"⚠️ Could not convert enum value '{template_enum_value}' to integer")
-        return None
+        return None, None
     
     # Map enum values to template names
     enum_mapping = {
@@ -126,6 +126,17 @@ def get_template_from_pipedrive_field(deal_data, access_token, field_id=None):
     # Special handling for templates with known mismatches
     # Map Pipedrive names to actual Quoter names to avoid warnings
     template_name_mapping = {
+        'Floating Video': 'floating-video',
+        'Confetti/Streamers': 'confetti-streamers',
+        'LED Lanyards': 'led-lanyards',
+        'LED Wristbands': 'led-wristbands',
+        'Balloons': 'balloons',
+        'CO2/Smoke/Upright Foggers': 'low-level-fog',
+        'Fireworks/pyro/fire': 'fireworks-pyro-fire',
+        'Low level fog': 'low-level-fog',
+        'Tank Delivery': 'tank-delivery',
+        'Robotics': 'robotics',
+        'Basic': 'basic',
     }
     
     # Convert enum value to template name
@@ -133,20 +144,21 @@ def get_template_from_pipedrive_field(deal_data, access_token, field_id=None):
     
     if not template_name:
         logger.error(f"❌ Unknown enum value {template_enum_value} for Quote Template field")
-        return None
+        return None, None
     
     # Check if we need to map to the actual Quoter template name
     actual_template_name = template_name_mapping.get(template_name, template_name)
     
     logger.info(f"📋 Template specified in Pipedrive: '{template_name}' (enum: {template_enum_value})")
     if actual_template_name != template_name:
-        logger.info(f"📋 Mapped to Quoter template name: '{actual_template_name}'")
+        logger.info(f"📋 Mapped to template bundle name: '{actual_template_name}'")
     
-    # Convert template name to template ID
-    template_id = get_template_id_by_name(actual_template_name, access_token)
+    # Convert template name to template ID (use original name for Quoter API)
+    template_id = get_template_id_by_name(template_name, access_token)
     
     if template_id:
         logger.info(f"✅ Using template: '{template_name}' (ID: {template_id})")
+        return template_id, actual_template_name
     else:
         # Try alternative names if the primary name is not found
         logger.warning(f"⚠️ Template '{template_name}' not found in Quoter, trying alternatives...")
@@ -157,12 +169,11 @@ def get_template_from_pipedrive_field(deal_data, access_token, field_id=None):
             template_id = get_template_id_by_name(alt_name, access_token)
             if template_id:
                 logger.info(f"✅ Found template with alternative name: '{alt_name}' (ID: {template_id})")
-                break
+                return template_id, actual_template_name
         
         if not template_id:
             logger.warning(f"⚠️ No template found for '{template_name}' or its alternatives, will use fallback")
-    
-    return template_id
+            return None, actual_template_name
 
 def get_default_template_fallback(access_token):
     """
@@ -240,20 +251,21 @@ def get_quote_template_id(deal_data, access_token, field_id=None):
         field_id (str): Custom field ID for "Quote Template" field
         
     Returns:
-        str: Template ID
+        tuple: (template_id, mapped_name) or (template_id, None) for fallback
     """
     logger.info("🎯 Starting template selection process...")
     
     # Try to get template from Pipedrive field first
     if field_id:
-        template_id = get_template_from_pipedrive_field(deal_data, access_token, field_id)
+        template_id, mapped_name = get_template_from_pipedrive_field(deal_data, access_token, field_id)
         if template_id:
-            return template_id
+            return template_id, mapped_name
         else:
             logger.info("🔄 Pipedrive field template not found, trying fallback...")
     
     # Fallback to current hard-coded logic
-    return get_default_template_fallback(access_token)
+    fallback_id = get_default_template_fallback(access_token)
+    return fallback_id, None
 
 def test_template_selection():
     """

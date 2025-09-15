@@ -30,7 +30,7 @@ def get_template_name_from_id(template_id, access_token):
     headers = {'Authorization': f'Bearer {access_token}', 'Content-Type': 'application/json'}
     
     try:
-        response = requests.get('https://api.quoter.com/v1/templates', headers=headers)
+        response = requests.get('https://api.quoter.com/v1/quote_templates', headers=headers)
         if response.status_code == 200:
             data = response.json()
             templates = data.get('data', [])
@@ -114,8 +114,8 @@ def add_template_line_items_to_quote(quote_id, template_name, access_token):
     
     headers = {'Authorization': f'Bearer {access_token}', 'Content-Type': 'application/json'}
     
-    # Get all items for this template
-    all_items = get_template_line_items(template_name)
+    # Get all items for this template (with real-time pricing)
+    all_items = get_template_line_items(template_name, access_token)
     logger.info(f"📋 Found {len(all_items)} items to add")
     
     successful_items = 0
@@ -124,10 +124,10 @@ def add_template_line_items_to_quote(quote_id, template_name, access_token):
     for i, item in enumerate(all_items, 1):
         logger.info(f"   [{i}/{len(all_items)}] Adding: {item['name']} ({item['sku']})")
         
-        # Find the item ID in Quoter
-        item_id = find_item_id_by_sku(item['sku'], access_token)
+        # Use the item ID from the template bundle (real Quoter item ID)
+        item_id = item.get('id')
         if not item_id:
-            logger.warning(f"     ⚠️ Item not found, skipping: {item['sku']}")
+            logger.warning(f"     ⚠️ Item has no ID, skipping: {item['sku']}")
             failed_items += 1
             continue
         
@@ -139,7 +139,7 @@ def add_template_line_items_to_quote(quote_id, template_name, access_token):
             "category": item['type'],  # Use type as category
             "description": f"{item['type']} Item - {item['name']}",
             "quantity": 1,
-            "unit_price": 1.00  # Default price, will be updated by Quoter
+            "unit_price": float(item.get('price_decimal', 0))  # Use price_decimal from Quoter API
         }
         
         # Add line item
@@ -238,26 +238,27 @@ def create_comprehensive_quote_with_bundles(organization_data, deal_data=None):
     # Get template selection from Pipedrive dropdown field if deal_data is provided
     template_id = None
     if deal_data:
-        from debug_files.template_selection_logic import get_quote_template_id
+        from template_selection_logic import get_quote_template_id
         template_field_id = "42ab0c919271cb24f3587f0b01ea2af166019c8d"
-        template_id = get_quote_template_id(deal_data, access_token, template_field_id)
+        template_result = get_quote_template_id(deal_data, access_token, template_field_id)
         
-        if template_id:
+        if template_result:
+            # Extract template_id from the tuple returned by get_quote_template_id
+            template_id, template_name = template_result
             logger.info(f"✅ Using template from Pipedrive dropdown: {template_id}")
         else:
             logger.info("🔄 Pipedrive template not found, using fallback logic")
     
     # Get required fields for quote creation
-    if template_id:
-        required_fields = {
-            "template_id": template_id,
-            "currency_abbr": "USD"
-        }
-    else:
-        required_fields = get_quote_required_fields(access_token)
-        if not required_fields:
-            logger.error("Failed to get required fields for quote creation")
-            return None
+    # NOTE: Quoter API is ignoring template_id parameter, so we'll use default template
+    # and add Floating Video content via Template Bundle system instead
+    logger.info(f"🔍 DEBUG: Quoter API ignores template_id, using default template and Template Bundle system")
+    required_fields = get_quote_required_fields(access_token)
+    if not required_fields:
+        logger.error("Failed to get required fields for quote creation")
+        return None
+    
+    logger.info(f"🔍 DEBUG: Using default template: {required_fields.get('template_id')}")
     
     # Extract organization and deal information
     org_name = organization_data.get("name", "Unknown Organization")
@@ -306,7 +307,7 @@ def create_comprehensive_quote_with_bundles(organization_data, deal_data=None):
     
     logger.info(f"✅ Contact created/updated in Quoter: {contact_id}")
     
-    # Create the initial quote
+    # Create the initial quote (using default template since Quoter API ignores template_id)
     quote_data = {
         "contact_id": contact_id,
         "template_id": required_fields["template_id"],
@@ -314,8 +315,26 @@ def create_comprehensive_quote_with_bundles(organization_data, deal_data=None):
         "name": f"Quote for {org_name}"
     }
     
+    # Add Floating Video cover letter and content if template was selected
+    if template_id and template_name:
+        logger.info(f"🎯 Adding Floating Video content via Template Bundle system...")
+        template_info = get_template_info(template_name)
+        if template_info:
+            cover_letter = template_info.get('cover_letter', '')
+            appended_content = template_info.get('appended_content', '')
+            
+            if cover_letter and cover_letter.strip():
+                quote_data["cover_letter"] = cover_letter
+                logger.info(f"📝 Added Floating Video cover letter")
+                logger.info(f"🔍 DEBUG: Cover letter content: {cover_letter[:200]}...")
+            
+            if appended_content and appended_content.strip():
+                quote_data["appended_content"] = appended_content
+                logger.info(f"📝 Added Floating Video appended content")
+    
     try:
         logger.info(f"📝 Creating comprehensive draft quote...")
+        logger.info(f"🔍 DEBUG: Quote data being sent: {quote_data}")
         response = requests.post("https://api.quoter.com/v1/quotes", json=quote_data, headers=headers, timeout=10)
         
         if response.status_code in [200, 201]:
@@ -330,8 +349,8 @@ def create_comprehensive_quote_with_bundles(organization_data, deal_data=None):
                 # Step 2: Add template-specific line items using bundle system
                 logger.info(f"📋 Adding template-specific line items to quote...")
                 
-                # Get template name for bundle mapping
-                template_name = get_template_name_from_id(required_fields["template_id"], access_token)
+                # Use the template name we already have from Pipedrive selection
+                # template_name = get_template_name_from_id(required_fields["template_id"], access_token)
                 
                 if template_name:
                     logger.info(f"🎯 Using template mapping for: {template_name}")
