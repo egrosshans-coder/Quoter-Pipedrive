@@ -18,48 +18,12 @@ TEMPLATE_BUNDLES = {
 
 <p>Below you'll find a breakdown of services, equipment, and pricing. Our goal is to deliver the highest quality experience with a focus on creativity, reliability, and flawless execution.</p>
 
-<p>You can review the proposal using the buttons below:</p>
+<p>You can review the proposal using the links below:</p>
 
-<!-- Two buttons: green left, blue right (Quoter-safe) -->
-<table border="0" cellspacing="0" cellpadding="0" align="center" width="100%">
-  <tr>
-    <!-- Green (View Online) -->
-    <td align="left" valign="middle">
-      <table border="0" cellspacing="0" cellpadding="0">
-        <tr>
-          <td bgcolor="#28a745">
-            <table border="0" cellspacing="0" cellpadding="10">
-              <tr>
-                <td align="center">
-                  <a href="##QuoteLink##"><font color="#ffffff"><b>View Online</b></font></a>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </table>
-    </td>
-
-    <td width="24">&nbsp;</td>
-
-    <!-- Blue (Download PDF) -->
-    <td align="right" valign="middle">
-      <table border="0" cellspacing="0" cellpadding="0">
-        <tr>
-          <td bgcolor="#007bff">
-            <table border="0" cellspacing="0" cellpadding="10">
-              <tr>
-                <td align="center">
-                  <a href="##QuotePDFURL##"><font color="#ffffff"><b>Download PDF</b></font></a>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
+<p>
+  <a href="##QuoteLink##" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; margin-right: 10px;">View Online</a>
+  <a href="##QuotePDFURL##" style="background: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Download PDF</a>
+</p>
 
 <p>If you have any questions, please feel free to reach out to me directly. You can accept the proposal online by clicking the "Accept Quote" button.</p>
 
@@ -94,22 +58,9 @@ TLC Creative</p>""",
 
 <p>Questions? Contact us at {{quote.owner.email}} or call us directly.</p>""",
         "items": [
-            # FV Category - Using ACTUAL Quoter Item Codes with simple categories (like Bundle 2)
+            # REDUCED FOR AIRPLANE TESTING - Just 2 FV items
             {"sku": "HG-FV-Graph-001", "name": "FV-Standard Graphics Pkg", "type": "FV-Graphics", "price": 500.00},
-            {"sku": "HG-FV-Graph-002", "name": "FV-Advanced Graphics Pkg", "type": "FV-Graphics", "price": 1500.00},
-            {"sku": "HG-FV-Graph-003", "name": "FV-Ultimate Graphics Pkg", "type": "FV-Graphics", "price": 3000.00},
-            {"sku": "HG-FVH-L30-001", "name": "FV-30 Fan Holographic", "type": "FV", "price": 2500.00},
-            {"sku": "HG-FVH-M22-001", "name": "FV-22 Fan Holographic", "type": "FV", "price": 2000.00},
-            {"sku": "HG-FVV-100-001", "name": "FV-40in-100 Fan Holographic", "type": "FV", "price": 3000.00},
-            {"sku": "HG-FVV-150-001", "name": "FV-5FT-150 Fan Holographic", "type": "FV", "price": 4000.00},
-            {"sku": "HG-FVV-180-001", "name": "FV-6FT-180 Fan Holographic", "type": "FV", "price": 6000.00},
-            {"sku": "HG-FVV-MBOX-001", "name": "FVV-MasterBox", "type": "FV", "price": 1000.00},
-            {"sku": "HG-FVH-MBOX-001", "name": "FV-MasterBox", "type": "FV", "price": 1000.00},
-            {"sku": "HG-FVH-HH-001", "name": "FV-HoloHuman", "type": "FV", "price": 10000.00},
-            {"sku": "HG-FVH-HH-002", "name": "FV-HoloHuman-Case", "type": "FV", "price": 2000.00},
-            
-            # Labor for this template
-            {"sku": "SVC-LAB-001", "name": "Labor/Technician for Setup, Test and Strike", "type": "Labor", "price": 950.00}
+            {"sku": "HG-FVH-L30-001", "name": "FV-30 Fan Holographic", "type": "FV", "price": 2500.00}
         ]
     },
     "led-wristbands": {
@@ -864,15 +815,9 @@ TLC Creative</p>""",
 UNIVERSAL_BUNDLE = {
     "name": "Travel & Shipping",
     "items": [
-        {"sku": "SHP-S&H-001", "name": "Shipping & Handling", "type": "Shipping", "price": 150.00},
-        {"sku": "T&E-BUY-OUT", "name": "T&E - accommodations Buyout", "type": "Buyout", "price": 500.00},
-        {"sku": "T&E-BAG-001", "name": "T&E-Baggage fees", "type": "Baggage", "price": 100.00},
-        {"sku": "T&E-FLY-001", "name": "T&E-Flights", "type": "Flights", "price": 800.00},
-        {"sku": "T&E-GND-001", "name": "T&E-Ground transportation", "type": "Ground", "price": 200.00},
-        {"sku": "T&E-MLS-001", "name": "T&E-Meals", "type": "Meals", "price": 150.00},
-        {"sku": "T&E-PRK-001", "name": "T&E-Parking", "type": "Parking", "price": 50.00},
-        {"sku": "T&E-PER-DIM", "name": "T&E-Per Diem", "type": "PerDiem", "price": 95.00},
-        {"sku": "T&E-RMS-001", "name": "T&E-Rooms", "type": "Rooms", "price": 400.00}
+        # REDUCED FOR AIRPLANE TESTING - Just 2 shipping items
+        {"sku": "SHP-S&H-001", "name": "Shipping & Handling", "type": "Shipping", "price": 99.00},
+        {"sku": "T&E-BUY-OUT", "name": "T&E - accommodations Buyout", "type": "Buyout", "price": 4999.00}
     ]
 }
 

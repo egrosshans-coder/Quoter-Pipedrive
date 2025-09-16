@@ -16,6 +16,13 @@ TEMPLATE_BUNDLES = {
 
 <p>Below you'll find a breakdown of services, equipment, and pricing. Our goal is to deliver the highest quality experience with a focus on creativity, reliability, and flawless execution.</p>
 
+<p>You can review the proposal using the links below:</p>
+
+<p>
+  <a href="##QuoteLink##" style="background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold; margin-right: 10px;">View Online</a>
+  <a href="##QuotePDFURL##" style="background: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Download PDF</a>
+</p>
+
 <p>We are truly excited about the opportunity to collaborate with you and your esteemed team.</p>
 
 <p>Should you have any questions, clarifications, or special requests, please do not hesitate to reach out. We are here to accommodate your needs and ensure a seamless process leading up to the event.</p>
