@@ -1247,8 +1247,8 @@ def add_template_line_items_to_quote(quote_id, template_name, access_token):
     
     headers = {'Authorization': f'Bearer {access_token}', 'Content-Type': 'application/json'}
     
-    # Get all items for this template (with real-time pricing)
-    all_items = get_template_line_items(template_name, access_token)
+    # Get all items for this template (using stored pricing for performance)
+    all_items = get_template_line_items(template_name)
     logger.info(f"📋 Found {len(all_items)} items to add")
     
     successful_items = 0
