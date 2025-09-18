@@ -1432,85 +1432,47 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
     
     logger.info(f"📋 Deal found: {deal_data.get('title', 'Unknown Deal')}")
     
-    # NEW: Try to get person name directly from webhook (FAST)
-    person_name_direct = organization_data.get('{{deal.person_name}}')
+    # Extract person/contact information from deal
+    person_data = deal_data.get("person_id", {})
+    if not person_data:
+        logger.error(f"❌ No person data found in deal {deal_id}")
+        return None
     
-    if person_name_direct:
-        # We have person name from webhook - create minimal contact (FAST)
-        logger.info(f"✅ Person name from webhook: '{person_name_direct}' - creating minimal contact")
-        
-        # Split name properly (from right for last name)
-        name_parts = person_name_direct.rsplit(" ", 1)
-        if len(name_parts) == 2:
-            first_name = name_parts[0]           # "Anna Marie"
-            last_name = name_parts[1]            # "Smith"
+    # Handle both list and direct person data formats
+    if isinstance(person_data, list):
+        if person_data:
+            primary_contact = person_data[0]
         else:
-            first_name = person_name_direct      # "John"
-            last_name = "Contact"                # Fallback
-        
-        logger.info(f"   First name: '{first_name}'")
-        logger.info(f"   Last name: '{last_name}'")
-        
-        # Create minimal contact with just the essentials
-        org_name = organization_data.get("name", "Unknown Organization")
-        contact_id = create_or_find_contact_in_quoter(
-            contact_name=person_name_direct,
-            contact_email=None,  # Will be set manually later
-            contact_phone=None,  # Will be set manually later
-            pipedrive_contact_id=None,
-            organization_name=org_name
-        )
-        
-        if contact_id:
-            logger.info(f"✅ Minimal contact created from webhook data: {contact_id}")
-        else:
-            logger.error(f"❌ Failed to create minimal contact from webhook data")
+            logger.error(f"❌ Empty person list in deal {deal_id}")
             return None
-            
     else:
-        # Fallback: Extract person/contact information from deal (API method)
-        logger.info(f"🔄 No person name in webhook, using API method for full contact data")
-        
-        person_data = deal_data.get("person_id", {})
-        if not person_data:
-            logger.error(f"❌ No person data found in deal {deal_id}")
-            return None
-        
-        # Handle both list and direct person data formats
-        if isinstance(person_data, list):
-            if person_data:
-                primary_contact = person_data[0]
-            else:
-                logger.error(f"❌ Empty person list in deal {deal_id}")
-                return None
-        else:
-            primary_contact = person_data
-        
-        contact_id = primary_contact.get("value")
-        if not contact_id:
-            logger.error(f"❌ No contact ID found in person data")
-            return None
-        
-        # Get full person data from Pipedrive
-        from pipedrive import get_person_by_id
-        contact_data = get_person_by_id(contact_id)
-        if not contact_data:
-            logger.error(f"❌ Failed to get person {contact_id} from Pipedrive")
-            return None
-        
-        logger.info(f"👤 Contact found: {contact_data.get('name', 'Unknown Contact')}")
-        
-        # Create comprehensive contact in Quoter
-        contact_id = create_comprehensive_contact_from_pipedrive(
-            contact_data, 
-            organization_data
-        )
-        
-        if not contact_id:
-            logger.error("❌ Failed to create comprehensive contact in Quoter")
-            return None
-        
-        logger.info(f"✅ Contact created/updated in Quoter: {contact_id}")
+        primary_contact = person_data
+    
+    contact_id = primary_contact.get("value")
+    if not contact_id:
+        logger.error(f"❌ No contact ID found in person data")
+        return None
+    
+    # Get full person data from Pipedrive
+    from pipedrive import get_person_by_id
+    contact_data = get_person_by_id(contact_id)
+    if not contact_data:
+        logger.error(f"❌ Failed to get person {contact_id} from Pipedrive")
+        return None
+    
+    logger.info(f"👤 Contact found: {contact_data.get('name', 'Unknown Contact')}")
+    
+    # Create comprehensive contact in Quoter
+    contact_id = create_comprehensive_contact_from_pipedrive(
+        contact_data, 
+        organization_data
+    )
+    
+    if not contact_id:
+        logger.error("❌ Failed to create comprehensive contact in Quoter")
+        return None
+    
+    logger.info(f"✅ Contact created/updated in Quoter: {contact_id}")
     
     # Get template name for cover letter
     if not template_name:

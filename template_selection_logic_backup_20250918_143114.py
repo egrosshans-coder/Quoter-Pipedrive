@@ -91,15 +91,12 @@ def get_template_from_pipedrive_field(deal_data, access_token, field_id=None):
         logger.info(f"📋 No template specified in Pipedrive field {field_id}")
         return None, None
     
-    # Handle both enum numbers (454) and display names ("Floating Video")
-    if isinstance(template_enum_value, str):
-        # Try to convert to integer first (enum number)
-        try:
-            template_enum_value = int(template_enum_value)
-            logger.info(f"📋 Converted enum string to integer: {template_enum_value}")
-        except (ValueError, TypeError):
-            # If conversion fails, it's probably a display name - handle it directly
-            logger.info(f"📋 Received template display name: '{template_enum_value}'")
+    # Convert to integer if it's a string (Pipedrive sometimes returns string enum values)
+    try:
+        template_enum_value = int(template_enum_value)
+    except (ValueError, TypeError):
+        logger.warning(f"⚠️ Could not convert enum value '{template_enum_value}' to integer")
+        return None, None
     
     # Map enum values to template names
     enum_mapping = {
@@ -142,22 +139,17 @@ def get_template_from_pipedrive_field(deal_data, access_token, field_id=None):
         'Basic': 'basic',
     }
     
-    # Handle both enum numbers (454) and display names ("Floating Video")
-    if isinstance(template_enum_value, str) and not template_enum_value.isdigit():
-        # We received a display name like "Floating Video" - use it directly
-        template_name = template_enum_value
-        logger.info(f"📋 Using display name directly: '{template_name}'")
-    else:
-        # We have an enum number - map it to template name
-        template_name = enum_mapping.get(template_enum_value)
-        if not template_name:
-            logger.error(f"❌ Unknown enum value {template_enum_value} for Quote Template field")
-            return None, None
+    # Convert enum value to template name
+    template_name = enum_mapping.get(template_enum_value)
+    
+    if not template_name:
+        logger.error(f"❌ Unknown enum value {template_enum_value} for Quote Template field")
+        return None, None
     
     # Check if we need to map to the actual Quoter template name
     actual_template_name = template_name_mapping.get(template_name, template_name)
     
-    logger.info(f"📋 Template specified in Pipedrive: '{template_name}' (value: {template_enum_value})")
+    logger.info(f"📋 Template specified in Pipedrive: '{template_name}' (enum: {template_enum_value})")
     if actual_template_name != template_name:
         logger.info(f"📋 Mapped to template bundle name: '{actual_template_name}'")
     
