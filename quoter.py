@@ -1453,9 +1453,20 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
         
         # Create minimal contact with just the essentials
         org_name = organization_data.get("name", "Unknown Organization")
+        
+        # Get email from webhook or create dummy email
+        person_email = organization_data.get('{{person.email}}')
+        if not person_email:
+            # Create unique dummy email using deal ID
+            deal_id = organization_data.get("15034cf07d05ceb15f0a89dcbdcc4f596348584e", "unknown")
+            person_email = f"{deal_id}@gmail.com"
+            logger.info(f"📧 No email in webhook, using dummy email: {person_email}")
+        else:
+            logger.info(f"📧 Using email from webhook: {person_email}")
+        
         contact_id = create_or_find_contact_in_quoter(
             contact_name=person_name_direct,
-            contact_email=None,  # Will be set manually later
+            contact_email=person_email,  # Use webhook email or dummy
             contact_phone=None,  # Will be set manually later
             pipedrive_contact_id=None,
             organization_name=org_name
