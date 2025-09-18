@@ -283,17 +283,16 @@ def handle_organization_webhook():
                 deal_data['42ab0c919271cb24f3587f0b01ea2af166019c8d'] = template_enum_str
                 logger.info(f"✅ Using direct template from webhook")
         
-        # Normalize organization data for the quote creation function
-        # The function expects specific keys: 'id', 'name', and deal ID in custom field
-        normalized_org_data = {
-            "id": organization_id,
-            "name": organization_name,
-            "15034cf07d05ceb15f0a89dcbdcc4f596348584e": deal_id
-        }
+        # COMMENTED OUT: No need to normalize - we're getting data directly from webhook payload
+        # normalized_org_data = {
+        #     "id": organization_id,
+        #     "name": organization_name,
+        #     "15034cf07d05ceb15f0a89dcbdcc4f596348584e": deal_id
+        # }
         
+        # Pass original webhook data directly - contains all the fields we need
         # Create comprehensive draft quote using our enhanced function with template selection
-        # Pass deal data to enable template selection from Pipedrive dropdown
-        quote_data = create_comprehensive_quote_from_pipedrive(normalized_org_data, deal_data)
+        quote_data = create_comprehensive_quote_from_pipedrive(organization_data, deal_data)
         
         if quote_data:
             # Mark this organization as processed to prevent duplicates
