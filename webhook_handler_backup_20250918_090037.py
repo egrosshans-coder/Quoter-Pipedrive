@@ -197,23 +197,18 @@ def handle_organization_webhook():
                 logger.error(f"Error fetching organization name: {e}")
                 return jsonify({"error": "Failed to fetch organization name"}), 500
         
-        # Extract deal ID - try direct from webhook first, then fallback to parsing
-        deal_id = organization_data.get('{{deal.id}}')
+        # Extract deal ID - try direct deal_id first, then from organization name
+        deal_id = organization_data.get('deal_id')
         if deal_id:
-            logger.info(f"✅ Using direct deal ID from webhook: {deal_id}")
+            logger.info(f"Using deal ID from webhook data: {deal_id}")
         else:
-            # Fallback: Extract deal ID from organization name (backward compatibility)
-            deal_id = organization_data.get('deal_id')
-            if deal_id:
-                logger.info(f"Using deal ID from webhook data: {deal_id}")
+            # Extract deal ID from organization name (e.g., "Blue Owl Capital-2096" -> "2096")
+            if organization_name and '-' in organization_name:
+                deal_id = organization_name.split('-')[-1]
+                logger.info(f"Extracted deal ID: {deal_id} from organization: {organization_name}")
             else:
-                # Extract deal ID from organization name (e.g., "Blue Owl Capital-2096" -> "2096")
-                if organization_name and '-' in organization_name:
-                    deal_id = organization_name.split('-')[-1]
-                    logger.info(f"Extracted deal ID: {deal_id} from organization: {organization_name}")
-                else:
-                    logger.error(f"Organization {organization_id} name '{organization_name}' does not contain deal ID (expected format: 'Name-DealID')")
-                    return jsonify({"error": "No deal ID in organization name"}), 400
+                logger.error(f"Organization {organization_id} name '{organization_name}' does not contain deal ID (expected format: 'Name-DealID')")
+                return jsonify({"error": "No deal ID in organization name"}), 400
         
         logger.info(f"Processing organization {organization_id} ({organization_name}) for deal {deal_id}")
         
@@ -231,43 +226,13 @@ def handle_organization_webhook():
             logger.info(f"Organization {organization_id} (deal {deal_id}) already processed recently, skipping")
             return jsonify({"status": "ignored", "reason": "already_processed"}), 200
         
-        # NEW: Try to get all deal data directly from webhook payload (ELIMINATE API CALL)
-        deal_title_direct = organization_data.get('{{deal.title}}')
-        template_enum_str = organization_data.get('{{deal.42ab0c919271cb24f3587f0b01ea2af166019c8d}}')
+        # Get deal information
+        deal_data = get_deal_by_id(deal_id)
+        if not deal_data:
+            logger.error(f"Could not find deal {deal_id} for organization {organization_id}")
+            return jsonify({"error": "Deal not found"}), 404
         
-        # Check if we have all required deal data in webhook
-        if deal_title_direct and template_enum_str:
-            # We have everything we need - NO API CALL REQUIRED!
-            logger.info(f"🚀 ALL deal data available in webhook - eliminating API call!")
-            logger.info(f"   Deal ID: {deal_id} (direct)")
-            logger.info(f"   Deal Title: {deal_title_direct} (direct)")
-            logger.info(f"   Template Enum: {template_enum_str} (direct)")
-            
-            # Create mock deal_data from webhook
-            deal_data = {
-                'id': int(deal_id),
-                'title': deal_title_direct,
-                '42ab0c919271cb24f3587f0b01ea2af166019c8d': template_enum_str
-            }
-            deal_title = deal_title_direct
-            
-        else:
-            # Fallback: Get deal information via API (backward compatibility)
-            logger.info(f"🔄 Missing deal fields in webhook, using API fallback")
-            logger.info(f"   Deal title available: {bool(deal_title_direct)}")
-            logger.info(f"   Template enum available: {bool(template_enum_str)}")
-            
-            deal_data = get_deal_by_id(deal_id)
-            if not deal_data:
-                logger.error(f"Could not find deal {deal_id} for organization {organization_id}")
-                return jsonify({"error": "Deal not found"}), 404
-                
-            deal_title = deal_data.get("title", f"Deal {deal_id}")
-            
-            # Add template enum to deal_data if we got it directly from webhook
-            if template_enum_str:
-                deal_data['42ab0c919271cb24f3587f0b01ea2af166019c8d'] = template_enum_str
-                logger.info(f"✅ Using direct template from webhook")
+        deal_title = deal_data.get("title", f"Deal {deal_id}")
         
         # Normalize organization data for the quote creation function
         # The function expects specific keys: 'id', 'name', and deal ID in custom field

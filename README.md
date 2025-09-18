@@ -816,4 +816,110 @@ Pipedrive Webhook → Template Resolution → Contact Creation → Quote Creatio
 
 This automated draft quote creation system represents a major breakthrough in eliminating manual line item entry and ensuring consistent, accurate quotes across all templates.
 
-# Updated Sun Sep 13 20:35:00 PDT 2025
+## 🎯 **LATEST: Template Auto-Population Discovery (September 16, 2025)**
+
+### **Major Breakthrough from Quoter Support**
+
+**Discovery**: Quoter automatically handles template content when proper `template_id` is provided during quote creation.
+
+#### **What Quoter Handles Automatically**
+- ✅ **Cover Page** - Template's cover page design and layout
+- ✅ **Cover Letter** - Template's cover letter with proper merge fields  
+- ✅ **Appended Content** - Template's footer/addendum sections
+- ✅ **Template Styling** - Template-specific formatting and design
+- ✅ **Merge Field Processing** - Automatic replacement of `##FieldName##` tokens
+
+#### **What Our System Focuses On**
+- 🎯 **Line Item Creation** - Adding template-specific products/services via API
+- 🎯 **Template Selection** - Mapping Pipedrive dropdown to correct Quoter template ID
+- 🎯 **Real-time Pricing** - Fetching current pricing from Quoter API
+- 🎯 **Contact Management** - Creating/finding contacts in Quoter from Pipedrive data
+
+### **Critical Fixes Applied Today**
+
+#### **1. Template Selection Override**
+**Problem**: System defaulting to Basic template instead of selected template
+**Files Fixed**: `quoter_enhanced.py`, `quoter.py`
+**Solution**: Proper template_id override logic to use Pipedrive-selected templates
+
+#### **2. Real-time Pricing Fix** 
+**Problem**: `quoter.py` using pre-cached pricing without API updates
+**File Fixed**: `quoter.py` line 1251
+**Change**: `get_template_line_items(template_name, access_token)` - now includes access_token for real-time pricing
+
+#### **3. Button Styling Resolution**
+**Problem**: Cover letter buttons not rendering with proper styling
+**Files Updated**: `template_mapping_enhanced.py`, `template_mapping_simple.py`
+**Solution**: Restored working button HTML from chat backup with correct `##QuoteLink##` merge fields
+
+### **Testing Results**
+- ✅ **Template Selection**: Floating Video template properly identified and used
+- ✅ **Line Item Addition**: 4-item test successful (reduced for airplane connectivity)
+- ✅ **Pricing Accuracy**: Real-time pricing from Quoter API working
+- ✅ **Template Content**: Quoter auto-population confirmed via testing
+
+### **Production System Status**
+**Current Flow**:
+```
+Webhook → quoter.py → Template Selection → Quoter Auto-Content + Manual Line Items
+```
+
+**Next Phase**: Code consolidation to move all proven functions from `quoter_enhanced.py` into `quoter.py` for unified production system.
+
+### **Key Documentation Added**
+- `docs/QUOTER_TEMPLATE_DISCOVERY_20250916.md` - Complete discovery documentation
+- Updated README.md with latest findings and fixes
+- Restored button styling code from working chat backup
+
+## 📋 **Session Summary - September 16, 2025**
+
+### **Major Discoveries & Fixes**
+
+#### **🎯 Template Auto-Population Discovery**
+- **Breakthrough**: Quoter Support confirmed that templates automatically populate cover page, cover letter, and appended content when proper `template_id` is provided
+- **Impact**: Simplified our system to focus on line item creation rather than manual content management
+- **Result**: More reliable quote generation with proper template styling and merge fields
+
+#### **🔧 Critical Production Fixes**
+1. **Template Selection Fix**
+   - **Problem**: System defaulting to Basic template instead of Pipedrive-selected template
+   - **Files Fixed**: `quoter_enhanced.py` (template override logic)
+   - **Result**: Floating Video template now properly used instead of Basic fallback
+
+2. **Real-time Pricing Fix**
+   - **Problem**: `quoter.py` using pre-cached pricing without API updates
+   - **Fix Applied**: Line 1251 - Added `access_token` parameter to `get_template_line_items()`
+   - **Result**: Line items now use current pricing from Quoter API
+
+3. **Button Styling Restoration**
+   - **Problem**: Cover letter buttons not rendering with proper styling
+   - **Solution**: Restored working HTML from chat backup 0914a
+   - **Files Updated**: `template_mapping_enhanced.py`, `template_mapping_simple.py`
+   - **Result**: Blue and green styled buttons with correct `##QuoteLink##` merge fields
+
+#### **🧪 Testing Success**
+- **Template Selection**: Verified Floating Video template ID `tmpl_32A1eLVDiKYi3PBlIiAv0w1UgLG` properly used
+- **Line Item Creation**: 4-item test (2 FV + 2 Universal) successful with real pricing
+- **Airplane Optimization**: Reduced item count for connection reliability during travel
+- **Quote Creation**: Multiple successful test quotes with proper template and pricing
+
+#### **📚 Documentation Updates**
+- **New**: `docs/QUOTER_TEMPLATE_DISCOVERY_20250916.md` - Comprehensive discovery documentation
+- **Updated**: README.md with latest findings and architectural changes
+- **Restored**: Working button code from chat backup archives
+
+#### **🔄 Production System Status**
+- **Current Flow**: `Webhook → quoter.py → Template Selection → Quoter Auto-Content + Manual Line Items`
+- **Next Phase**: Code consolidation to move proven functions from `quoter_enhanced.py` into `quoter.py`
+- **Goal**: Single unified production file eliminating code duplication
+
+#### **✅ All Changes Committed**
+- Template selection fixes
+- Real-time pricing updates  
+- Button styling restoration
+- Documentation updates
+- Backup files created and committed via `sync.sh`
+
+**System is now ready for production testing and code consolidation phase.**
+
+# Updated Mon Sep 16 08:45:00 PDT 2025

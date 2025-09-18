@@ -114,8 +114,8 @@ def add_template_line_items_to_quote(quote_id, template_name, access_token):
     
     headers = {'Authorization': f'Bearer {access_token}', 'Content-Type': 'application/json'}
     
-    # Get all items for this template (with real-time pricing)
-    all_items = get_template_line_items(template_name, access_token)
+    # Get all items for this template (using stored pricing for performance)
+    all_items = get_template_line_items(template_name)
     logger.info(f"📋 Found {len(all_items)} items to add")
     
     successful_items = 0
@@ -124,22 +124,15 @@ def add_template_line_items_to_quote(quote_id, template_name, access_token):
     for i, item in enumerate(all_items, 1):
         logger.info(f"   [{i}/{len(all_items)}] Adding: {item['name']} ({item['sku']})")
         
-        # Use the item ID from the template bundle (real Quoter item ID)
-        item_id = item.get('id')
-        if not item_id:
-            logger.warning(f"     ⚠️ Item has no ID, skipping: {item['sku']}")
-            failed_items += 1
-            continue
-        
-        # Create line item data
+        # Create line item data directly from template bundle (100% copy/paste concept)
         line_item_data = {
             "quote_id": quote_id,
-            "item_id": item_id,
             "name": item['name'],
-            "category": item['type'],  # Use type as category
-            "description": f"{item['type']} Item - {item['name']}",
+            "item_code": item['sku'],  # Use correct field for SKU
+            "category": item['type'],
+            "description": f"{item['name']} - {item['type']}",
             "quantity": 1,
-            "unit_price": float(item.get('price_decimal', 0))  # Use price_decimal from Quoter API
+            "unit_price": float(item.get('price', 0))  # Use stored price from bundle
         }
         
         # Add line item
