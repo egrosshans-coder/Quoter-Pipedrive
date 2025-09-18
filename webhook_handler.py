@@ -288,7 +288,7 @@ def handle_organization_webhook():
             # Simple format for quoter.py compatibility
             "id": organization_id,
             "name": organization_name,
-            "15034cf07d05ceb15f0a89dcbdcc4f596348584e": deal_id,
+            "15034cf07d05ceb15f0a89dcbdcc4f596348584e": deal_id,  # Critical: Deal ID in custom field
             # Keep webhook fields for optimization
             "{{deal.person_name}}": organization_data.get('{{deal.person_name}}'),
             "{{deal.title}}": organization_data.get('{{deal.title}}'),
