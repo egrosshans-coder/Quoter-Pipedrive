@@ -249,6 +249,20 @@ def handle_organization_webhook():
                 'title': deal_title_direct,
                 '42ab0c919271cb24f3587f0b01ea2af166019c8d': template_enum_str
             }
+            
+            # Add person_id if we have person data from webhook
+            person_id_from_webhook = organization_data.get('{{deal.person_name}}')
+            if person_id_from_webhook:
+                # If person_name field contains person ID, add it to mock deal_data
+                try:
+                    person_id = int(person_id_from_webhook)
+                    deal_data['person_id'] = {'value': person_id}
+                    logger.info(f"✅ Added person_id to mock deal_data: {person_id}")
+                except (ValueError, TypeError):
+                    # If it's actually a name, we'll handle it in quoter.py
+                    logger.info(f"📋 Person field contains name, not ID: {person_id_from_webhook}")
+            else:
+                logger.info(f"📋 No person data in webhook for mock deal_data")
             deal_title = deal_title_direct
             
         else:
