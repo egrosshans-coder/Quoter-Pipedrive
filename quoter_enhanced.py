@@ -304,12 +304,15 @@ def create_comprehensive_quote_with_bundles(organization_data, deal_data=None):
     
     logger.info(f"✅ Contact created/updated in Quoter: {contact_id}")
     
+    # Get deal title for quote naming
+    deal_title = deal_data.get("title", f"Deal {deal_id}")
+    
     # Create the initial quote (using default template since Quoter API ignores template_id)
     quote_data = {
         "contact_id": contact_id,
         "template_id": required_fields["template_id"],
         "currency_abbr": required_fields["currency_abbr"],
-        "name": f"Quote for {org_name}"
+        "name": f"Quote for {deal_title}"
     }
     
     # COMMENTED OUT FOR TESTING - Let Quoter handle template content automatically

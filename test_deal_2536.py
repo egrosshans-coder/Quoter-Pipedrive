@@ -17,8 +17,8 @@ def test_deal_2536():
     print("🎯 TESTING DEAL 2536")
     print("=" * 50)
     
-    # Use deal 2536
-    deal_id = 2536
+    # Use deal 2571
+    deal_id = 2571
     
     print(f"📋 Testing with deal ID: {deal_id}")
     

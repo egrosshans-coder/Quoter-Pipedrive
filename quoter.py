@@ -1257,20 +1257,17 @@ def add_template_line_items_to_quote(quote_id, template_name, access_token):
     for i, item in enumerate(all_items, 1):
         logger.info(f"   [{i}/{len(all_items)}] Adding: {item.get('name', 'Unknown')} ({item.get('sku', 'No SKU')})")
         
-        # Check if item has an ID (from Quoter)
-        if not item.get('id'):
-            logger.warning(f"     ⚠️ Item has no ID, skipping: {item.get('sku', 'No SKU')}")
-            failed_items += 1
-            continue
+        # Create line item data directly from template bundle (100% copy/paste concept)
         
-        # Create line item data
+        # Create line item data directly from template bundle (100% copy/paste concept)
         line_item_data = {
             "quote_id": quote_id,
-            "item_id": item['id'],
-            "name": item.get('name', 'Unknown Item'),  # Add required name field
-            "quantity": item.get('quantity', 1),
-            "unit_price": float(item.get('price_decimal', 0)),  # Convert to float for API
-            "category": item.get('type', 'General')  # Add required category field
+            "name": item['name'],
+            "item_code": item['sku'],  # Use correct field for SKU
+            "category": item['type'],
+            "description": f"{item['name']} - {item['type']}",
+            "quantity": 1,
+            "unit_price": float(item.get('price', 0))  # Use stored price from bundle
         }
         
         # Debug: Log the line item data being sent
@@ -1432,8 +1429,16 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
     
     logger.info(f"📋 Deal found: {deal_data.get('title', 'Unknown Deal')}")
     
+    # DEBUG: Log exactly what organization_data contains
+    logger.info(f"🔍 DEBUG: organization_data keys: {list(organization_data.keys())}")
+    logger.info(f"🔍 DEBUG: organization_data structure: {organization_data}")
+    
     # NEW: Try to get person name directly from webhook (FAST)
     person_name_direct = organization_data.get('{{deal.person_name}}')
+    person_email_direct = organization_data.get('{{person.email}}')
+    
+    logger.info(f"🔍 DEBUG: person_name_direct = {person_name_direct}")
+    logger.info(f"🔍 DEBUG: person_email_direct = {person_email_direct}")
     
     if person_name_direct:
         # We have person name from webhook - create minimal contact (FAST)
@@ -1455,7 +1460,7 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
         org_name = organization_data.get("name", "Unknown Organization")
         
         # Get email from webhook or create dummy email
-        person_email = organization_data.get('{{person.email}}')
+        person_email = person_email_direct  # Use the debug variable
         if not person_email:
             # Create unique dummy email using deal ID
             deal_id = organization_data.get("15034cf07d05ceb15f0a89dcbdcc4f596348584e", "unknown")
@@ -1546,7 +1551,7 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
         "contact_id": contact_id,
         "template_id": required_fields["template_id"],
         "currency_abbr": required_fields["currency_abbr"],
-        "name": f"Quote for {org_name}"
+        "name": organization_data.get('{{deal.title}}', f"Quote for {org_name}")
     }
     
     # Only add cover_letter and appended_content if they have content

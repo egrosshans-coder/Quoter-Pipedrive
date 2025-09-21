@@ -58,7 +58,7 @@ TLC Creative</p>""",
 
 <p>Questions? Contact us at {{quote.owner.email}} or call us directly.</p>""",
         "items": [
-            # Bundle 1: Template-Specific Items (13 items) - FV hardware + labor (CONSISTENT SKU FORMAT)
+            # Bundle 1: Template-Specific Items (13 items) - FV hardware + labor
             {"sku": "HG-FV-Graph-001", "name": "FV-Standard Graphics Pkg", "type": "FV-Graphics", "price": 500.00},
             {"sku": "HG-FV-Graph-002", "name": "FV-Advanced Graphics Pkg", "type": "FV-Graphics", "price": 1500.00},
             {"sku": "HG-FV-Graph-003", "name": "FV-Ultimate Graphics Pkg", "type": "FV-Graphics", "price": 3000.00},
