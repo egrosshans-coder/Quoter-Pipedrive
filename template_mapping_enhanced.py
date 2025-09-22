@@ -59,18 +59,18 @@ TLC Creative</p>""",
 <p>Questions? Contact us at {{quote.owner.email}} or call us directly.</p>""",
         "items": [
             # Bundle 1: Template-Specific Items (13 items) - FV hardware + labor (CONSISTENT SKU FORMAT)
-            {"sku": "HG-FV-Graph-001", "name": "FV-Standard Graphics Pkg", "type": "Hologram / FV", "price": 500.00},
-            {"sku": "HG-FV-Graph-002", "name": "FV-Advanced Graphics Pkg", "type": "Hologram / FV-Graphics", "price": 1500.00},
-            {"sku": "HG-FV-Graph-003", "name": "FV-Ultimate Graphics Pkg", "type": "Hologram / FV-Graphics", "price": 3000.00},
-            {"sku": "HG-FVH-L30-001", "name": "FV-30 Fan Holographic", "type": "Hologram / FV", "price": 2500.00},
-            {"sku": "HG-FVH-M22-001", "name": "FV-22 Fan Holographic", "type": "Hologram / FV", "price": 2000.00},
-            {"sku": "HG-FVV-100-001", "name": "FV-40in-100 Fan Holographic", "type": "Hologram / FV", "price": 3000.00},
-            {"sku": "HG-FVV-150-001", "name": "FV-5FT-150 Fan Holographic", "type": "Hologram / FV", "price": 4000.00},
-            {"sku": "HG-FVV-180-001", "name": "FV-6FT-180 Fan Holographic", "type": "Hologram / FV", "price": 6000.00},
-            {"sku": "HG-FVV-MBOX-001", "name": "FVV-MasterBox", "type": "Hologram / FV", "price": 1000.00},
-            {"sku": "HG-FVH-MBOX-001", "name": "FV-MasterBox", "type": "Hologram / FV", "price": 1000.00},
-            {"sku": "HG-FVH-HH-001", "name": "FV-HoloHuman", "type": "Hologram / FV", "price": 10000.00},
-            {"sku": "HG-FVH-HH-002", "name": "FV-HoloHuman-Case", "type": "Hologram / FV", "price": 2000.00},
+            {"sku": "HG-FV-Graph-001", "name": "FV-Standard Graphics Pkg", "type": "Hologram / FV", "price": 500.00, "cost": 500.00},
+            {"sku": "HG-FV-Graph-002", "name": "FV-Advanced Graphics Pkg", "type": "Hologram / FV-Graphics", "price": 1500.00, "cost": 1500.00},
+            {"sku": "HG-FV-Graph-003", "name": "FV-Ultimate Graphics Pkg", "type": "Hologram / FV-Graphics", "price": 3000.00, "cost": 3000.00},
+            {"sku": "HG-FVH-L30-001", "name": "FV-30 Fan Holographic", "type": "Hologram / FV", "price": 2500.00, "cost": 300.00},
+            {"sku": "HG-FVH-M22-001", "name": "FV-22 Fan Holographic", "type": "Hologram / FV", "price": 2000.00, "cost": 250.00},
+            {"sku": "HG-FVV-100-001", "name": "FV-40in-100 Fan Holographic", "type": "Hologram / FV", "price": 3000.00, "cost": 300.00},
+            {"sku": "HG-FVV-150-001", "name": "FV-5FT-150 Fan Holographic", "type": "Hologram / FV", "price": 4000.00, "cost": 300.00},
+            {"sku": "HG-FVV-180-001", "name": "FV-6FT-180 Fan Holographic", "type": "Hologram / FV", "price": 6000.00, "cost": 300.00},
+            {"sku": "HG-FVV-MBOX-001", "name": "FVV-MasterBox", "type": "Hologram / FV", "price": 1000.00, "cost": 250.00},
+            {"sku": "HG-FVH-MBOX-001", "name": "FV-MasterBox", "type": "Hologram / FV", "price": 1000.00, "cost": 250.00},
+            {"sku": "HG-FVH-HH-001", "name": "FV-HoloHuman", "type": "Hologram / FV", "price": 10000.00, "cost": 2000.00},
+            {"sku": "HG-FVH-HH-002", "name": "FV-HoloHuman-Case", "type": "Hologram / FV", "price": 2000.00, "cost": 500.00},
             {"sku": "SVC-LAB-001", "name": "Labor/Technician for Setup, Test and Strike", "type": "Service / Labor", "price": 950.00}
         ]
     },
@@ -125,21 +125,21 @@ TLC Creative</p>""",
 <p>Questions? Contact {{quote.owner.email}} for technical specifications.</p>""",
         "items": [
             # Wristbands Section
-            {"sku": "LED-WBX-MK4-001", "name": "Xylo 8-LED Wristband", "type": "Wristbands/Lanyards/Orbs / Wristband-Xylo", "price": 11.00},
+            {"sku": "LED-WBX-MK4-001", "name": "Xylo 8-LED Wristband", "type": "Wristbands/Lanyards/Orbs / Wristband-Xylo", "price": 11.00, "cost": 5.00},
             {"sku": "LED-WBX-MK5-001", "name": "Xylo 12-Led Wristband", "type": "Wristbands/Lanyards/Orbs / Wristband-Xylo", "price": 15.00},
-            {"sku": "LED-WBT-4LED-001", "name": "TLC 4-Led Wristband", "type": "Wristbands/Lanyards/Orbs / Wristband-TLC", "price": 15.00},
+            {"sku": "LED-WBT-4LED-001", "name": "TLC 4-Led Wristband", "type": "Wristbands/Lanyards/Orbs / Wristband-TLC", "price": 15.00, "cost": 8.00},
             {"sku": "LED-WBT-4LED-002", "name": "TLC 4-Led Wristband-NOButton", "type": "Wristbands/Lanyards/Orbs / Wristband-TLC", "price": 15.00},
-            {"sku": "LED-WBT-2LED-001", "name": "TLC 2-Led Wristband", "type": "Wristbands/Lanyards/Orbs / Wristband-TLC", "price": 8.00},
+            {"sku": "LED-WBT-2LED-001", "name": "TLC 2-Led Wristband", "type": "Wristbands/Lanyards/Orbs / Wristband-TLC", "price": 8.00, "cost": 4.00},
             
             # Branding Section
-            {"sku": "LED-WB-BRAND", "name": "Wristband Branding Options", "type": "Wristbands/Lanyards/Orbs / Branding", "price": 1.00},
+            {"sku": "LED-WB-BRAND", "name": "Wristband Branding Options", "type": "Wristbands/Lanyards/Orbs / Branding", "price": 1.00, "cost": 0.50},
             
             # Control Systems Section
             {"sku": "LED-WBT-TX306-001", "name": "Controller-TLC-306-Pixel-Wristbands&Lanyards", "type": "Wristbands/Lanyards/Orbs / Controller-TLC", "price": 1500.00},
-            {"sku": "LED-WBE-LAP", "name": "Laptop for Wristbands/Lanyards", "type": "Wristbands/Lanyards/Orbs / Laptop", "price": 250.00},
-            {"sku": "LED-WBX-CTX", "name": "Controller-Xylobands-Wristbands/Lanyards", "type": "Wristbands/Lanyards/Orbs / Controller-Xylo", "price": 2400.00},
-            {"sku": "LED-WBE-LPAD", "name": "Launchpad for Wristbands/Lanyards", "type": "Wristbands/Lanyards/Orbs / Launchpad", "price": 50.00},
-            {"sku": "LED-WBE-HTX", "name": "Remote Control for Wristbands/Lanyards", "type": "Wristbands/Lanyards/Orbs / Handheld-Xylo", "price": 1500.00},
+            {"sku": "LED-WBE-LAP", "name": "Laptop for Wristbands/Lanyards", "type": "Wristbands/Lanyards/Orbs / Laptop", "price": 250.00, "cost": 100.00},
+            {"sku": "LED-WBX-CTX", "name": "Controller-Xylobands-Wristbands/Lanyards", "type": "Wristbands/Lanyards/Orbs / Controller-Xylo", "price": 2400.00, "cost": 500.00},
+            {"sku": "LED-WBE-LPAD", "name": "Launchpad for Wristbands/Lanyards", "type": "Wristbands/Lanyards/Orbs / Launchpad", "price": 50.00, "cost": 5.00},
+            {"sku": "LED-WBE-HTX", "name": "Remote Control for Wristbands/Lanyards", "type": "Wristbands/Lanyards/Orbs / Handheld-Xylo", "price": 1500.00, "cost": 300.00},
             {"sku": "LED-WB-HTX1", "name": "HTX Controller Refundable Deposit", "type": "Wristbands/Lanyards/Orbs / Controller-Xylo", "price": 2500.00},
             
             # Labor Section
@@ -202,12 +202,12 @@ TLC Creative</p>""",
 <p>Questions? Contact ##QuoteOwnerEmail## for venue-specific requirements.</p>""",
         "items": [
             # Balloon hardware items
-            {"sku": "BAL-FIL-001", "name": "Balloon air filler", "type": "Balloons / Drop", "price": 50.00},
+            {"sku": "BAL-FIL-001", "name": "Balloon air filler", "type": "Balloons / Drop", "price": 50.00, "cost": 95.00},
             {"sku": "BAL-DRP-001", "name": "Balloon drop net", "type": "Balloons / Drop", "price": 150.00},
-            {"sku": "BAL-MOON-001", "name": "Balloon Moon LED", "type": "Balloons / Moon", "price": 1600.00},
+            {"sku": "BAL-MOON-001", "name": "Balloon Moon LED", "type": "Balloons / Moon", "price": 1600.00, "cost": 400.00},
             {"sku": "BAL-PKG-001", "name": "Balloons per package", "type": "Balloons / Latex", "price": 99.00},
-            {"sku": "BAL-WALL-001", "name": "Disappearing Balloon Wall", "type": "Balloons / Wall-Disappearing", "price": 1500.00},
-            {"sku": "BAL-FLY", "name": "Flying Balloon Wall", "type": "Balloons / Wall-Flying", "price": 3000.00},
+            {"sku": "BAL-WALL-001", "name": "Disappearing Balloon Wall", "type": "Balloons / Wall-Disappearing", "price": 1500.00, "cost": 20.00},
+            {"sku": "BAL-FLY", "name": "Flying Balloon Wall", "type": "Balloons / Wall-Flying", "price": 3000.00, "cost": 1000.00},
             
             # Labor for this template
             {"sku": "SVC-LAB-001", "name": "Labor/Technician for Setup, Test and Strike", "type": "Service / Labor", "price": 950.00}
@@ -264,18 +264,18 @@ TLC Creative</p>""",
 <p>Questions? Contact {{quote.owner.email}} for safety requirements and venue specifications.</p>""",
         "items": [
             # CO2 Jets Section
-            {"sku": "CO2-CRY-JET", "name": "Cryo Jet", "type": "CO2 / Cryo-Jet", "price": 150.00},
-            {"sku": "FOG-FGR-001", "name": "Fogger", "type": "CO2 / Fogger", "price": 300.00},
-            {"sku": "ELE-RLY-001", "name": "Relay Pack", "type": "Electrical / Relay-Pack", "price": 100.00},
+            {"sku": "CO2-CRY-JET", "name": "Cryo Jet", "type": "CO2 / Cryo-Jet", "price": 150.00, "cost": 30.00},
+            {"sku": "FOG-FGR-001", "name": "Fogger", "type": "CO2 / Fogger", "price": 300.00, "cost": 25.00},
+            {"sku": "ELE-RLY-001", "name": "Relay Pack", "type": "Electrical / Relay-Pack", "price": 100.00, "cost": 50.00},
             
             # Tanks Section
             {"sku": "TNK-DEW-180", "name": "Tanks - Dewar Tall", "type": "Tanks / Dewar", "price": 425.00},
             {"sku": "TNK-DEW-230", "name": "Tanks - Dewar CO2 - New Footprint", "type": "Tanks / Dewar", "price": 425.00},
-            {"sku": "TNK-CO2-SYP-001", "name": "CO2 Syphon Tank", "type": "Tanks / Syphon", "price": 60.00},
+            {"sku": "TNK-CO2-SYP-001", "name": "CO2 Syphon Tank", "type": "Tanks / Syphon", "price": 60.00, "cost": 30.00},
             {"sku": "SVC-RPR-CO2", "name": "CO2 Jet Repair", "type": "CO2 / Repair", "price": 499.00},
             
             # Additional Items Section
-            {"sku": "TNK-3SPL-001", "name": "3-to-1 splitter CO2", "type": "Tanks / 1-to-3 Splitter", "price": 25.00},
+            {"sku": "TNK-3SPL-001", "name": "3-to-1 splitter CO2", "type": "Tanks / 1-to-3 Splitter", "price": 25.00, "cost": 10.00},
             
             # Labor Section
             {"sku": "SVC-LAB-001", "name": "Labor/Technician for Setup, Test and Strike", "type": "Service / Labor", "price": 950.00},
@@ -340,20 +340,20 @@ TLC Creative</p>""",
 <p>Questions? Contact {{quote.owner.email}} for venue-specific requirements.</p>""",
         "items": [
             # Hardware Section
-            {"sku": "CNF-CAN-001", "name": "Confetti/Streamer Cannons", "type": "Confetti/Streamers / Cannons", "price": 250.00},
+            {"sku": "CNF-CAN-001", "name": "Confetti/Streamer Cannons", "type": "Confetti/Streamers / Cannons", "price": 250.00, "cost": 50.00},
             {"sku": "CNF-BLW-SS", "name": "Silent Storm Confetti Blowers - SS", "type": "Confetti/Streamers / Blowers", "price": 999.00},
             {"sku": "CNF-BLW-SST", "name": "Silent Storm Confetti Blowers - T", "type": "Confetti/Streamers / Blowers", "price": 1299.00},
             {"sku": "CNF-BLW-001", "name": "Confetti Blower Rental (TBD)", "type": "Confetti/Streamers / Confetti", "price": 299.00},
             
             # Confetti/Streamers Section
-            {"sku": "CNF-STR-001", "name": "Streamers", "type": "Confetti/Streamers / Streamers", "price": 34.00},
-            {"sku": "CNF-CNF-001", "name": "Confetti", "type": "Confetti/Streamers / Confetti", "price": 34.00},
-            {"sku": "CNF-STR-002", "name": "Custom Streamers", "type": "Confetti/Streamers / Streamers-Custom", "price": 40.00},
+            {"sku": "CNF-STR-001", "name": "Streamers", "type": "Confetti/Streamers / Streamers", "price": 34.00, "cost": 17.00},
+            {"sku": "CNF-CNF-001", "name": "Confetti", "type": "Confetti/Streamers / Confetti", "price": 34.00, "cost": 17.00},
+            {"sku": "CNF-STR-002", "name": "Custom Streamers", "type": "Confetti/Streamers / Streamers-Custom", "price": 40.00, "cost": 20.00},
             
             # Additional Items Section
-            {"sku": "TNK-NIT-001", "name": "Nitrogen Tank", "type": "Tanks / Nitrogen", "price": 60.00},
-            {"sku": "ELE-RLY-001", "name": "Relay Pack", "type": "Electrical / Relay-Pack", "price": 100.00},
-            {"sku": "CNF-LNCH-CUST-001", "name": "Confetti Custom Launch", "type": "Confetti/Streamers / Launch-Custom", "price": 7000.00},
+            {"sku": "TNK-NIT-001", "name": "Nitrogen Tank", "type": "Tanks / Nitrogen", "price": 60.00, "cost": 30.00},
+            {"sku": "ELE-RLY-001", "name": "Relay Pack", "type": "Electrical / Relay-Pack", "price": 100.00, "cost": 50.00},
+            {"sku": "CNF-LNCH-CUST-001", "name": "Confetti Custom Launch", "type": "Confetti/Streamers / Launch-Custom", "price": 7000.00, "cost": 2000.00},
             
             # Labor Section
             {"sku": "SVC-LAB-001", "name": "Labor/Technician for Setup, Test and Strike", "type": "Service / Labor", "price": 950.00},
@@ -420,7 +420,7 @@ TLC Creative</p>""",
 <p>Questions? Contact {{quote.owner.email}} for permit requirements and safety specifications.</p>""",
         "items": [
             # Firework/Pyrotechnic display Section
-            {"sku": "PYR-FIR-WRK-001", "name": "Fireworks", "type": "Pyro / Fireworks", "price": 20000.00},
+            {"sku": "PYR-FIR-WRK-001", "name": "Fireworks", "type": "Pyro / Fireworks", "price": 20000.00, "cost": 10000.00},
             {"sku": "PYR-EFF-EST", "name": "Pyro effects - Estimate", "type": "Pyro / Effects", "price": 999.00},
             {"sku": "PYR-FLM-GEN", "name": "Pyro-Canister flame generator", "type": "Pyro / Flame", "price": 100.00},
             {"sku": "PYR-FLM-CAN", "name": "Pyro-Canister", "type": "Pyro / Flame", "price": 29.00},
@@ -428,10 +428,10 @@ TLC Creative</p>""",
             {"sku": "PYRO-FIR-REAL", "name": "Pyro-real fire", "type": "Pyro / Flame", "price": 99.00},
             
             # White sparkle fountains Section
-            {"sku": "PYR-WSF-MOD-001", "name": "White Sparkle Fountain", "type": "Pyro / WSF", "price": 500.00},
+            {"sku": "PYR-WSF-MOD-001", "name": "White Sparkle Fountain", "type": "Pyro / WSF", "price": 500.00, "cost": 200.00},
             
             # Fire effects Section
-            {"sku": "PYR-FAUX-001", "name": "Simulated Fire", "type": "Pyro / Faux", "price": 250.00},
+            {"sku": "PYR-FAUX-001", "name": "Simulated Fire", "type": "Pyro / Faux", "price": 250.00, "cost": 25.00},
             {"sku": "PYR-DRG-FLY", "name": "Pyro-Dragon fly", "type": "Pyro / Flame", "price": 100.00},
             {"sku": "PYR-FIR-FLY", "name": "Pyro-Firefly", "type": "Pyro / Flame", "price": 100.00},
             
@@ -548,17 +548,17 @@ TLC Creative</p>""",
 <p>Questions? Contact {{quote.owner.email}} for venue-specific requirements.</p>""",
         "items": [
             # Hardware Section
-            {"sku": "FOG-LLF-001", "name": "Low Lying Fog", "type": "Fog / LLF", "price": 250.00},
-            {"sku": "FOG-LLF-CTL", "name": "Low Lying Fog Control System", "type": "Fog / LLF-Control", "price": 250.00},
+            {"sku": "FOG-LLF-001", "name": "Low Lying Fog", "type": "Fog / LLF", "price": 250.00, "cost": 100.00},
+            {"sku": "FOG-LLF-CTL", "name": "Low Lying Fog Control System", "type": "Fog / LLF-Control", "price": 250.00, "cost": 100.00},
             
             # CO2 Tanks Section
             {"sku": "TNK-DEW-230", "name": "Tanks - Dewar CO2 - New Footprint", "type": "Tanks / Dewar", "price": 425.00},
             {"sku": "TNK-DEW-180", "name": "Tanks - Dewar Tall", "type": "Tanks / Dewar", "price": 425.00},
-            {"sku": "TNK-CO2-SYP-001", "name": "CO2 Syphon Tank", "type": "Tanks / Syphon", "price": 60.00},
+            {"sku": "TNK-CO2-SYP-001", "name": "CO2 Syphon Tank", "type": "Tanks / Syphon", "price": 60.00, "cost": 30.00},
             
             # Additional Items Section
-            {"sku": "FOG-LLF-002", "name": "Low Lying Fog Fluid", "type": "Fog / LLF-Fluid", "price": 50.00},
-            {"sku": "TNK-3SPL-001", "name": "3-to-1 splitter CO2", "type": "Tanks / 1-to-3 Splitter", "price": 25.00},
+            {"sku": "FOG-LLF-002", "name": "Low Lying Fog Fluid", "type": "Fog / LLF-Fluid", "price": 50.00, "cost": 10.00},
+            {"sku": "TNK-3SPL-001", "name": "3-to-1 splitter CO2", "type": "Tanks / 1-to-3 Splitter", "price": 25.00, "cost": 10.00},
             
             # Labor Section
             {"sku": "SVC-LAB-001", "name": "Labor/Technician for Setup, Test and Strike", "type": "Service / Labor", "price": 950.00},
@@ -625,28 +625,28 @@ TLC Creative</p>""",
 <p>Questions? Contact {{quote.owner.email}} for robotics specifications.</p>""",
         "items": [
             # Robot packages Section
-            {"sku": "ROB-PACK-001", "name": "AI Robotics Bulk Package", "type": "Robotics / Package", "price": 15000.00},
+            {"sku": "ROB-PACK-001", "name": "AI Robotics Bulk Package", "type": "Robotics / Package", "price": 15000.00, "cost": 1500.00},
             {"sku": "ROB-PKG", "name": "Robotics Event Technology Package", "type": "Robotics / Package", "price": 2999.00},
             {"sku": "ROB-FLEET", "name": "Robot Fleet", "type": "Robotics / Fleet", "price": 19999.00},
             
             # Robot Dog Section
-            {"sku": "ROB-DOG-001", "name": "Robotic Dog", "type": "Robotics / Dog", "price": 5000.00},
+            {"sku": "ROB-DOG-001", "name": "Robotic Dog", "type": "Robotics / Dog", "price": 5000.00, "cost": 2000.00},
             {"sku": "ROB-DOG2-001", "name": "R Dog Ai with ai Lidar", "type": "Robotics / Dog", "price": 799.00},
             {"sku": "ROB-DOG-IPAD", "name": "Dual iPad on back of robot dog", "type": "Robotics / Dog", "price": 299.00},
             {"sku": "ROB-DOG-CART", "name": "Robot Dog Cart/Wagon", "type": "Robotics / Cart", "price": 299.00},
             
             # Robot (Not Dog) Section
-            {"sku": "ROB-ARM-001", "name": "Robotic Arm", "type": "Robotics / Arm", "price": 8000.00},
+            {"sku": "ROB-ARM-001", "name": "Robotic Arm", "type": "Robotics / Arm", "price": 8000.00, "cost": 1000.00},
             {"sku": "ROB-CHESS-001", "name": "Robotic Chess", "type": "Robotics / Chess", "price": 699.00},
             {"sku": "ROB-DRAW-001", "name": "Robotic Draw", "type": "Robotics / Draw", "price": 699.00},
-            {"sku": "ROB-FLO-001", "name": "Robotics-FLO", "type": "Robotics / Character", "price": 500.00},
+            {"sku": "ROB-FLO-001", "name": "Robotics-FLO", "type": "Robotics / Character", "price": 500.00, "cost": 2000.00},
             {"sku": "ROB-HENRY-001", "name": "HRAi (Henry)‬‭ Humanoid Robot w/Ai‬", "type": "Robotics / Henry", "price": 4999.00},
             {"sku": "ROB-MM1-001", "name": "Mixmaster I Robot Bartender Activation", "type": "Robotics / Bartender", "price": 15999.00},
             {"sku": "ROB-MM2-001", "name": "Mixmaster II Robot Bartender Activation", "type": "Robotics / Bartender", "price": 19999.00},
             {"sku": "ROB-HAND", "name": "Robot - Thing Robot Hand", "type": "Robotics / Hand-Thing", "price": 499.00},
-            {"sku": "ROB-TRY-001", "name": "AI Character Robot Tray", "type": "Robotics / Server", "price": 6000.00},
+            {"sku": "ROB-TRY-001", "name": "AI Character Robot Tray", "type": "Robotics / Server", "price": 6000.00, "cost": 500.00},
             {"sku": "ROB-TRON", "name": "TRON Robot Rental", "type": "Robotics / 2-Wheel", "price": 999.00},
-            {"sku": "ROB-WAL-001", "name": "Robotic Wally", "type": "Robotics / Walle", "price": 5000.00},
+            {"sku": "ROB-WAL-001", "name": "Robotic Wally", "type": "Robotics / Walle", "price": 5000.00, "cost": 1000.00},
             {"sku": "ROB-WAL-TAL", "name": "WBT‬ Walle Bot (Tall)", "type": "Robotics / 2-Wheel", "price": 999.00},
             
             # Robot Branding Section
@@ -658,12 +658,12 @@ TLC Creative</p>""",
             {"sku": "ROB-LLM-VCE", "name": "Voice Prompt System", "type": "Robotics / LLM", "price": 599.00},
             {"sku": "PRO-CNT-CNV", "name": "Projector Management & Content Conversion", "type": "Projection / Content", "price": 999.00},
             {"sku": "ROB-PWR-001", "name": "Power Banks for Robotics", "type": "Robotics / PowerBank", "price": 199.00},
-            {"sku": "ROB-LLM-001", "name": "AI-Large Language Models (LLMs)", "type": "Robotics / LLM", "price": 2500.00},
+            {"sku": "ROB-LLM-001", "name": "AI-Large Language Models (LLMs)", "type": "Robotics / LLM", "price": 2500.00, "cost": 500.00},
             
             # Services - Labor Section
-            {"sku": "SVC-ROB-SUP", "name": "Robot Supervisors", "type": "Robotics / Supervisor", "price": 1500.00},
-            {"sku": "SVC-ROB-HDLR", "name": "Robot Handler", "type": "Robotics / Handler", "price": 1200.00},
-            {"sku": "SVC-ROB-TECH", "name": "Robot Programming Tech", "type": "Robotics / Technician", "price": 1500.00},
+            {"sku": "SVC-ROB-SUP", "name": "Robot Supervisors", "type": "Robotics / Supervisor", "price": 1500.00, "cost": 400.00},
+            {"sku": "SVC-ROB-HDLR", "name": "Robot Handler", "type": "Robotics / Handler", "price": 1200.00, "cost": 400.00},
+            {"sku": "SVC-ROB-TECH", "name": "Robot Programming Tech", "type": "Robotics / Technician", "price": 1500.00, "cost": 400.00},
             {"sku": "SVC-TEC-002", "name": "Second Technician Option", "type": "Service / Technician", "price": 1000.00},
             {"sku": "SVC-LAB-OVR", "name": "Labor Overtime & Per-Diem", "type": "Service / Overtime", "price": 1599.00}
         ]
@@ -730,10 +730,10 @@ TLC Creative</p>""",
             # Tanks Section
             {"sku": "TNK-DEW-180", "name": "Tanks - Dewar Tall", "type": "Tanks / Dewar", "price": 425.00},
             {"sku": "TNK-DEW-230", "name": "Tanks - Dewar CO2 - New Footprint", "type": "Tanks / Dewar", "price": 425.00},
-            {"sku": "TNK-CO2-SYP-001", "name": "CO2 Syphon Tank", "type": "Tanks / Syphon", "price": 60.00},
-            {"sku": "TNK-HEL-291", "name": "Tanks - Helium", "type": "Tanks / Helium", "price": 495.00},
+            {"sku": "TNK-CO2-SYP-001", "name": "CO2 Syphon Tank", "type": "Tanks / Syphon", "price": 60.00, "cost": 30.00},
+            {"sku": "TNK-HEL-291", "name": "Tanks - Helium", "type": "Tanks / Helium", "price": 495.00, "cost": 1000.00},
             {"sku": "PYR-PRO-TNK", "name": "Pyro-Propane tank", "type": "Pyro / Propane", "price": 75.00},
-            {"sku": "TNK-NIT-001", "name": "Nitrogen Tank", "type": "Tanks / Nitrogen", "price": 60.00},
+            {"sku": "TNK-NIT-001", "name": "Nitrogen Tank", "type": "Tanks / Nitrogen", "price": 60.00, "cost": 30.00},
             {"sku": "TNK-DEL-001", "name": "Tanks - Force Majure", "type": "Tanks / Delivery", "price": 350.00},
             {"sku": "TNK-RNT-FEE", "name": "Tanks - Rental Fee", "type": "Tanks / Fee", "price": 22.00},
             
@@ -798,13 +798,13 @@ TLC Creative</p>""",
 <p>Questions? Contact {{quote.owner.email}} for programming specifications.</p>""",
         "items": [
             # LED Lanyards Section
-            {"sku": "LED-LYX-001", "name": "LED-Xylo-Lanyard", "type": "Wristbands/Lanyards/Orbs / Landyard-Xylo", "price": 15.00},
-            {"sku": "LED-LYT-12LED-001", "name": "TLC 12-Led Lanyard", "type": "Wristbands/Lanyards/Orbs / Landyard-TLC", "price": 15.00},
+            {"sku": "LED-LYX-001", "name": "LED-Xylo-Lanyard", "type": "Wristbands/Lanyards/Orbs / Landyard-Xylo", "price": 15.00, "cost": 10.00},
+            {"sku": "LED-LYT-12LED-001", "name": "TLC 12-Led Lanyard", "type": "Wristbands/Lanyards/Orbs / Landyard-TLC", "price": 15.00, "cost": 8.00},
             
             # Programming and Control Section
             {"sku": "LED-WBT-TX306-001", "name": "Controller-TLC-306-Pixel-Wristbands&Lanyards", "type": "Wristbands/Lanyards/Orbs / Controller-TLC", "price": 1500.00},
-            {"sku": "LED-WBX-CTX", "name": "Controller-Xylobands-Wristbands/Lanyards", "type": "Wristbands/Lanyards/Orbs / Controller-Xylo", "price": 2400.00},
-            {"sku": "LED-WBE-HTX", "name": "Remote Control for Wristbands/Lanyards", "type": "Wristbands/Lanyards/Orbs / Handheld-Xylo", "price": 1500.00},
+            {"sku": "LED-WBX-CTX", "name": "Controller-Xylobands-Wristbands/Lanyards", "type": "Wristbands/Lanyards/Orbs / Controller-Xylo", "price": 2400.00, "cost": 500.00},
+            {"sku": "LED-WBE-HTX", "name": "Remote Control for Wristbands/Lanyards", "type": "Wristbands/Lanyards/Orbs / Handheld-Xylo", "price": 1500.00, "cost": 300.00},
             {"sku": "SVC-PGM-WB-LY-003", "name": "Programming Advanced for Wristbands& Lanyards", "type": "Wristbands/Lanyards/Orbs / Programming", "price": 12000.00},
             {"sku": "SVC-PGM-WB-LY-002", "name": "Programming Mid-Level for Wristbands& Lanyards", "type": "Wristbands/Lanyards/Orbs / Programming", "price": 6000.00},
             {"sku": "SVC-PGM-WB-LY-001", "name": "Programming Standard for Wristbands& Lanyards", "type": "Wristbands/Lanyards/Orbs / Programming", "price": 3000.00},
@@ -814,7 +814,7 @@ TLC Creative</p>""",
             {"sku": "LED-LAN-BRAND", "name": "Lanyard Branding Options", "type": "Wristbands/Lanyards/Orbs / Branding", "price": 1.00},
             
             # Labor Section
-            {"sku": "SVC-WBT-TECH", "name": "Service Technician for Wristbands", "type": "Wristbands/Lanyards/Orbs / Technician-Wristbands", "price": 950.00},
+            {"sku": "SVC-WBT-TECH", "name": "Service Technician for Wristbands", "type": "Wristbands/Lanyards/Orbs / Technician-Wristbands", "price": 950.00, "cost": 450.00},
             {"sku": "SVC-LAB-WBL", "name": "Labor-Wristband/Landyards", "type": "Service / WB/LAN", "price": 950.00},
             {"sku": "SVC-LAB-001", "name": "Labor/Technician for Setup, Test and Strike", "type": "Service / Labor", "price": 950.00},
             {"sku": "SVC-TEC-002", "name": "Second Technician Option", "type": "Service / Technician", "price": 1000.00}
@@ -891,6 +891,8 @@ def find_item_details_by_sku(sku, access_token, expected_name=None):
                         'code': item.get('code'),
                         'price': float(item.get('price_decimal', 0)),
                         'price_decimal': item.get('price_decimal', 0),
+                        'cost': float(item.get('cost_decimal') or 0),
+                        'cost_decimal': item.get('cost_decimal') or 0,
                         'category': full_category  # Now includes parent/child hierarchy
                     }
 
@@ -948,6 +950,8 @@ def find_item_details_by_sku(sku, access_token, expected_name=None):
                             'code': item.get('code'),
                             'price': float(item.get('price_decimal', 0)),
                             'price_decimal': item.get('price_decimal', 0),
+                            'cost': float(item.get('cost_decimal') or 0),
+                            'cost_decimal': item.get('cost_decimal') or 0,
                             'category': full_category
                         }
 
@@ -1072,16 +1076,21 @@ def verify_bundle_against_quoter(template_name, access_token):
         if item_details:
             quoter_name = item_details['name']
             quoter_price = item_details['price']
+            quoter_cost = item_details['cost']
             quoter_category = item_details['category']
             
             verification_results["items_verified"] += 1
             
             # Check for changes
             changes = []
+            stored_cost = item.get('cost', 0)  # Default to 0 if cost not in bundle yet
+            
             if stored_name != quoter_name:
                 changes.append(f"name: '{stored_name}' → '{quoter_name}'")
             if abs(stored_price - quoter_price) > 0.01:  # Allow for rounding
                 changes.append(f"price: ${stored_price:,.2f} → ${quoter_price:,.2f}")
+            if abs(stored_cost - quoter_cost) > 0.01:  # Check cost changes
+                changes.append(f"cost: ${stored_cost:,.2f} → ${quoter_cost:,.2f}")
             if stored_type != quoter_category:
                 changes.append(f"type: '{stored_type}' → '{quoter_category}'")
             
@@ -1089,8 +1098,8 @@ def verify_bundle_against_quoter(template_name, access_token):
                 verification_results["items_changed"].append({
                     "sku": sku,
                     "changes": changes,
-                    "stored": {"name": stored_name, "price": stored_price, "type": stored_type},
-                    "quoter": {"name": quoter_name, "price": quoter_price, "category": quoter_category}
+                    "stored": {"name": stored_name, "price": stored_price, "cost": stored_cost, "type": stored_type},
+                    "quoter": {"name": quoter_name, "price": quoter_price, "cost": quoter_cost, "category": quoter_category}
                 })
                 print(f"⚠️  {sku}: {', '.join(changes)}")
             else:
@@ -1193,6 +1202,21 @@ def update_bundle_from_quoter(template_name, access_token, dry_run=True, verific
                         f'"price": {quoter_data["price"]:.2f}',
                         new_line
                     )
+                    
+                    # Update the cost field (add if missing)
+                    if '"cost":' in new_line:
+                        new_line = re.sub(
+                            r'"cost":\s*[\d.]+',
+                            f'"cost": {quoter_data["cost"]:.2f}',
+                            new_line
+                        )
+                    else:
+                        # Add cost field after price
+                        new_line = re.sub(
+                            r'("price":\s*[\d.]+)',
+                            rf'\1, "cost": {quoter_data["cost"]:.2f}',
+                            new_line
+                        )
                     
                     # Update the name field
                     new_line = re.sub(
