@@ -877,8 +877,8 @@ TEMPLATE_BUNDLES = {
     "floating-video": {
         "name": "Floating Video",
         "items": [
-            {"sku": "HG-FV-Graph-001", "name": "FV-Standard Graphics Pkg", "type": "Hologram / FV", "price": 500.00},
-            # ... 21 more items with current Quoter data
+            {"sku": "HG-FV-Graph-001", "name": "FV-Standard Graphics Pkg", "type": "Hologram / FV", "price": 500.00, "cost": 500.00},
+            # ... 21 more items with current Quoter pricing and cost data
         ]
     }
     # ... 10 more templates
@@ -889,7 +889,7 @@ TEMPLATE_BUNDLES = {
 1. **API Connection**: Authenticate with Quoter OAuth
 2. **Item Lookup**: Search by SKU with name fallback
 3. **Category Resolution**: Query Categories API for parent/child hierarchy
-4. **Comparison**: Stored vs. live data (price, name, category)
+4. **Comparison**: Stored vs. live data (price, cost, name, category)
 5. **Update Application**: Template-specific line replacement
 6. **File Persistence**: Write changes to `template_mapping_enhanced.py`
 
@@ -905,7 +905,9 @@ TEMPLATE_BUNDLES = {
 - **✅ Webhook Performance**: Fast quote creation with stored pricing
 - **✅ Category Compliance**: Proper parent/child hierarchy maintained
 - **✅ Production Reliability**: Robust error handling and fallbacks
+- **✅ Financial Intelligence**: Complete cost and pricing data for profit analysis
+- **✅ Business Insights**: Real-time visibility into template profitability and margins
 
 This automated bundle verification system ensures the quote creation pipeline always uses accurate, up-to-date information while maintaining optimal performance for webhook processing.
 
-# Updated Sat Sep 21 21:16:00 PDT 2025
+# Updated Sat Sep 21 21:39:00 PDT 2025 - Added Cost Tracking

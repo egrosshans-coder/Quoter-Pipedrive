@@ -22,6 +22,7 @@ The Bundle Verification System automatically monitors template bundles against t
 - **Duplicate SKU Handling**: Properly manages shared items across multiple templates
 - **Parent/Child Categories**: Full support for Quoter's hierarchical category system
 - **Performance Optimization**: Eliminated redundant double-pass verification
+- **Cost Tracking**: Added comprehensive cost data tracking for profit analysis and business intelligence
 
 ### 3. GitHub Actions Workflow (`.github/workflows/daily-bundle-verification.yml`)
 **Schedule**: 
@@ -36,8 +37,9 @@ The Bundle Verification System automatically monitors template bundles against t
 1. **Item Names**: Compare stored names with Quoter API
 2. **SKUs/Item Codes**: Verify unique identifiers
 3. **Prices**: Check `price_decimal` values
-4. **Types**: Validate item categories
-5. **Availability**: Confirm items still exist in Quoter
+4. **Cost Data**: Track item costs for profit margin analysis
+5. **Types**: Validate item categories
+6. **Availability**: Confirm items still exist in Quoter
 
 ### Verification Results
 - **Items Verified**: Successfully checked against API
