@@ -1,7 +1,7 @@
 # Bundle Verification System
 
 ## Overview
-The Bundle Verification System automatically monitors template bundles against the Quoter API to detect changes in item names, SKUs, prices, and types. This ensures data consistency and alerts the team when manual updates are needed.
+The Bundle Verification System automatically monitors template bundles against the Quoter API to detect changes in item names, SKUs, prices, and types. **Updated September 21, 2025**: Now includes automated update functionality that applies changes directly to the bundle files, ensuring perfect synchronization without manual intervention.
 
 ## System Components
 
@@ -13,8 +13,15 @@ The Bundle Verification System automatically monitors template bundles against t
 ### 2. Template Mapping Functions (`template_mapping_enhanced.py`)
 **Functions**:
 - `verify_bundle_against_quoter()` - Main verification logic
-- `update_bundle_from_quoter()` - Update bundles with live data
+- `update_bundle_from_quoter()` - **ENHANCED**: Now automatically applies changes to bundle files
+- `find_item_details_by_sku()` - **NEW**: Enhanced with exact name search fallback for SKU typos
 - `get_template_bundle()` - Retrieve template bundle data
+
+**Recent Improvements (September 21, 2025)**:
+- **Automated Updates**: System now applies changes directly to `template_mapping_enhanced.py`
+- **Duplicate SKU Handling**: Properly manages shared items across multiple templates
+- **Parent/Child Categories**: Full support for Quoter's hierarchical category system
+- **Performance Optimization**: Eliminated redundant double-pass verification
 
 ### 3. GitHub Actions Workflow (`.github/workflows/daily-bundle-verification.yml`)
 **Schedule**: 
