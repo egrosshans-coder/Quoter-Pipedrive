@@ -11,8 +11,7 @@ import time
 import threading
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
-from quoter import create_draft_quote
-from quoter_enhanced import create_comprehensive_quote_with_bundles
+from quoter import create_draft_quote, create_comprehensive_quote_from_pipedrive
 from pipedrive import get_deal_by_id, get_organization_by_id, update_deal_with_quote_info
 from notification import send_quote_created_notification
 from utils.logger import logger
@@ -298,7 +297,7 @@ def handle_organization_webhook():
         }
         
         # Create comprehensive draft quote using our enhanced function with template selection
-        quote_data = create_comprehensive_quote_with_bundles(normalized_org_data, deal_data)
+        quote_data = create_comprehensive_quote_from_pipedrive(normalized_org_data, deal_data)
         
         if quote_data:
             # Mark this organization as processed to prevent duplicates
