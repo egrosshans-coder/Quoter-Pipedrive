@@ -1051,7 +1051,14 @@ def update_organization_address(org_id, contact_data):
         
         full_address = ', '.join(address_parts) if address_parts else ''
         
-        # Prepare update data for organization
+        # Phone from contact (work_phone, telephone_numbers.work, or phone)
+        phone = (contact_data.get('work_phone') or
+                 (contact_data.get('telephone_numbers') or {}).get('work') or
+                 contact_data.get('phone') or '')
+        if isinstance(phone, dict):
+            phone = phone.get('value', '') or ''
+        
+        # Prepare update data for organization (address + phone)
         update_data = {
             # Full address string
             "address": full_address,
@@ -1062,13 +1069,14 @@ def update_organization_address(org_id, contact_data):
             "address_locality": city or None,
             "address_admin_area_level_1": state_code or None,
             "address_postal_code": postal_code or None,
-            "address_country": country_code or None
+            "address_country": country_code or None,
+            "phone": phone or None
         }
         
         # Remove None values to avoid overwriting with empty data
         update_data = {k: v for k, v in update_data.items() if v is not None}
         
-        logger.info(f"🔄 Updating organization {org_id} address:")
+        logger.info(f"🔄 Updating organization {org_id} address and phone:")
         logger.info(f"   Full Address: {full_address}")
         logger.info(f"   Individual Fields: {update_data}")
         

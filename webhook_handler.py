@@ -500,26 +500,29 @@ def handle_quoter_quote_published():
                 if success:
                     logger.info(f"✅ Successfully updated Pipedrive deal {deal_id} with quote {quote_id}")
                     
-                    # Update the organization address fields instead of contact address
+                    # Update the sub-org (deal's organization) address and phone, not the parent org
                     try:
-                        # Extract organization ID from the contact data or get it from Pipedrive
-                        # We'll need to get the organization ID from Pipedrive using the org name
-                        from pipedrive import get_organization_by_name, update_organization_address
+                        from pipedrive import get_deal_by_id, get_organization_by_name, update_organization_address
                         
-                        org_name_clean = org_name.split('-')[0] if '-' in org_name else org_name  # Remove deal ID suffix
-                        org_data = get_organization_by_name(org_name_clean)
-                        
-                        if org_data and org_data.get('id'):
-                            org_id = org_data['id']
-                            logger.info(f"🔄 Updating organization {org_id} address fields with quote data")
-                            
+                        org_id = None
+                        deal_data = get_deal_by_id(int(deal_id))
+                        if deal_data and deal_data.get('org_id'):
+                            org_id = deal_data['org_id'].get('value') if isinstance(deal_data['org_id'], dict) else deal_data['org_id']
+                            logger.info(f"🔄 Updating sub-org linked to deal {deal_id}: org_id={org_id}")
+                        if not org_id:
+                            org_name_clean = org_name.split('-')[0] if '-' in org_name else org_name
+                            org_data = get_organization_by_name(org_name_clean)
+                            if org_data and org_data.get('id'):
+                                org_id = org_data['id']
+                                logger.info(f"🔄 Fallback: updating organization by name: {org_name_clean} (id={org_id})")
+                        if org_id:
                             success = update_organization_address(org_id, contact_data)
                             if success:
-                                logger.info(f"✅ Successfully updated organization {org_id} address information")
+                                logger.info(f"✅ Successfully updated organization {org_id} address and phone")
                             else:
-                                logger.warning(f"⚠️ Failed to update organization {org_id} address information")
+                                logger.warning(f"⚠️ Failed to update organization {org_id} address/phone")
                         else:
-                            logger.warning(f"⚠️ Could not find organization '{org_name_clean}' in Pipedrive")
+                            logger.warning(f"⚠️ Could not resolve organization for deal {deal_id}")
                             
                     except Exception as e:
                         logger.error(f"❌ Error updating organization address: {e}")
