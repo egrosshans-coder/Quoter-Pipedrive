@@ -2,4 +2,6 @@ venv/
 .env
 __pycache__/
 *.pyc
-.DS_Store 
+.DS_Store
+chat_backups/
+work_logs/
