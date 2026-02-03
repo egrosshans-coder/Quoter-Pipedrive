@@ -146,6 +146,9 @@ def handle_organization_webhook():
             logger.info("Received empty webhook data (likely from Pipedrive retry/timeout)")
             return jsonify({"status": "ignored", "reason": "empty_data"}), 200
         
+        # Log which address-related keys are present in payload (for debugging)
+        address_keys = [k for k in organization_data.keys() if isinstance(k, str) and any(x in k.lower() for x in ('address', 'locality', 'postal', 'route', 'street'))]
+        logger.info(f"DEBUG: Address-related keys in payload: {address_keys}")
         # Handle Pipedrive automation format where organization ID is in {{organization.id}} key
         logger.info(f"DEBUG: Looking for organization ID in data: {organization_data}")
         organization_id = organization_data.get('{{organization.id}}')
@@ -283,7 +286,131 @@ def handle_organization_webhook():
                 deal_data['42ab0c919271cb24f3587f0b01ea2af166019c8d'] = template_enum_str
                 logger.info(f"✅ Using direct template from webhook")
         
-        # Create hybrid organization data: simple format + webhook fields
+        def _empty_ok(s):
+            """Treat empty, whitespace-only, or colon+quotes as empty."""
+            if s is None:
+                return ''
+            s = str(s).strip().strip('"').strip("'").strip()
+            if s in ('', ':', ':"', ':""', '""'):
+                return ''
+            return s
+
+        # Build flat address fields from webhook for quoter (street line 1 from number + route or full)
+        addr_street_number_raw = organization_data.get('{{organization.address_street_number}}') or organization_data.get('address_street_number')
+        addr_route_raw = organization_data.get('{{organization.address_route}}') or organization_data.get('address_route')
+        addr_subpremise_raw = organization_data.get('{{organization.address_subpremise}}') or organization_data.get('address_subpremise')
+        addr_locality_raw = organization_data.get('{{organization.address_locality}}') or organization_data.get('address_locality')
+        addr_state_raw = organization_data.get('{{organization.address_admin_area_level_1}}') or organization_data.get('address_admin_area_level_1')
+        addr_postal_raw = organization_data.get('{{organization.address_postal_code}}') or organization_data.get('address_postal_code')
+        addr_country_raw = organization_data.get('{{organization.address_country}}') or organization_data.get('address_country')
+        addr_full_raw = organization_data.get('{{organization.address_formatted_address}}') or organization_data.get('{{organization.address}}') or organization_data.get('address')
+        logger.info(f"🔍 RAW address from webhook: street_number={addr_street_number_raw!r}, route={addr_route_raw!r}, locality={addr_locality_raw!r}, state={addr_state_raw!r}, postal={addr_postal_raw!r}, country={addr_country_raw!r}, full={addr_full_raw!r}")
+        addr_street_number = _empty_ok(addr_street_number_raw)
+        addr_route = _empty_ok(addr_route_raw)
+        addr_subpremise = _empty_ok(addr_subpremise_raw)
+        addr_locality = _empty_ok(addr_locality_raw)
+        addr_state = _empty_ok(addr_state_raw)
+        addr_postal = _empty_ok(addr_postal_raw)
+        addr_country = _empty_ok(addr_country_raw)
+        addr_full = _empty_ok(addr_full_raw)
+        if not addr_full and (addr_street_number or addr_route):
+            addr_full = ' '.join(filter(None, [addr_street_number, addr_route]))
+            logger.info(f"🔍 Built addr_full from components: {addr_full!r}")
+        # Flat keys quoter expects; only include address2 (subpremise) when non-empty
+        flat_address = addr_full or ''
+        flat_address2 = addr_subpremise or ''
+        flat_city = addr_locality or ''
+        flat_state = addr_state or ''
+        flat_postal = addr_postal or ''
+        flat_country = addr_country or 'US'
+
+        # If webhook had no address components, try parent org from webhook payload first
+        if not flat_address and not flat_city:
+            # Check if webhook includes parent org ID
+            parent_org_id_webhook = (organization_data.get('{{organization.parent_id}}') or
+                                    organization_data.get('{{organization.parent_organization_id}}') or
+                                    organization_data.get('parent_id') or
+                                    organization_data.get('parent_organization_id'))
+            if parent_org_id_webhook:
+                try:
+                    logger.info(f"📍 Sub-org has no address; fetching parent org {parent_org_id_webhook} from webhook")
+                    parent_org = get_organization_by_id(parent_org_id_webhook)
+                    if parent_org:
+                        parent_address = _empty_ok(parent_org.get('address') or ' '.join(filter(None, [parent_org.get('address_street_number'), parent_org.get('address_route')])))
+                        parent_address2 = _empty_ok(parent_org.get('address_subpremise'))
+                        parent_city = _empty_ok(parent_org.get('address_locality'))
+                        parent_state = _empty_ok(parent_org.get('address_admin_area_level_1'))
+                        parent_postal = _empty_ok(parent_org.get('address_postal_code'))
+                        parent_country = _empty_ok(parent_org.get('address_country')) or 'US'
+                        if parent_address or parent_city:
+                            flat_address = parent_address or flat_address
+                            flat_address2 = parent_address2 or flat_address2
+                            flat_city = parent_city or flat_city
+                            flat_state = parent_state or flat_state
+                            flat_postal = parent_postal or flat_postal
+                            flat_country = parent_country or flat_country
+                            logger.info(f"📍 Address filled from parent org {parent_org_id_webhook} (webhook parent fallback)")
+                except Exception as e:
+                    logger.warning(f"Could not fetch parent org from webhook ID: {e}")
+        
+        # If still no address (e.g. automation fired before copy-address was saved), fetch sub-org from API
+        if not flat_address and not flat_city:
+            try:
+                # Brief delay so Pipedrive can persist copied address from parent to sub-org
+                time.sleep(2)
+                org_data = get_organization_by_id(organization_id)
+                if org_data:
+                    api_address = _empty_ok(org_data.get('address') or ' '.join(filter(None, [org_data.get('address_street_number'), org_data.get('address_route')])))
+                    api_address2 = _empty_ok(org_data.get('address_subpremise'))
+                    api_city = _empty_ok(org_data.get('address_locality'))
+                    api_state = _empty_ok(org_data.get('address_admin_area_level_1'))
+                    api_postal = _empty_ok(org_data.get('address_postal_code'))
+                    api_country = _empty_ok(org_data.get('address_country')) or 'US'
+                    if api_address or api_city:
+                        flat_address = api_address or flat_address
+                        flat_address2 = api_address2 or flat_address2
+                        flat_city = api_city or flat_city
+                        flat_state = api_state or flat_state
+                        flat_postal = api_postal or flat_postal
+                        flat_country = api_country or flat_country
+                        logger.info("📍 Address missing in webhook; filled from sub-org API (timing fallback)")
+                    else:
+                        # Sub-org has no address components - try parent org
+                        parent_org_id = None
+                        # Check common parent org field names
+                        parent_org_id = (org_data.get('parent_id') or 
+                                        org_data.get('parent_organization_id') or
+                                        (org_data.get('parent_organization', {}) or {}).get('value') if isinstance(org_data.get('parent_organization'), dict) else None)
+                        if not parent_org_id and isinstance(org_data.get('parent_organization'), list) and org_data.get('parent_organization'):
+                            parent_org_id = org_data['parent_organization'][0].get('value')
+                        if parent_org_id:
+                            logger.info(f"📍 Sub-org has no address; fetching parent org {parent_org_id} for address")
+                            parent_org = get_organization_by_id(parent_org_id)
+                            if parent_org:
+                                parent_address = _empty_ok(parent_org.get('address') or ' '.join(filter(None, [parent_org.get('address_street_number'), parent_org.get('address_route')])))
+                                parent_address2 = _empty_ok(parent_org.get('address_subpremise'))
+                                parent_city = _empty_ok(parent_org.get('address_locality'))
+                                parent_state = _empty_ok(parent_org.get('address_admin_area_level_1'))
+                                parent_postal = _empty_ok(parent_org.get('address_postal_code'))
+                                parent_country = _empty_ok(parent_org.get('address_country')) or 'US'
+                                if parent_address or parent_city:
+                                    flat_address = parent_address or flat_address
+                                    flat_address2 = parent_address2 or flat_address2
+                                    flat_city = parent_city or flat_city
+                                    flat_state = parent_state or flat_state
+                                    flat_postal = parent_postal or flat_postal
+                                    flat_country = parent_country or flat_country
+                                    logger.info(f"📍 Address filled from parent org {parent_org_id} (parent org fallback)")
+                                else:
+                                    logger.warning(f"Parent org {parent_org_id} also has no address components")
+                            else:
+                                logger.warning(f"Could not fetch parent org {parent_org_id}")
+                        else:
+                            logger.info("No parent org ID found in sub-org data")
+            except Exception as e:
+                logger.warning(f"Could not fetch org address from API: {e}")
+
+        # Create hybrid organization data: simple format + webhook fields + address
         normalized_org_data = {
             # Simple format for quoter.py compatibility
             "id": organization_id,
@@ -293,8 +420,19 @@ def handle_organization_webhook():
             "{{deal.person_name}}": organization_data.get('{{deal.person_name}}'),
             "{{deal.title}}": organization_data.get('{{deal.title}}'),
             "{{deal.id}}": organization_data.get('{{deal.id}}'),
-            "{{deal.42ab0c919271cb24f3587f0b01ea2af166019c8d}}": organization_data.get('{{deal.42ab0c919271cb24f3587f0b01ea2af166019c8d}}')
+            "{{deal.42ab0c919271cb24f3587f0b01ea2af166019c8d}}": organization_data.get('{{deal.42ab0c919271cb24f3587f0b01ea2af166019c8d}}'),
+            "{{person.email}}": organization_data.get('{{person.email}}'),
+            # Address (flat keys for quoter)
+            "address": flat_address,
+            "city": flat_city,
+            "state": flat_state,
+            "postal_code": flat_postal,
+            "country": flat_country,
         }
+        if flat_address2:
+            normalized_org_data["address2"] = flat_address2
+        
+        logger.info(f"📍 Address from webhook: address={flat_address!r}, city={flat_city!r}, state={flat_state!r}, postal={flat_postal!r}, country={flat_country!r}")
         
         # Create comprehensive draft quote using our enhanced function with template selection
         quote_data = create_comprehensive_quote_from_pipedrive(normalized_org_data, deal_data)

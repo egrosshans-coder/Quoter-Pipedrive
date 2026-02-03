@@ -1,5 +1,6 @@
 import requests
 import os
+import json
 from dotenv import load_dotenv
 from utils.logger import logger
 
@@ -438,7 +439,9 @@ def update_quoter_sku(quoter_item_id, pipedrive_product_id):
         logger.error(f"❌ Error updating Quoter item {quoter_item_id}: {e}")
         return False 
 
-def create_or_find_contact_in_quoter(contact_name, contact_email=None, contact_phone=None, pipedrive_contact_id=None, organization_name=None):
+def create_or_find_contact_in_quoter(contact_name, contact_email=None, contact_phone=None, pipedrive_contact_id=None, organization_name=None,
+                                    billing_address=None, billing_address2=None, billing_city=None, billing_region_iso=None,
+                                    billing_postal_code=None, billing_country_iso=None):
     """
     Create a new contact in Quoter or find existing one based on email and organization.
     
@@ -448,6 +451,12 @@ def create_or_find_contact_in_quoter(contact_name, contact_email=None, contact_p
         contact_phone (str, optional): Contact phone
         pipedrive_contact_id (str, optional): Pipedrive person ID
         organization_name (str, optional): Organization name for better matching
+        billing_address (str, optional): Street line 1
+        billing_address2 (str, optional): Street line 2 / suite
+        billing_city (str, optional): City
+        billing_region_iso (str, optional): State/region code
+        billing_postal_code (str, optional): Zip/postal code
+        billing_country_iso (str, optional): Country code (e.g. US)
         
     Returns:
         str: Contact ID if created/found, None otherwise
@@ -505,8 +514,8 @@ def create_or_find_contact_in_quoter(contact_name, contact_email=None, contact_p
         contact_data = {
             "first_name": first_name,
             "last_name": last_name,
-            "organization": organization_name,  # Use the organization name from the quote
-            "billing_country_iso": "US"  # Default to US for now
+            "organization": organization_name or "",
+            "billing_country_iso": billing_country_iso or "US"
         }
         
         # Add email if available
@@ -521,7 +530,42 @@ def create_or_find_contact_in_quoter(contact_name, contact_email=None, contact_p
         if pipedrive_contact_id:
             contact_data["pipedrive_contact_id"] = str(pipedrive_contact_id)
         
+        # Add billing address from webhook/Pipedrive if provided
+        logger.info(f"🔍 Creating contact with address params: billing_address={billing_address!r}, billing_city={billing_city!r}, billing_state={billing_region_iso!r}, billing_postal={billing_postal_code!r}")
+        if billing_address:
+            contact_data["billing_address"] = billing_address
+            logger.info(f"✅ Added billing_address: {billing_address!r}")
+        if billing_address2:
+            contact_data["billing_address2"] = billing_address2
+            logger.info(f"✅ Added billing_address2: {billing_address2!r}")
+        if billing_city:
+            contact_data["billing_city"] = billing_city
+            logger.info(f"✅ Added billing_city: {billing_city!r}")
+        if billing_region_iso:
+            contact_data["billing_region_iso"] = billing_region_iso
+            logger.info(f"✅ Added billing_region_iso: {billing_region_iso!r}")
+        if billing_postal_code:
+            contact_data["billing_postal_code"] = billing_postal_code
+            logger.info(f"✅ Added billing_postal_code: {billing_postal_code!r}")
+        if billing_country_iso:
+            contact_data["billing_country_iso"] = billing_country_iso
+            logger.info(f"✅ Added billing_country_iso: {billing_country_iso!r}")
+        # Mirror to shipping for now
+        if billing_address:
+            contact_data["shipping_address"] = billing_address
+        if billing_address2:
+            contact_data["shipping_address2"] = billing_address2
+        if billing_city:
+            contact_data["shipping_city"] = billing_city
+        if billing_region_iso:
+            contact_data["shipping_region_iso"] = billing_region_iso
+        if billing_postal_code:
+            contact_data["shipping_postal_code"] = billing_postal_code
+        if billing_country_iso:
+            contact_data["shipping_country_iso"] = billing_country_iso
+        
         logger.info(f"Creating new contact in Quoter: {contact_name}")
+        logger.info(f"🔍 Full contact_data being sent to Quoter API: {json.dumps(contact_data, indent=2)}")
         
         response = requests.post(
             "https://api.quoter.com/v1/contacts",
@@ -529,6 +573,10 @@ def create_or_find_contact_in_quoter(contact_name, contact_email=None, contact_p
             headers=headers,
             timeout=10
         )
+        
+        logger.info(f"🔍 Quoter API response status: {response.status_code}")
+        if response.status_code not in (200, 201):
+            logger.error(f"🔍 Quoter API response body: {response.text}")
         
         if response.status_code == 200 or response.status_code == 201:
             data = response.json()
@@ -1471,12 +1519,27 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
         else:
             logger.info(f"📧 Using email from webhook: {person_email}")
         
+        # Address from webhook (flat keys set by webhook_handler)
+        org_address = organization_data.get("address", "")
+        org_address2 = organization_data.get("address2", "")
+        org_city = organization_data.get("city", "")
+        org_state = organization_data.get("state", "")
+        org_postal = organization_data.get("postal_code", "")
+        org_country = organization_data.get("country", "US")
+        logger.info(f"📍 Passing to Quoter contact: address={org_address!r}, address2={org_address2!r}, city={org_city!r}, state={org_state!r}, postal={org_postal!r}, country={org_country!r}")
+        logger.info(f"🔍 Address values (truthy check): address={bool(org_address)}, city={bool(org_city)}, state={bool(org_state)}, postal={bool(org_postal)}")
         contact_id = create_or_find_contact_in_quoter(
             contact_name=person_name_direct,
             contact_email=person_email,  # Use webhook email or dummy
             contact_phone=None,  # Will be set manually later
             pipedrive_contact_id=None,
-            organization_name=org_name
+            organization_name=org_name,
+            billing_address=org_address if org_address else None,
+            billing_address2=org_address2 if org_address2 else None,
+            billing_city=org_city if org_city else None,
+            billing_region_iso=org_state if org_state else None,
+            billing_postal_code=org_postal if org_postal else None,
+            billing_country_iso=org_country if org_country else "US",
         )
         
         if contact_id:
