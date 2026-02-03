@@ -294,6 +294,47 @@ def handle_organization_webhook():
             if s in ('', ':', ':"', ':""', '""'):
                 return ''
             return s
+        
+        def _state_to_iso(state_name):
+            """Convert full state/province names to ISO codes for Quoter API."""
+            if not state_name:
+                return ''
+            state_name = str(state_name).strip()
+            # US States mapping
+            us_states = {
+                'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
+                'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
+                'florida': 'FL', 'georgia': 'GA', 'hawaii': 'HI', 'idaho': 'ID',
+                'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA', 'kansas': 'KS',
+                'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME', 'maryland': 'MD',
+                'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN', 'mississippi': 'MS',
+                'missouri': 'MO', 'montana': 'MT', 'nebraska': 'NE', 'nevada': 'NV',
+                'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY',
+                'north carolina': 'NC', 'north dakota': 'ND', 'ohio': 'OH', 'oklahoma': 'OK',
+                'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
+                'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT',
+                'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV',
+                'wisconsin': 'WI', 'wyoming': 'WY', 'district of columbia': 'DC'
+            }
+            # Canadian Provinces mapping
+            ca_provinces = {
+                'alberta': 'AB', 'british columbia': 'BC', 'manitoba': 'MB', 'new brunswick': 'NB',
+                'newfoundland and labrador': 'NL', 'northwest territories': 'NT', 'nova scotia': 'NS',
+                'nunavut': 'NU', 'ontario': 'ON', 'prince edward island': 'PE', 'quebec': 'QC',
+                'saskatchewan': 'SK', 'yukon': 'YT'
+            }
+            # Check if already an ISO code (2 uppercase letters)
+            if len(state_name) == 2 and state_name.isupper() and state_name.isalpha():
+                return state_name
+            # Try to match full name (case-insensitive)
+            state_lower = state_name.lower()
+            if state_lower in us_states:
+                return us_states[state_lower]
+            if state_lower in ca_provinces:
+                return ca_provinces[state_lower]
+            # If no match found, return original (API might accept it, or will error and we'll see in logs)
+            logger.warning(f"⚠️ Could not convert state '{state_name}' to ISO code, using as-is")
+            return state_name
 
         # Build flat address fields from webhook for quoter (street line 1 from number + route or full)
         addr_street_number_raw = organization_data.get('{{organization.address_street_number}}') or organization_data.get('address_street_number')
@@ -309,9 +350,25 @@ def handle_organization_webhook():
         addr_route = _empty_ok(addr_route_raw)
         addr_subpremise = _empty_ok(addr_subpremise_raw)
         addr_locality = _empty_ok(addr_locality_raw)
-        addr_state = _empty_ok(addr_state_raw)
+        addr_state_raw_cleaned = _empty_ok(addr_state_raw)
+        addr_state = _state_to_iso(addr_state_raw_cleaned)  # Convert to ISO code
         addr_postal = _empty_ok(addr_postal_raw)
-        addr_country = _empty_ok(addr_country_raw)
+        addr_country_raw_cleaned = _empty_ok(addr_country_raw)
+        # Convert country to ISO if needed (e.g., "United States" -> "US")
+        if addr_country_raw_cleaned:
+            country_lower = addr_country_raw_cleaned.lower()
+            if country_lower in ('united states', 'usa', 'us'):
+                addr_country = 'US'
+            elif country_lower in ('canada', 'ca'):
+                addr_country = 'CA'
+            else:
+                # If it's already a 2-letter code, use it; otherwise try to extract or use as-is
+                if len(addr_country_raw_cleaned) == 2 and addr_country_raw_cleaned.isupper():
+                    addr_country = addr_country_raw_cleaned
+                else:
+                    addr_country = addr_country_raw_cleaned  # API will validate
+        else:
+            addr_country = 'US'
         addr_full = _empty_ok(addr_full_raw)
         if not addr_full and (addr_street_number or addr_route):
             addr_full = ' '.join(filter(None, [addr_street_number, addr_route]))
@@ -323,6 +380,8 @@ def handle_organization_webhook():
         flat_state = addr_state or ''
         flat_postal = addr_postal or ''
         flat_country = addr_country or 'US'
+        logger.info(f"🔍 State conversion: '{addr_state_raw_cleaned}' -> '{flat_state}'")
+        logger.info(f"🔍 Country conversion: '{addr_country_raw_cleaned}' -> '{flat_country}'")
 
         # If webhook had no address components, try parent org from webhook payload first
         if not flat_address and not flat_city:
