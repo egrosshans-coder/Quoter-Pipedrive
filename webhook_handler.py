@@ -481,6 +481,7 @@ def handle_organization_webhook():
             "{{deal.id}}": organization_data.get('{{deal.id}}'),
             "{{deal.42ab0c919271cb24f3587f0b01ea2af166019c8d}}": organization_data.get('{{deal.42ab0c919271cb24f3587f0b01ea2af166019c8d}}'),
             "{{person.email}}": organization_data.get('{{person.email}}'),
+            "{{person.phone}}": organization_data.get('{{person.phone}}') or organization_data.get('{{deal.person_phone}}') or organization_data.get('{{organization.phone}}'),
             # Address (flat keys for quoter)
             "address": flat_address,
             "city": flat_city,

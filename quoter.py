@@ -522,9 +522,10 @@ def create_or_find_contact_in_quoter(contact_name, contact_email=None, contact_p
         if contact_email:
             contact_data["email"] = contact_email
         
-        # Add phone if available
+        # Add phone if available (use work_phone per Quoter API)
         if contact_phone:
-            contact_data["phone"] = contact_phone
+            contact_data["work_phone"] = contact_phone
+            logger.info(f"✅ Added work_phone: {contact_phone!r}")
         
         # Add Pipedrive reference if available
         if pipedrive_contact_id:
@@ -1519,6 +1520,13 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
         else:
             logger.info(f"📧 Using email from webhook: {person_email}")
         
+        # Get phone from webhook
+        person_phone = organization_data.get("{{person.phone}}") or organization_data.get("{{deal.person_phone}}") or organization_data.get("{{organization.phone}}")
+        if person_phone:
+            logger.info(f"📞 Using phone from webhook: {person_phone}")
+        else:
+            logger.info(f"📞 No phone in webhook")
+        
         # Address from webhook (flat keys set by webhook_handler)
         org_address = organization_data.get("address", "")
         org_address2 = organization_data.get("address2", "")
@@ -1531,7 +1539,7 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
         contact_id = create_or_find_contact_in_quoter(
             contact_name=person_name_direct,
             contact_email=person_email,  # Use webhook email or dummy
-            contact_phone=None,  # Will be set manually later
+            contact_phone=person_phone if person_phone else None,  # Use webhook phone if available
             pipedrive_contact_id=None,
             organization_name=org_name,
             billing_address=org_address if org_address else None,
@@ -1652,6 +1660,60 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
                 logger.info(f"🎉 SUCCESS! Comprehensive draft quote created:")
                 logger.info(f"   Quote ID: {quote_id}")
                 logger.info(f"   Name: {data.get('name', 'N/A')}")
+                
+                # Step 1.5: PATCH quote with address fields (since Pipedrive source doesn't include address)
+                logger.info(f"📍 Patching quote with address fields from webhook...")
+                address_patch = {}
+                
+                # Extract address from organization_data (set by webhook_handler)
+                org_address = organization_data.get("address", "")
+                org_address2 = organization_data.get("address2", "")
+                org_city = organization_data.get("city", "")
+                org_state = organization_data.get("state", "")  # Already converted to ISO code
+                org_postal = organization_data.get("postal_code", "")
+                org_country = organization_data.get("country", "US")
+                
+                if org_address:
+                    address_patch["billing_address"] = org_address
+                if org_address2:
+                    address_patch["billing_address2"] = org_address2
+                if org_city:
+                    address_patch["billing_city"] = org_city
+                if org_state:
+                    address_patch["billing_region_iso"] = org_state
+                if org_postal:
+                    address_patch["billing_postal_code"] = org_postal
+                if org_country:
+                    address_patch["billing_country_iso"] = org_country
+                
+                # Mirror to shipping
+                if org_address:
+                    address_patch["shipping_address"] = org_address
+                if org_address2:
+                    address_patch["shipping_address2"] = org_address2
+                if org_city:
+                    address_patch["shipping_city"] = org_city
+                if org_state:
+                    address_patch["shipping_region_iso"] = org_state
+                if org_postal:
+                    address_patch["shipping_postal_code"] = org_postal
+                if org_country:
+                    address_patch["shipping_country_iso"] = org_country
+                
+                if address_patch:
+                    logger.info(f"🔍 Patching quote {quote_id} with address: {address_patch}")
+                    patch_response = requests.patch(
+                        f"https://api.quoter.com/v1/quotes/{quote_id}",
+                        json=address_patch,
+                        headers=headers,
+                        timeout=10
+                    )
+                    if patch_response.status_code in [200, 201]:
+                        logger.info(f"✅ Successfully patched quote with address fields")
+                    else:
+                        logger.warning(f"⚠️ Failed to patch quote address: {patch_response.status_code} - {patch_response.text}")
+                else:
+                    logger.warning(f"⚠️ No address fields available to patch quote")
                 
                 # Step 2: Add template-specific line items using bundle system
                 logger.info(f"📋 Adding template-specific line items to quote...")
