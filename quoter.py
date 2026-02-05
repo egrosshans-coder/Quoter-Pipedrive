@@ -1520,12 +1520,48 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
         else:
             logger.info(f"📧 Using email from webhook: {person_email}")
         
-        # Get phone from webhook
-        person_phone = organization_data.get("{{person.phone}}") or organization_data.get("{{deal.person_phone}}") or organization_data.get("{{organization.phone}}")
+        # Get phone from webhook (check both singular and plural, plus deal contact phone)
+        # Handle phone as array/object (like email) or simple string
+        person_phone_raw = (organization_data.get("{{person.phone}}") or 
+                           organization_data.get("{{person.phones}}") or 
+                           organization_data.get("{{deal.person_phone}}") or 
+                           organization_data.get("{{organization.phone}}"))
+        
+        person_phone = None
+        if person_phone_raw:
+            # If it's a list/array, extract the first phone value
+            if isinstance(person_phone_raw, list):
+                for phone_item in person_phone_raw:
+                    if isinstance(phone_item, dict):
+                        # Try to get value from dict (e.g., {"value": "555-1234", "label": "work"})
+                        phone_value = phone_item.get("value") or phone_item.get("phone") or phone_item.get("number")
+                        if phone_value:
+                            person_phone = phone_value
+                            logger.info(f"📞 Extracted phone from array item: {person_phone} (label: {phone_item.get('label', 'unknown')})")
+                            break
+                    elif isinstance(phone_item, str):
+                        person_phone = phone_item
+                        logger.info(f"📞 Extracted phone from array: {person_phone}")
+                        break
+            elif isinstance(person_phone_raw, dict):
+                # If it's a dict, try common keys
+                person_phone = (person_phone_raw.get("value") or 
+                               person_phone_raw.get("phone") or 
+                               person_phone_raw.get("number") or
+                               person_phone_raw.get("work") or
+                               person_phone_raw.get("mobile"))
+                if person_phone:
+                    logger.info(f"📞 Extracted phone from dict: {person_phone}")
+            elif isinstance(person_phone_raw, str):
+                # Simple string
+                person_phone = person_phone_raw.strip()
+                if person_phone:
+                    logger.info(f"📞 Using phone from webhook (string): {person_phone}")
+        
         if person_phone:
-            logger.info(f"📞 Using phone from webhook: {person_phone}")
+            logger.info(f"📞 Final phone value: {person_phone}")
         else:
-            logger.info(f"📞 No phone in webhook")
+            logger.info(f"📞 No phone found in webhook (raw value was: {person_phone_raw!r})")
         
         # Address from webhook (flat keys set by webhook_handler)
         org_address = organization_data.get("address", "")
