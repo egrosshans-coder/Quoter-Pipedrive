@@ -1521,7 +1521,7 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
             logger.info(f"📧 Using email from webhook: {person_email}")
         
         # Get phone from webhook (check both singular and plural, plus deal contact phone)
-        # Handle phone as array/object (like email) or simple string
+        # Handle phone as array/object (like email), comma-separated string, or simple string
         person_phone_raw = (organization_data.get("{{person.phone}}") or 
                            organization_data.get("{{person.phones}}") or 
                            organization_data.get("{{deal.person_phone}}") or 
@@ -1536,11 +1536,11 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
                         # Try to get value from dict (e.g., {"value": "555-1234", "label": "work"})
                         phone_value = phone_item.get("value") or phone_item.get("phone") or phone_item.get("number")
                         if phone_value:
-                            person_phone = phone_value
+                            person_phone = phone_value.strip()
                             logger.info(f"📞 Extracted phone from array item: {person_phone} (label: {phone_item.get('label', 'unknown')})")
                             break
                     elif isinstance(phone_item, str):
-                        person_phone = phone_item
+                        person_phone = phone_item.strip()
                         logger.info(f"📞 Extracted phone from array: {person_phone}")
                         break
             elif isinstance(person_phone_raw, dict):
@@ -1551,12 +1551,22 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
                                person_phone_raw.get("work") or
                                person_phone_raw.get("mobile"))
                 if person_phone:
+                    person_phone = str(person_phone).strip()
                     logger.info(f"📞 Extracted phone from dict: {person_phone}")
             elif isinstance(person_phone_raw, str):
-                # Simple string
-                person_phone = person_phone_raw.strip()
-                if person_phone:
-                    logger.info(f"📞 Using phone from webhook (string): {person_phone}")
+                # Handle comma-separated string (e.g., "2129876543,2129876540")
+                phone_str = person_phone_raw.strip()
+                if ',' in phone_str:
+                    # Split by comma and take the first phone
+                    phones_list = [p.strip() for p in phone_str.split(',') if p.strip()]
+                    if phones_list:
+                        person_phone = phones_list[0]
+                        logger.info(f"📞 Extracted first phone from comma-separated list: {person_phone} (total: {len(phones_list)})")
+                else:
+                    # Simple string
+                    person_phone = phone_str
+                    if person_phone:
+                        logger.info(f"📞 Using phone from webhook (string): {person_phone}")
         
         if person_phone:
             logger.info(f"📞 Final phone value: {person_phone}")
