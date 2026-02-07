@@ -1582,56 +1582,56 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
                                organization_data.get("{{organization.phone}}"))
             
             if person_phone_raw:
-            # If it's a list/array, extract phones with labels
-            if isinstance(person_phone_raw, list):
-                for phone_item in person_phone_raw:
-                    if isinstance(phone_item, dict):
-                        # Try to get value from dict (e.g., {"value": "555-1234", "label": "work"})
-                        phone_value = phone_item.get("value") or phone_item.get("phone") or phone_item.get("number")
-                        phone_label = phone_item.get("label", "").lower()
-                        if phone_value:
-                            phone_value = phone_value.strip()
-                            if phone_label == "work" or (not person_phone and phone_label != "mobile"):
-                                person_phone = phone_value
-                                logger.info(f"📞 Extracted work phone from array: {person_phone} (label: {phone_item.get('label', 'unknown')})")
-                            elif phone_label == "mobile" or not person_mobile:
-                                person_mobile = phone_value
-                                logger.info(f"📞 Extracted mobile phone from array: {person_mobile} (label: {phone_item.get('label', 'unknown')})")
-                    elif isinstance(phone_item, str):
-                        if not person_phone:
-                            person_phone = phone_item.strip()
-                            logger.info(f"📞 Extracted phone from array: {person_phone}")
-            elif isinstance(person_phone_raw, dict):
-                # If it's a dict, try common keys
-                person_phone = (person_phone_raw.get("value") or 
-                               person_phone_raw.get("phone") or 
-                               person_phone_raw.get("number") or
-                               person_phone_raw.get("work"))
-                person_mobile = person_phone_raw.get("mobile")
-                if person_phone:
-                    person_phone = str(person_phone).strip()
-                    logger.info(f"📞 Extracted work phone from dict: {person_phone}")
-                if person_mobile:
-                    person_mobile = str(person_mobile).strip()
-                    logger.info(f"📞 Extracted mobile phone from dict: {person_mobile}")
-            elif isinstance(person_phone_raw, str):
-                # Handle comma-separated string (e.g., "2129876543,2129876540")
-                # NOTE: We can't assume order (work vs mobile) from comma-separated string
-                # So we only use the first phone as work_phone, don't assign mobile
-                phone_str = person_phone_raw.strip()
-                if ',' in phone_str:
-                    # Split by comma and use first phone only (can't determine labels from order)
-                    phones_list = [p.strip() for p in phone_str.split(',') if p.strip()]
-                    if phones_list:
-                        person_phone = phones_list[0]
-                        logger.info(f"📞 Extracted first phone from comma-separated as work: {person_phone}")
-                        logger.info(f"📞 Note: {len(phones_list)} phones found, but labels unknown - only using first as work_phone")
-                        logger.info(f"📞 To get mobile phone, fetch person from Pipedrive API (requires person_id)")
-                else:
-                    # Simple string - use as work phone
-                    person_phone = phone_str
+                # If it's a list/array, extract phones with labels
+                if isinstance(person_phone_raw, list):
+                    for phone_item in person_phone_raw:
+                        if isinstance(phone_item, dict):
+                            # Try to get value from dict (e.g., {"value": "555-1234", "label": "work"})
+                            phone_value = phone_item.get("value") or phone_item.get("phone") or phone_item.get("number")
+                            phone_label = phone_item.get("label", "").lower()
+                            if phone_value:
+                                phone_value = phone_value.strip()
+                                if phone_label == "work" or (not person_phone and phone_label != "mobile"):
+                                    person_phone = phone_value
+                                    logger.info(f"📞 Extracted work phone from array: {person_phone} (label: {phone_item.get('label', 'unknown')})")
+                                elif phone_label == "mobile" or not person_mobile:
+                                    person_mobile = phone_value
+                                    logger.info(f"📞 Extracted mobile phone from array: {person_mobile} (label: {phone_item.get('label', 'unknown')})")
+                        elif isinstance(phone_item, str):
+                            if not person_phone:
+                                person_phone = phone_item.strip()
+                                logger.info(f"📞 Extracted phone from array: {person_phone}")
+                elif isinstance(person_phone_raw, dict):
+                    # If it's a dict, try common keys
+                    person_phone = (person_phone_raw.get("value") or 
+                                   person_phone_raw.get("phone") or 
+                                   person_phone_raw.get("number") or
+                                   person_phone_raw.get("work"))
+                    person_mobile = person_phone_raw.get("mobile")
                     if person_phone:
-                        logger.info(f"📞 Using phone from webhook (string) as work phone: {person_phone}")
+                        person_phone = str(person_phone).strip()
+                        logger.info(f"📞 Extracted work phone from dict: {person_phone}")
+                    if person_mobile:
+                        person_mobile = str(person_mobile).strip()
+                        logger.info(f"📞 Extracted mobile phone from dict: {person_mobile}")
+                elif isinstance(person_phone_raw, str):
+                    # Handle comma-separated string (e.g., "2129876543,2129876540")
+                    # NOTE: We can't assume order (work vs mobile) from comma-separated string
+                    # So we only use the first phone as work_phone, don't assign mobile
+                    phone_str = person_phone_raw.strip()
+                    if ',' in phone_str:
+                        # Split by comma and use first phone only (can't determine labels from order)
+                        phones_list = [p.strip() for p in phone_str.split(',') if p.strip()]
+                        if phones_list:
+                            person_phone = phones_list[0]
+                            logger.info(f"📞 Extracted first phone from comma-separated as work: {person_phone}")
+                            logger.info(f"📞 Note: {len(phones_list)} phones found, but labels unknown - only using first as work_phone")
+                            logger.info(f"📞 To get mobile phone, fetch person from Pipedrive API (requires person_id)")
+                    else:
+                        # Simple string - use as work phone
+                        person_phone = phone_str
+                        if person_phone:
+                            logger.info(f"📞 Using phone from webhook (string) as work phone: {person_phone}")
         
         if person_phone:
             logger.info(f"📞 Final work phone: {person_phone}")
