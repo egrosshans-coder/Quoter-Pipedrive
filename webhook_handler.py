@@ -12,7 +12,7 @@ import threading
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 from quoter import create_draft_quote, create_comprehensive_quote_from_pipedrive
-from pipedrive import get_deal_by_id, get_organization_by_id, update_deal_with_quote_info
+from pipedrive import get_deal_by_id, get_organization_by_id, update_deal_with_quote_info, BASE_URL, API_TOKEN
 from notification import send_quote_created_notification
 from utils.logger import logger
 
@@ -164,6 +164,94 @@ def handle_organization_webhook():
         if not organization_id:
             logger.error(f"DEBUG: No organization ID found. Available keys: {list(organization_data.keys())}")
             return jsonify({"error": "No organization ID"}), 400
+        
+        # Copy address from parent org to child org via API (if parent org ID is available)
+        # This ensures the child org has address fields populated in Pipedrive
+        parent_org_id = None
+        
+        # Method 1: Check for parent org ID in custom field on child org
+        # Known Parent_Org_ID field key: 6b4253304d94302a6f387ce6bde138a6dad48026
+        parent_org_field_key = os.getenv("PD_CF_PARENT_ORG_ID_KEY", "6b4253304d94302a6f387ce6bde138a6dad48026")
+        if parent_org_field_key:
+            parent_org_id = (organization_data.get(f'{{organization.{parent_org_field_key}}}') or 
+                           organization_data.get(parent_org_field_key))
+        
+        # Method 2: Check if webhook includes parent org ID directly (common field names)
+        if not parent_org_id:
+            parent_org_id = (organization_data.get('{{organization.parent_id}}') or 
+                           organization_data.get('{{organization.parent_organization_id}}') or
+                           organization_data.get('{{organization.Parent_Org_ID}}') or
+                           organization_data.get('parent_id') or
+                           organization_data.get('parent_organization_id') or
+                           organization_data.get('Parent_Org_ID'))
+        
+        # Method 3: Check if webhook includes parent org ID from deal
+        if not parent_org_id:
+            parent_org_id = (organization_data.get('{{deal.parent_org_id}}') or
+                           organization_data.get('{{deal.parent_organization_id}}') or
+                           organization_data.get('parent_org_id'))
+        
+        # Method 4: Try to get parent org from deal's organization via API (if deal ID is available)
+        # Note: This may not work if deal is already linked to child org
+        if not parent_org_id:
+            deal_id = organization_data.get('{{deal.id}}') or organization_data.get('deal_id')
+            if deal_id:
+                try:
+                    deal_data = get_deal_by_id(deal_id)
+                    if deal_data:
+                        # Check if deal has a custom field storing parent org ID
+                        deal_parent_org_field_key = os.getenv("PD_CF_DEAL_PARENT_ORG_ID_KEY")
+                        if deal_parent_org_field_key:
+                            parent_org_id = deal_data.get(deal_parent_org_field_key)
+                        
+                        # Also check deal's org_id - but this might be the child org, so less reliable
+                        # Only use if no custom field found
+                        if not parent_org_id and deal_data.get('org_id'):
+                            deal_org_id = deal_data['org_id'].get('value') if isinstance(deal_data['org_id'], dict) else deal_data['org_id']
+                            # If deal org matches child org, skip (deal is already linked to child)
+                            if str(deal_org_id) != str(organization_id):
+                                # This might be parent org, but not reliable
+                                logger.info(f"📍 Found deal org_id {deal_org_id}, but it may not be parent org")
+                except Exception as e:
+                    logger.debug(f"Could not fetch deal {deal_id} for parent org lookup: {e}")
+        
+        if parent_org_id:
+            try:
+                logger.info(f"📍 Copying address from parent org {parent_org_id} to child org {organization_id}...")
+                parent_org = get_organization_by_id(parent_org_id)
+                if parent_org:
+                    # Build address payload from parent org
+                    address_fields = [
+                        "address", "address_street_number", "address_route", "address_subpremise",
+                        "address_locality", "address_admin_area_level_1", "address_postal_code", "address_country"
+                    ]
+                    address_payload = {}
+                    for field in address_fields:
+                        value = parent_org.get(field)
+                        if value not in (None, ""):
+                            address_payload[field] = value
+                    
+                    if address_payload:
+                        # Update child org with parent's address
+                        headers = {"Content-Type": "application/json"}
+                        params = {"api_token": API_TOKEN}
+                        response = requests.put(
+                            f"{BASE_URL}/organizations/{organization_id}",
+                            json=address_payload,
+                            headers=headers,
+                            params=params,
+                            timeout=10
+                        )
+                        if response.status_code in [200, 201]:
+                            logger.info(f"✅ Successfully copied address from parent org {parent_org_id} to child org {organization_id}")
+                        else:
+                            logger.warning(f"⚠️ Failed to copy address: {response.status_code} - {response.text}")
+                    else:
+                        logger.info(f"📍 Parent org {parent_org_id} has no address fields to copy")
+                else:
+                    logger.warning(f"⚠️ Could not fetch parent org {parent_org_id}")
+            except Exception as e:
+                logger.warning(f"⚠️ Error copying address from parent org: {e}")
         
         # Check if this is a sub-organization ready for quotes
         # Look for HID-QBO-Status = 289 (QBO-SubCust)

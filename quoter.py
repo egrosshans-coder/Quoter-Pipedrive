@@ -439,7 +439,7 @@ def update_quoter_sku(quoter_item_id, pipedrive_product_id):
         logger.error(f"❌ Error updating Quoter item {quoter_item_id}: {e}")
         return False 
 
-def create_or_find_contact_in_quoter(contact_name, contact_email=None, contact_phone=None, pipedrive_contact_id=None, organization_name=None,
+def create_or_find_contact_in_quoter(contact_name, contact_email=None, contact_phone=None, contact_mobile=None, pipedrive_contact_id=None, organization_name=None,
                                     billing_address=None, billing_address2=None, billing_city=None, billing_region_iso=None,
                                     billing_postal_code=None, billing_country_iso=None):
     """
@@ -451,6 +451,7 @@ def create_or_find_contact_in_quoter(contact_name, contact_email=None, contact_p
         contact_phone (str, optional): Contact phone
         pipedrive_contact_id (str, optional): Pipedrive person ID
         organization_name (str, optional): Organization name for better matching
+        contact_mobile (str, optional): Mobile phone number
         billing_address (str, optional): Street line 1
         billing_address2 (str, optional): Street line 2 / suite
         billing_city (str, optional): City
@@ -526,6 +527,10 @@ def create_or_find_contact_in_quoter(contact_name, contact_email=None, contact_p
         if contact_phone:
             contact_data["work_phone"] = contact_phone
             logger.info(f"✅ Added work_phone: {contact_phone!r}")
+        # Add mobile phone if available
+        if contact_mobile:
+            contact_data["mobile_phone"] = contact_mobile
+            logger.info(f"✅ Added mobile_phone: {contact_mobile!r}")
         
         # Add Pipedrive reference if available
         if pipedrive_contact_id:
@@ -1520,57 +1525,119 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
         else:
             logger.info(f"📧 Using email from webhook: {person_email}")
         
-        # Get phone from webhook (check both singular and plural, plus deal contact phone)
-        # Handle phone as array/object (like email), comma-separated string, or simple string
-        person_phone_raw = (organization_data.get("{{person.phone}}") or 
-                           organization_data.get("{{person.phones}}") or 
-                           organization_data.get("{{deal.person_phone}}") or 
-                           organization_data.get("{{organization.phone}}"))
-        
+        # ALWAYS use API to get labeled phones (work vs mobile) - webhook data is unreliable
         person_phone = None
-        if person_phone_raw:
-            # If it's a list/array, extract the first phone value
+        person_mobile = None
+        person_id = None
+        
+        # Get person ID from deal if available
+        if deal_data:
+            person_id_data = deal_data.get("person_id")
+            if person_id_data:
+                if isinstance(person_id_data, dict):
+                    person_id = person_id_data.get("value")
+                elif isinstance(person_id_data, list) and person_id_data:
+                    person_id = person_id_data[0].get("value")
+                elif isinstance(person_id_data, (int, str)):
+                    person_id = person_id_data
+        
+        # Fetch from API to get properly labeled phones (work vs mobile)
+        if person_id:
+            try:
+                from pipedrive import get_person_by_id
+                logger.info(f"📞 Fetching person {person_id} from Pipedrive API to get labeled phones...")
+                person_data = get_person_by_id(person_id)
+                if person_data:
+                    phones = person_data.get("phone", [])
+                    if isinstance(phones, list):
+                        for phone_item in phones:
+                            if isinstance(phone_item, dict):
+                                phone_label = phone_item.get("label", "").lower()
+                                phone_value = phone_item.get("value")
+                                if phone_value:
+                                    if phone_label == "work":
+                                        person_phone = phone_value.strip()
+                                        logger.info(f"📞 Found work phone from API: {person_phone}")
+                                    elif phone_label == "mobile":
+                                        person_mobile = phone_value.strip()
+                                        logger.info(f"📞 Found mobile phone from API: {person_mobile}")
+                        # If no labeled phones found, use first phone as work
+                        if not person_phone and phones:
+                            first_phone = phones[0]
+                            if isinstance(first_phone, dict):
+                                person_phone = first_phone.get("value", "").strip()
+                            elif isinstance(first_phone, str):
+                                person_phone = first_phone.strip()
+                            if person_phone:
+                                logger.info(f"📞 Using first phone from API as work: {person_phone}")
+            except Exception as e:
+                logger.warning(f"⚠️ Could not fetch person {person_id} from API for phones: {e}")
+        
+        # Fallback to webhook phone data ONLY if API fetch failed and we have no labeled phones
+        # (This should rarely happen - API is preferred)
+        if not person_phone and not person_mobile:
+            person_phone_raw = (organization_data.get("{{person.phone}}") or 
+                               organization_data.get("{{person.phones}}") or 
+                               organization_data.get("{{deal.person_phone}}") or 
+                               organization_data.get("{{organization.phone}}"))
+            
+            if person_phone_raw:
+            # If it's a list/array, extract phones with labels
             if isinstance(person_phone_raw, list):
                 for phone_item in person_phone_raw:
                     if isinstance(phone_item, dict):
                         # Try to get value from dict (e.g., {"value": "555-1234", "label": "work"})
                         phone_value = phone_item.get("value") or phone_item.get("phone") or phone_item.get("number")
+                        phone_label = phone_item.get("label", "").lower()
                         if phone_value:
-                            person_phone = phone_value.strip()
-                            logger.info(f"📞 Extracted phone from array item: {person_phone} (label: {phone_item.get('label', 'unknown')})")
-                            break
+                            phone_value = phone_value.strip()
+                            if phone_label == "work" or (not person_phone and phone_label != "mobile"):
+                                person_phone = phone_value
+                                logger.info(f"📞 Extracted work phone from array: {person_phone} (label: {phone_item.get('label', 'unknown')})")
+                            elif phone_label == "mobile" or not person_mobile:
+                                person_mobile = phone_value
+                                logger.info(f"📞 Extracted mobile phone from array: {person_mobile} (label: {phone_item.get('label', 'unknown')})")
                     elif isinstance(phone_item, str):
-                        person_phone = phone_item.strip()
-                        logger.info(f"📞 Extracted phone from array: {person_phone}")
-                        break
+                        if not person_phone:
+                            person_phone = phone_item.strip()
+                            logger.info(f"📞 Extracted phone from array: {person_phone}")
             elif isinstance(person_phone_raw, dict):
                 # If it's a dict, try common keys
                 person_phone = (person_phone_raw.get("value") or 
                                person_phone_raw.get("phone") or 
                                person_phone_raw.get("number") or
-                               person_phone_raw.get("work") or
-                               person_phone_raw.get("mobile"))
+                               person_phone_raw.get("work"))
+                person_mobile = person_phone_raw.get("mobile")
                 if person_phone:
                     person_phone = str(person_phone).strip()
-                    logger.info(f"📞 Extracted phone from dict: {person_phone}")
+                    logger.info(f"📞 Extracted work phone from dict: {person_phone}")
+                if person_mobile:
+                    person_mobile = str(person_mobile).strip()
+                    logger.info(f"📞 Extracted mobile phone from dict: {person_mobile}")
             elif isinstance(person_phone_raw, str):
                 # Handle comma-separated string (e.g., "2129876543,2129876540")
+                # NOTE: We can't assume order (work vs mobile) from comma-separated string
+                # So we only use the first phone as work_phone, don't assign mobile
                 phone_str = person_phone_raw.strip()
                 if ',' in phone_str:
-                    # Split by comma and take the first phone
+                    # Split by comma and use first phone only (can't determine labels from order)
                     phones_list = [p.strip() for p in phone_str.split(',') if p.strip()]
                     if phones_list:
                         person_phone = phones_list[0]
-                        logger.info(f"📞 Extracted first phone from comma-separated list: {person_phone} (total: {len(phones_list)})")
+                        logger.info(f"📞 Extracted first phone from comma-separated as work: {person_phone}")
+                        logger.info(f"📞 Note: {len(phones_list)} phones found, but labels unknown - only using first as work_phone")
+                        logger.info(f"📞 To get mobile phone, fetch person from Pipedrive API (requires person_id)")
                 else:
-                    # Simple string
+                    # Simple string - use as work phone
                     person_phone = phone_str
                     if person_phone:
-                        logger.info(f"📞 Using phone from webhook (string): {person_phone}")
+                        logger.info(f"📞 Using phone from webhook (string) as work phone: {person_phone}")
         
         if person_phone:
-            logger.info(f"📞 Final phone value: {person_phone}")
-        else:
+            logger.info(f"📞 Final work phone: {person_phone}")
+        if person_mobile:
+            logger.info(f"📞 Final mobile phone: {person_mobile}")
+        if not person_phone and not person_mobile:
             logger.info(f"📞 No phone found in webhook (raw value was: {person_phone_raw!r})")
         
         # Address from webhook (flat keys set by webhook_handler)
@@ -1586,6 +1653,7 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
             contact_name=person_name_direct,
             contact_email=person_email,  # Use webhook email or dummy
             contact_phone=person_phone if person_phone else None,  # Use webhook phone if available
+            contact_mobile=person_mobile if person_mobile else None,  # Use webhook mobile if available
             pipedrive_contact_id=None,
             organization_name=org_name,
             billing_address=org_address if org_address else None,
