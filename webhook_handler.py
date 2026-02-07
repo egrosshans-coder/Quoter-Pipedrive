@@ -172,9 +172,13 @@ def handle_organization_webhook():
         # Method 1: Check for parent org ID in custom field on child org
         # Known Parent_Org_ID field key: 6b4253304d94302a6f387ce6bde138a6dad48026
         parent_org_field_key = os.getenv("PD_CF_PARENT_ORG_ID_KEY", "6b4253304d94302a6f387ce6bde138a6dad48026")
+        logger.info(f"🔍 Looking for parent org ID using field key: {parent_org_field_key}")
         if parent_org_field_key:
-            parent_org_id = (organization_data.get(f'{{organization.{parent_org_field_key}}}') or 
+            field_key_with_prefix = f'{{organization.{parent_org_field_key}}}'
+            logger.info(f"🔍 Checking for parent org ID in: '{field_key_with_prefix}' and '{parent_org_field_key}'")
+            parent_org_id = (organization_data.get(field_key_with_prefix) or 
                            organization_data.get(parent_org_field_key))
+            logger.info(f"🔍 Parent org ID from Method 1: {parent_org_id}")
         
         # Method 2: Check if webhook includes parent org ID directly (common field names)
         if not parent_org_id:
@@ -215,6 +219,7 @@ def handle_organization_webhook():
                 except Exception as e:
                     logger.debug(f"Could not fetch deal {deal_id} for parent org lookup: {e}")
         
+        logger.info(f"🔍 Final parent_org_id value: {parent_org_id}")
         if parent_org_id:
             try:
                 logger.info(f"📍 Copying address from parent org {parent_org_id} to child org {organization_id}...")
