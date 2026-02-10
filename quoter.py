@@ -1540,6 +1540,48 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
                     person_id = person_id_data[0].get("value")
                 elif isinstance(person_id_data, (int, str)):
                     person_id = person_id_data
+                logger.info(f"🔍 Extracted person_id from deal_data: {person_id}")
+            else:
+                logger.info(f"🔍 No person_id in deal_data - will try webhook fallback")
+        
+        # Also check webhook directly for person_id (PREFERRED METHOD - if available)
+        if not person_id:
+            logger.info(f"🔍 person_id not in deal_data, checking webhook for {{person.id}}...")
+            logger.info(f"   {{person.id}}: {organization_data.get('{{person.id}}')}")
+            logger.info(f"   {{deal.person_id}}: {organization_data.get('{{deal.person_id}}')}")
+            logger.info(f"   person_id: {organization_data.get('person_id')}")
+            
+            # Prioritize {{person.id}} from webhook (most direct)
+            person_id_from_webhook = (organization_data.get("{{person.id}}") or
+                                     organization_data.get("{{deal.person_id}}") or
+                                     organization_data.get("person_id"))
+            if person_id_from_webhook:
+                try:
+                    person_id = int(person_id_from_webhook)
+                    logger.info(f"✅ Extracted person_id from webhook: {person_id}")
+                except (ValueError, TypeError):
+                    logger.debug(f"🔍 person_id from webhook is not numeric: {person_id_from_webhook}")
+        
+        # Fallback: If person_id still not found, try fetching deal from API to get person_id
+        # (Only needed if {{person.id}} is not in webhook)
+        if not person_id and deal_data and deal_data.get('id'):
+            try:
+                from pipedrive import get_deal_by_id
+                logger.info(f"🔍 No {{person.id}} in webhook - fetching deal {deal_data.get('id')} from API to get person_id...")
+                deal_api_data = get_deal_by_id(deal_data.get('id'))
+                if deal_api_data:
+                    person_id_data = deal_api_data.get("person_id")
+                    if person_id_data:
+                        if isinstance(person_id_data, dict):
+                            person_id = person_id_data.get("value")
+                        elif isinstance(person_id_data, list) and person_id_data:
+                            person_id = person_id_data[0].get("value")
+                        elif isinstance(person_id_data, (int, str)):
+                            person_id = person_id_data
+                        if person_id:
+                            logger.info(f"✅ Found person_id {person_id} from deal API")
+            except Exception as e:
+                logger.debug(f"Could not fetch deal for person_id: {e}")
         
         # Fetch from API to get properly labeled phones (work vs mobile)
         if person_id:
@@ -1549,40 +1591,77 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
                 person_data = get_person_by_id(person_id)
                 if person_data:
                     phones = person_data.get("phone", [])
+                    logger.info(f"📞 Person API returned phones: {phones}")
                     if isinstance(phones, list):
+                        # Process ALL phones in the array - order doesn't matter, labels do
                         for phone_item in phones:
                             if isinstance(phone_item, dict):
                                 phone_label = phone_item.get("label", "").lower()
                                 phone_value = phone_item.get("value")
                                 if phone_value:
-                                    if phone_label == "work":
-                                        person_phone = phone_value.strip()
-                                        logger.info(f"📞 Found work phone from API: {person_phone}")
-                                    elif phone_label == "mobile":
-                                        person_mobile = phone_value.strip()
-                                        logger.info(f"📞 Found mobile phone from API: {person_mobile}")
-                        # If no labeled phones found, use first phone as work
+                                    phone_value = str(phone_value).strip()
+                                    # Match labels (case-insensitive, handle variations)
+                                    if phone_label in ("work", "office", "business"):
+                                        if not person_phone:  # Only set if not already set
+                                            person_phone = phone_value
+                                            logger.info(f"📞 Found WORK phone from API (label: '{phone_item.get('label')}'): {person_phone}")
+                                    elif phone_label in ("mobile", "cell", "cellphone", "mobile phone"):
+                                        if not person_mobile:  # Only set if not already set
+                                            person_mobile = phone_value
+                                            logger.info(f"📞 Found MOBILE phone from API (label: '{phone_item.get('label')}'): {person_mobile}")
+                                    elif phone_label == "fax":
+                                        logger.info(f"📞 Found FAX phone from API (label: '{phone_item.get('label')}'): {phone_value} - skipping (Quoter has fax field but not using it)")
+                                    else:
+                                        # Unknown label - use as work phone if work phone not set
+                                        if not person_phone:
+                                            person_phone = phone_value
+                                            logger.info(f"📞 Found phone with unknown label '{phone_item.get('label')}' - using as WORK: {person_phone}")
+                            elif isinstance(phone_item, str):
+                                # String phone without label - use as work if work not set
+                                if not person_phone:
+                                    person_phone = str(phone_item).strip()
+                                    logger.info(f"📞 Found unlabeled phone string - using as WORK: {person_phone}")
+                        
+                        # Final check: if we still don't have work phone but have phones, use first one
                         if not person_phone and phones:
                             first_phone = phones[0]
                             if isinstance(first_phone, dict):
-                                person_phone = first_phone.get("value", "").strip()
+                                person_phone = str(first_phone.get("value", "")).strip()
                             elif isinstance(first_phone, str):
-                                person_phone = first_phone.strip()
+                                person_phone = str(first_phone).strip()
                             if person_phone:
-                                logger.info(f"📞 Using first phone from API as work: {person_phone}")
+                                logger.info(f"📞 No labeled work phone found - using first phone as WORK: {person_phone}")
+                    elif isinstance(phones, str):
+                        # Single phone string
+                        person_phone = phones.strip()
+                        logger.info(f"📞 Single phone string from API - using as WORK: {person_phone}")
             except Exception as e:
                 logger.warning(f"⚠️ Could not fetch person {person_id} from API for phones: {e}")
         
         # Fallback to webhook phone data ONLY if API fetch failed and we have no labeled phones
         # (This should rarely happen - API is preferred)
         if not person_phone and not person_mobile:
-            person_phone_raw = (organization_data.get("{{person.phone}}") or 
+            # Check for individual phone fields first (if Pipedrive supports them)
+            person_phone_raw = (organization_data.get("{{person.work_phone}}") or
+                               organization_data.get("{{person.phone_work}}") or
+                               organization_data.get("{{person.phone}}") or 
                                organization_data.get("{{person.phones}}") or 
                                organization_data.get("{{deal.person_phone}}") or 
                                organization_data.get("{{organization.phone}}"))
             
+            person_mobile_raw = (organization_data.get("{{person.mobile_phone}}") or
+                                organization_data.get("{{person.phone_mobile}}") or
+                                organization_data.get("{{person.cell_phone}}") or
+                                organization_data.get("{{person.phone_cell}}"))
+            
+            # If we found individual mobile phone field, use it
+            if person_mobile_raw:
+                person_mobile = str(person_mobile_raw).strip()
+                logger.info(f"📞 Found mobile phone from webhook individual field: {person_mobile}")
+            
             if person_phone_raw:
-                # If it's a list/array, extract phones with labels
+                logger.info(f"📞 Processing webhook phone data: {person_phone_raw} (type: {type(person_phone_raw).__name__})")
+                # If it's a list/array, extract phones with labels (same logic as API)
                 if isinstance(person_phone_raw, list):
                     for phone_item in person_phone_raw:
                         if isinstance(phone_item, dict):
@@ -1590,17 +1669,28 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
                             phone_value = phone_item.get("value") or phone_item.get("phone") or phone_item.get("number")
                             phone_label = phone_item.get("label", "").lower()
                             if phone_value:
-                                phone_value = phone_value.strip()
-                                if phone_label == "work" or (not person_phone and phone_label != "mobile"):
-                                    person_phone = phone_value
-                                    logger.info(f"📞 Extracted work phone from array: {person_phone} (label: {phone_item.get('label', 'unknown')})")
-                                elif phone_label == "mobile" or not person_mobile:
-                                    person_mobile = phone_value
-                                    logger.info(f"📞 Extracted mobile phone from array: {person_mobile} (label: {phone_item.get('label', 'unknown')})")
+                                phone_value = str(phone_value).strip()
+                                # Match labels (case-insensitive, handle variations) - same as API logic
+                                if phone_label in ("work", "office", "business"):
+                                    if not person_phone:  # Only set if not already set
+                                        person_phone = phone_value
+                                        logger.info(f"📞 Extracted WORK phone from webhook array (label: '{phone_item.get('label')}'): {person_phone}")
+                                elif phone_label in ("mobile", "cell", "cellphone", "mobile phone"):
+                                    if not person_mobile:  # Only set if not already set
+                                        person_mobile = phone_value
+                                        logger.info(f"📞 Extracted MOBILE phone from webhook array (label: '{phone_item.get('label')}'): {person_mobile}")
+                                elif phone_label == "fax":
+                                    logger.info(f"📞 Found FAX phone in webhook (label: '{phone_item.get('label')}'): {phone_value} - skipping")
+                                else:
+                                    # Unknown label - use as work phone if work phone not set
+                                    if not person_phone:
+                                        person_phone = phone_value
+                                        logger.info(f"📞 Extracted phone with unknown label '{phone_item.get('label')}' from webhook - using as WORK: {person_phone}")
                         elif isinstance(phone_item, str):
+                            # String phone without label - use as work if work not set
                             if not person_phone:
-                                person_phone = phone_item.strip()
-                                logger.info(f"📞 Extracted phone from array: {person_phone}")
+                                person_phone = str(phone_item).strip()
+                                logger.info(f"📞 Extracted unlabeled phone string from webhook array - using as WORK: {person_phone}")
                 elif isinstance(person_phone_raw, dict):
                     # If it's a dict, try common keys
                     person_phone = (person_phone_raw.get("value") or 

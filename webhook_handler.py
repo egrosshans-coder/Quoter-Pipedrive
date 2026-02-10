@@ -167,7 +167,18 @@ def handle_organization_webhook():
         
         # Copy address from parent org to child org via API (if parent org ID is available)
         # This ensures the child org has address fields populated in Pipedrive
-        parent_org_id = None
+        # Can be disabled via ENABLE_PARENT_ADDRESS_COPY=false to test Pipedrive automation geocoding
+        # NOTE: When disabled, we completely bypass address copy - automation will populate address AFTER webhook completes
+        enable_address_copy = os.getenv("ENABLE_PARENT_ADDRESS_COPY", "true").lower() in ("true", "1", "yes")
+        
+        if not enable_address_copy:
+            logger.info(f"⏭️  Address copy from parent org is DISABLED (ENABLE_PARENT_ADDRESS_COPY=false)")
+            logger.info(f"   Relying on Pipedrive automation geocoding - address will be populated AFTER automation completes")
+            logger.info(f"   Skipping all address copy logic")
+            parent_org_id = None  # Set to None to skip all address copy code below
+        else:
+            logger.info(f"✅ Address copy from parent org is ENABLED (backup method)")
+            parent_org_id = None
         
         # Method 1: Check for parent org ID in custom field on child org
         # Known Parent_Org_ID field key: 6b4253304d94302a6f387ce6bde138a6dad48026
@@ -219,44 +230,84 @@ def handle_organization_webhook():
                 except Exception as e:
                     logger.debug(f"Could not fetch deal {deal_id} for parent org lookup: {e}")
         
-        logger.info(f"🔍 Final parent_org_id value: {parent_org_id}")
-        if parent_org_id:
+        # Method 5: Fallback - fetch child org from API and check for parent org ID field
+        if not parent_org_id:
             try:
-                logger.info(f"📍 Copying address from parent org {parent_org_id} to child org {organization_id}...")
-                parent_org = get_organization_by_id(parent_org_id)
-                if parent_org:
-                    # Build address payload from parent org
-                    address_fields = [
-                        "address", "address_street_number", "address_route", "address_subpremise",
-                        "address_locality", "address_admin_area_level_1", "address_postal_code", "address_country"
-                    ]
-                    address_payload = {}
-                    for field in address_fields:
-                        value = parent_org.get(field)
-                        if value not in (None, ""):
-                            address_payload[field] = value
-                    
-                    if address_payload:
-                        # Update child org with parent's address
-                        headers = {"Content-Type": "application/json"}
-                        params = {"api_token": API_TOKEN}
-                        response = requests.put(
-                            f"{BASE_URL}/organizations/{organization_id}",
-                            json=address_payload,
-                            headers=headers,
-                            params=params,
-                            timeout=10
-                        )
-                        if response.status_code in [200, 201]:
-                            logger.info(f"✅ Successfully copied address from parent org {parent_org_id} to child org {organization_id}")
-                        else:
-                            logger.warning(f"⚠️ Failed to copy address: {response.status_code} - {response.text}")
-                    else:
-                        logger.info(f"📍 Parent org {parent_org_id} has no address fields to copy")
-                else:
-                    logger.warning(f"⚠️ Could not fetch parent org {parent_org_id}")
+                logger.info(f"🔍 Parent org ID not in webhook, fetching child org {organization_id} from API to check for parent org field...")
+                child_org_data = get_organization_by_id(organization_id)
+                if child_org_data:
+                    # Check the custom field directly from API response
+                    parent_org_id = child_org_data.get(parent_org_field_key)
+                    if parent_org_id:
+                        logger.info(f"🔍 Found parent org ID {parent_org_id} from child org API response")
             except Exception as e:
-                logger.warning(f"⚠️ Error copying address from parent org: {e}")
+                logger.debug(f"Could not fetch child org {organization_id} for parent org lookup: {e}")
+        
+        # Only proceed with address copy logic if enabled
+        if not enable_address_copy:
+            logger.info(f"⏭️  Address copy disabled - skipping all address copy logic")
+        else:
+            logger.info(f"🔍 Final parent_org_id value: {parent_org_id}")
+            if parent_org_id:
+                try:
+                    # Check if child org already has address fields populated (from geocoding automation)
+                    # NOTE: Address may not be populated yet if automation runs AFTER webhook
+                    child_has_address = False
+                    address_fields_to_check = ["address", "address_locality", "address_street_number", "address_route"]
+                    for field in address_fields_to_check:
+                        if organization_data.get(f'{{organization.{field}}}') or organization_data.get(field):
+                            child_has_address = True
+                            break
+                    
+                    # Also check via API if not in webhook
+                    if not child_has_address:
+                        try:
+                            child_org_check = get_organization_by_id(organization_id)
+                            if child_org_check:
+                                for field in address_fields_to_check:
+                                    if child_org_check.get(field):
+                                        child_has_address = True
+                                        break
+                        except:
+                            pass
+                    
+                    if child_has_address:
+                        logger.info(f"📍 Child org {organization_id} already has address fields (geocoding automation worked) - skipping parent copy")
+                        logger.info(f"📍 Child org {organization_id} missing address - copying from parent org {parent_org_id}...")
+                        parent_org = get_organization_by_id(parent_org_id)
+                        if parent_org:
+                            # Build address payload from parent org
+                            address_fields = [
+                                "address", "address_street_number", "address_route", "address_subpremise",
+                                "address_locality", "address_admin_area_level_1", "address_postal_code", "address_country"
+                            ]
+                            address_payload = {}
+                            for field in address_fields:
+                                value = parent_org.get(field)
+                                if value not in (None, ""):
+                                    address_payload[field] = value
+                            
+                            if address_payload:
+                                # Update child org with parent's address
+                                headers = {"Content-Type": "application/json"}
+                                params = {"api_token": API_TOKEN}
+                                response = requests.put(
+                                    f"{BASE_URL}/organizations/{organization_id}",
+                                    json=address_payload,
+                                    headers=headers,
+                                    params=params,
+                                    timeout=10
+                                )
+                                if response.status_code in [200, 201]:
+                                    logger.info(f"✅ Successfully copied address from parent org {parent_org_id} to child org {organization_id}")
+                                else:
+                                    logger.warning(f"⚠️ Failed to copy address: {response.status_code} - {response.text}")
+                            else:
+                                logger.info(f"📍 Parent org {parent_org_id} has no address fields to copy")
+                        else:
+                            logger.warning(f"⚠️ Could not fetch parent org {parent_org_id}")
+                except Exception as e:
+                    logger.warning(f"⚠️ Error copying address from parent org: {e}")
         
         # Check if this is a sub-organization ready for quotes
         # Look for HID-QBO-Status = 289 (QBO-SubCust)
@@ -347,18 +398,30 @@ def handle_organization_webhook():
             }
             
             # Add person_id if we have person data from webhook
-            person_id_from_webhook = organization_data.get('{{deal.person_name}}')
+            # Prioritize {{person.id}} - this is the preferred method for getting labeled phones
+            logger.info(f"🔍 Checking for person_id in webhook ({{person.id}} is preferred for labeled phones)...")
+            logger.info(f"   {{person.id}}: {organization_data.get('{{person.id}}')}")
+            logger.info(f"   {{deal.person_id}}: {organization_data.get('{{deal.person_id}}')}")
+            logger.info(f"   person_id: {organization_data.get('person_id')}")
+            logger.info(f"   {{deal.person_name}}: {organization_data.get('{{deal.person_name}}')}")
+            
+            # Prioritize {{person.id}} - most direct way to get person_id for labeled phones
+            person_id_from_webhook = (organization_data.get('{{person.id}}') or
+                                     organization_data.get('{{deal.person_id}}') or
+                                     organization_data.get('person_id') or
+                                     organization_data.get('{{deal.person_name}}'))  # Last resort: might be ID
+            
             if person_id_from_webhook:
-                # If person_name field contains person ID, add it to mock deal_data
+                # Try to parse as integer (person ID)
                 try:
                     person_id = int(person_id_from_webhook)
                     deal_data['person_id'] = {'value': person_id}
                     logger.info(f"✅ Added person_id to mock deal_data: {person_id}")
                 except (ValueError, TypeError):
-                    # If it's actually a name, we'll handle it in quoter.py
+                    # If it's actually a name (not numeric), we'll handle it in quoter.py
                     logger.info(f"📋 Person field contains name, not ID: {person_id_from_webhook}")
             else:
-                logger.info(f"📋 No person data in webhook for mock deal_data")
+                logger.info(f"📋 No person_id in webhook for mock deal_data - will try to fetch from API if needed")
             deal_title = deal_title_direct
             
         else:
