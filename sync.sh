@@ -22,35 +22,77 @@ if [ -z "$(git status --porcelain)" ]; then
     exit 0
 fi
 
+# Safety check: virtual environments should never be tracked
+echo "🛡️ Checking for tracked virtual environments..."
+if git ls-files | grep -Eq '^(venv|\.venv|env|venv_py39_backup)/'; then
+    echo ""
+    echo "❌ ERROR: A virtual environment is being tracked by Git!"
+    echo ""
+    git ls-files | grep -E '^(venv|\.venv|env|venv_py39_backup)/'
+    echo ""
+    echo "Remove it from Git with:"
+    echo "    git rm -r --cached <virtual-environment-folder>"
+    echo ""
+    echo "Sync aborted."
+    exit 1
+fi
+echo "   ✅ No tracked virtual environments found"
+
+# Safety check: real .env files should never be tracked
+# Allowed: .env.example, .env.sample, .env.template
+echo "🛡️ Checking for tracked .env files..."
+tracked_env=""
+
+while IFS= read -r file; do
+    case "$file" in
+        *.example|*.sample|*.template)
+            ;;
+        .env|*/.env|*.env.local|*.env.production|*.env.development|*.env.test)
+            tracked_env="${tracked_env}${file}\n"
+            ;;
+    esac
+done < <(git ls-files | grep '\.env')
+
+if [ -n "$tracked_env" ]; then
+    echo ""
+    echo "❌ ERROR: A real .env file is being tracked by Git!"
+    printf "%b" "$tracked_env"
+    echo ""
+    echo "Remove it from Git before syncing:"
+    echo "    git rm --cached .env"
+    echo ""
+    echo "Sync aborted."
+    exit 1
+fi
+echo "   ✅ No tracked real .env files found"
+
 # Validate GitHub Actions workflows before committing
 echo "🔍 Validating GitHub Actions workflows..."
 if [ -d ".github/workflows" ]; then
     for workflow in .github/workflows/*.yml .github/workflows/*.yaml; do
         if [ -f "$workflow" ]; then
             echo "   Checking: $(basename "$workflow")"
-            # Check for common syntax issues
+
             if grep -q "github\.event\.schedule.*==" "$workflow"; then
                 echo "   ⚠️  Warning: Found potentially problematic schedule condition in $(basename "$workflow")"
                 echo "   💡 Tip: Consider using separate workflow files instead of complex conditionals"
             fi
+
             if grep -q "if:.*github\.event\.schedule.*!=" "$workflow"; then
                 echo "   ⚠️  Warning: Found potentially problematic schedule condition in $(basename "$workflow")"
                 echo "   💡 Tip: Consider using separate workflow files instead of complex conditionals"
             fi
-            # Check for basic YAML syntax using a simple approach
+
             if ! python3 -c "
 import sys
 try:
     with open('$workflow', 'r') as f:
         content = f.read()
-    # Basic YAML validation - check for common issues
     lines = content.split('\n')
     for i, line in enumerate(lines, 1):
-        # Check for mixed indentation (spaces and tabs)
         if '  ' in line and '\t' in line:
             print(f'Mixed indentation on line {i}')
             sys.exit(1)
-        # Check for unclosed quotes
         if line.count('\"') % 2 != 0:
             print(f'Unclosed quotes on line {i}')
             sys.exit(1)
@@ -65,6 +107,7 @@ except Exception as e:
                 echo "   🔧 Please fix YAML syntax before committing"
                 exit 1
             fi
+
             echo "   ✅ $(basename "$workflow") syntax looks good"
         fi
     done
@@ -83,7 +126,7 @@ echo "   Commit message: $COMMIT_MSG"
 
 # Step 1: Add all changes
 echo "🔄 Adding all changes..."
-git add .
+git add -A
 if [ $? -ne 0 ]; then
     echo "❌ Failed to add changes"
     exit 1

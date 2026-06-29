@@ -5,3 +5,5 @@ __pycache__/
 .DS_Store
 chat_backups/
 work_logs/
+venv_py39_backup/
+
