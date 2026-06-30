@@ -78,9 +78,9 @@ if __name__ == "__main__":
 
     client = ScalePadV2Client()
 
-#    endpoint = "/quoter/v1/quote-templates"
+    endpoint = "/quoter/v1/quote-templates"
 #    endpoint = "/quoter/v1/quotes"
-    endpoint = "/quoter/v1/contracts"
+#    endpoint = "/quoter/v1/contracts"
 #    endpoint = "/quoter/v1/customers"
 #    endpoint = "/quoter/v1/products"
 
