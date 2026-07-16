@@ -343,13 +343,13 @@ def whoami() -> dict:
 # ASGI app + entrypoint
 # --------------------------------------------------------------------------
 # Build the ASGI app so it can be served by uvicorn:  `uvicorn server:app`
-# allowed_hosts/allowed_origins are relaxed because Render terminates TLS at its
-# proxy and forwards the public onrender.com host header; Anthropic connects
-# from its own cloud, not localhost.
+# host_origin_protection is disabled: it's a browser DNS-rebinding safeguard,
+# but this is a server-to-server API reached by Anthropic's cloud through
+# Render's proxy (public onrender.com host), so the guard would otherwise 403
+# every request. Access control here is the secret URL path (MCP_PATH_SECRET).
 app = mcp.http_app(
     path=MCP_PATH,
-    allowed_hosts=["*"],
-    allowed_origins=["*"],
+    host_origin_protection=False,
 )
 
 if __name__ == "__main__":
