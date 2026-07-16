@@ -1,0 +1,28 @@
+# Reference service definition for the Pipedrive MCP server.
+#
+# Your repo already has a root render.yaml (the Flask webhook service). Render
+# Blueprints read only the ROOT render.yaml, so you have two choices:
+#
+#   Option A (recommended): create the service from the Render dashboard using
+#     the settings in mcp_server/README.md - no blueprint edits needed.
+#
+#   Option B: copy the service block below into the root render.yaml, under the
+#     existing `services:` list, then let the Blueprint redeploy.
+#
+# Either way the service reuses your existing PIPEDRIVE_API_TOKEN secret.
+
+services:
+  - type: web
+    name: pipedrive-mcp
+    env: python
+    plan: free
+    rootDir: mcp_server
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: PIPEDRIVE_API_TOKEN
+        sync: false        # set this secret in the dashboard
+      - key: MCP_PATH_SECRET
+        sync: false        # set this secret in the dashboard
