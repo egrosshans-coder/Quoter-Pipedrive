@@ -58,6 +58,22 @@ class WebhookRateLimiter:
 # Global rate limiter
 rate_limiter = WebhookRateLimiter(max_concurrent=1, delay_seconds=3)
 
+# Shared-secret gate for inbound webhooks and debug endpoints.
+# Configure Pipedrive + Quoter (and any debug caller) to send the secret as either
+# an "X-Webhook-Token: <secret>" header or a "?token=<secret>" query parameter.
+# Behavior: fail-OPEN when WEBHOOK_SECRET is unset (so existing deployments keep
+# working until the secret is configured on both senders), fail-CLOSED once it is set.
+WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET")
+if not WEBHOOK_SECRET:
+    logger.warning("⚠️ WEBHOOK_SECRET not set - inbound webhook/debug-endpoint auth is DISABLED (fail-open). Set WEBHOOK_SECRET to enable.")
+
+def _is_authorized(req):
+    """True if the request carries the shared secret, or if no secret is configured (fail-open)."""
+    if not WEBHOOK_SECRET:
+        return True
+    provided = req.headers.get("X-Webhook-Token") or req.args.get("token")
+    return provided == WEBHOOK_SECRET
+
 def update_quote_with_sequential_number(quote_id, deal_id):
     """
     Update a published quote with sequential numbering in xxxxx-yy format.
@@ -117,6 +133,11 @@ def handle_organization_webhook():
     Handle webhook events from Pipedrive when organizations are updated.
     Specifically triggers when HID-QBO-Status changes to 'QBO-SubCust'.
     """
+    # Authentication: require shared secret when WEBHOOK_SECRET is configured
+    if not _is_authorized(request):
+        logger.warning("🚫 Unauthorized Pipedrive webhook request (missing/invalid token)")
+        return jsonify({"error": "unauthorized"}), 401
+
     # Rate limiting: wait if we're at capacity
     if not rate_limiter.wait_if_needed():
         logger.warning("⏳ Rate limit exceeded, rejecting webhook request")
@@ -273,6 +294,7 @@ def handle_organization_webhook():
                     
                     if child_has_address:
                         logger.info(f"📍 Child org {organization_id} already has address fields (geocoding automation worked) - skipping parent copy")
+                    else:
                         logger.info(f"📍 Child org {organization_id} missing address - copying from parent org {parent_org_id}...")
                         parent_org = get_organization_by_id(parent_org_id)
                         if parent_org:
@@ -692,6 +714,11 @@ def handle_quoter_quote_published():
     Handle webhook events from Quoter when quotes are published.
     Updates Pipedrive with quote information and completes the quote lifecycle.
     """
+    # Authentication: require shared secret when WEBHOOK_SECRET is configured
+    if not _is_authorized(request):
+        logger.warning("🚫 Unauthorized Quoter webhook request (missing/invalid token)")
+        return jsonify({"error": "unauthorized"}), 401
+
     # Rate limiting: wait if we're at capacity
     if not rate_limiter.wait_if_needed():
         logger.warning("⏳ Rate limit exceeded, rejecting Quoter webhook request")
@@ -1002,6 +1029,8 @@ def health_check():
 @app.route('/env', methods=['GET'])
 def env_check():
     """Check environment variables status."""
+    if not _is_authorized(request):
+        return jsonify({"error": "unauthorized"}), 401
     required_vars = [
         'QBO_CLIENT_ID',
         'QBO_CLIENT_SECRET', 
@@ -1037,6 +1066,8 @@ def env_check():
 @app.route('/qbo', methods=['GET'])
 def qbo_test():
     """Test QBO connection."""
+    if not _is_authorized(request):
+        return jsonify({"error": "unauthorized"}), 401
     try:
         from qbo_oauth import QBOOAuth
         oauth = QBOOAuth()
@@ -1046,7 +1077,7 @@ def qbo_test():
             return jsonify({
                 "status": "success",
                 "message": "QBO connection successful",
-                "token_preview": f"{token[:20]}...",
+                "token_valid": True,
                 "company_id": os.getenv('QBO_COMPANY_ID'),
                 "sandbox_mode": os.getenv('QBO_SANDBOX', 'true').lower() == 'true'
             })
@@ -1086,8 +1117,3 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     logger.info(f"🚀 Starting Quote Automation Webhook Server on port {port}")
     app.run(host="0.0.0.0", port=port, debug=False)
-
-# Ensure the app runs on Render
-port = int(os.environ.get("PORT", 8000))
-logger.info(f"🚀 Starting Quote Automation Webhook Server on port {port}")
-app.run(host="0.0.0.0", port=port, debug=False)

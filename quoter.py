@@ -95,110 +95,42 @@ def find_item_id_by_sku(sku, access_token):
 
 def generate_sequential_quote_number(deal_id):
     """
-    Generate sequential quote number in xxxxx-yy format with leading zeros.
-    
+    Generate the quote number in the decided TLC scheme: dealID-YYYYMMDD.
+
+    The deal ID is zero-padded to 5 digits and the date is the creation date in
+    Pacific time (e.g. "03010-20260715"). This is deterministic - no account-wide
+    quote scan and no sequence suffix (sequence-based numbering was rejected because
+    the deal ID + creation date already sort correctly and never mutate).
+
+    Quoter-native versioning (parent_quote_id) handles revisions, so revisions keep
+    the parent's number; this function is only for the original quote.
+
     Args:
         deal_id (str or int): The deal ID from Pipedrive
-        
+
     Returns:
-        str: Formatted quote number (e.g., "02096-01", "02096-02")
+        str: Formatted quote number (e.g., "03010-20260715")
     """
+    # Zero-pad the deal ID to 5 digits (deal 3010 -> "03010")
     try:
-        # Convert deal_id to integer and pad with leading zeros to 5 digits
-        deal_id_int = int(str(deal_id))
-        padded_deal_id = f"{deal_id_int:05d}"
-        
-        # Get access token for API calls
-        access_token = get_access_token()
-        if not access_token:
-            logger.warning(f"⚠️ Could not get access token, using fallback numbering for deal {deal_id}")
-            return f"{padded_deal_id}-01"
-        
-        headers = {
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type": "application/json"
-        }
-        
-        # Query existing quotes to find the next sequence number
-        # We'll search for quotes that contain the deal ID in their name or number
-        endpoint = "https://api.quoter.com/v1/quotes"
-        
-        # Search for existing quotes related to this deal
-        # We'll use a broader search to find any quotes that might be related
-        search_params = {
-            "limit": 100,  # Get more quotes to ensure we don't miss any
-            "page": 1
-        }
-        
-        existing_quotes = []
-        page = 1
-        
-        while True:
-            search_params["page"] = page
-            response = requests.get(endpoint, headers=headers, params=search_params, timeout=10)
-            
-            if response.status_code != 200:
-                logger.warning(f"⚠️ Could not fetch quotes page {page}, using fallback numbering")
-                break
-                
-            data = response.json()
-            quotes = data.get("data", [])
-            
-            if not quotes:
-                break
-                
-            # Filter quotes that might be related to this deal
-            for quote in quotes:
-                quote_name = quote.get("name", "")
-                quote_number = quote.get("number", "")
-                
-                # Check if this quote is related to our deal
-                # Look for deal ID in quote name or number
-                if (str(deal_id) in quote_name or 
-                    str(deal_id) in quote_number or
-                    padded_deal_id in quote_name or
-                    padded_deal_id in quote_number):
-                    existing_quotes.append(quote)
-            
-            # Check if we've reached the end
-            if len(quotes) < 100:
-                break
-                
-            page += 1
-        
-        # Find the highest sequence number for this deal
-        max_sequence = 0
-        for quote in existing_quotes:
-            quote_name = quote.get("name", "")
-            quote_number = quote.get("number", "")
-            
-            # Look for existing xxxxx-yy pattern
-            import re
-            pattern = rf"{padded_deal_id}-(\d{{2}})"
-            match = re.search(pattern, quote_name) or re.search(pattern, quote_number)
-            
-            if match:
-                sequence = int(match.group(1))
-                max_sequence = max(max_sequence, sequence)
-        
-        # Generate next sequence number
-        next_sequence = max_sequence + 1
-        quote_number = f"{padded_deal_id}-{next_sequence:02d}"
-        
-        logger.info(f"🎯 Generated quote number: {quote_number} for deal {deal_id}")
-        logger.info(f"   Found {len(existing_quotes)} existing quotes, max sequence: {max_sequence}")
-        
-        return quote_number
-        
+        padded_deal_id = f"{int(str(deal_id).strip()):05d}"
+    except (ValueError, TypeError):
+        padded_deal_id = str(deal_id).strip()
+        logger.warning(f"⚠️ Deal ID '{deal_id}' is not numeric; using it unpadded in quote number")
+
+    # Creation date in Pacific time (America/Los_Angeles), non-mutable context
+    from datetime import datetime
+    try:
+        from zoneinfo import ZoneInfo
+        date_str = datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%Y%m%d")
     except Exception as e:
-        logger.error(f"❌ Error generating quote number for deal {deal_id}: {e}")
-        # Fallback to basic format
-        try:
-            deal_id_int = int(str(deal_id))
-            padded_deal_id = f"{deal_id_int:05d}"
-            return f"{padded_deal_id}-01"
-        except:
-            return f"DEAL-{deal_id}-01"
+        # Fallback to system local date if zoneinfo/tz data is unavailable
+        logger.warning(f"⚠️ Could not resolve Pacific timezone ({e}); using local date")
+        date_str = datetime.now().strftime("%Y%m%d")
+
+    quote_number = f"{padded_deal_id}-{date_str}"
+    logger.info(f"🎯 Generated quote number: {quote_number} for deal {deal_id}")
+    return quote_number
 
 def get_access_token():
     """
@@ -1918,6 +1850,31 @@ def create_comprehensive_quote_from_pipedrive(organization_data, deal_data=None)
                         logger.warning(f"⚠️ Failed to patch quote address: {patch_response.status_code} - {patch_response.text}")
                 else:
                     logger.warning(f"⚠️ No address fields available to patch quote")
+                
+                # Step 1.6: Optionally set the quote number via PATCH on the draft.
+                # The post-publish PUT to custom_number was found not to update on the
+                # legacy API, but the draft PATCH above (address) does work - so setting
+                # custom_number here, on the draft, is the path worth testing. Gated OFF
+                # by default so production numbering (human-entered) is unchanged until
+                # you set ENABLE_CUSTOM_NUMBER_PATCH=true and confirm it takes.
+                if os.getenv("ENABLE_CUSTOM_NUMBER_PATCH", "false").lower() in ("true", "1", "yes"):
+                    try:
+                        custom_number = generate_sequential_quote_number(deal_id)
+                        logger.info(f"🎯 Patching quote {quote_id} with custom_number: {custom_number}")
+                        num_response = requests.patch(
+                            f"https://api.quoter.com/v1/quotes/{quote_id}",
+                            json={"custom_number": custom_number},
+                            headers=headers,
+                            timeout=10
+                        )
+                        if num_response.status_code in [200, 201]:
+                            logger.info(f"✅ Successfully set custom_number '{custom_number}' on quote {quote_id}")
+                        else:
+                            logger.warning(f"⚠️ Failed to set custom_number on draft: {num_response.status_code} - {num_response.text[:200]}")
+                    except Exception as e:
+                        logger.warning(f"⚠️ Error setting custom_number on draft {quote_id}: {e}")
+                else:
+                    logger.info("📝 custom_number auto-set is disabled (ENABLE_CUSTOM_NUMBER_PATCH not set); number will be entered manually")
                 
                 # Step 2: Add template-specific line items using bundle system
                 logger.info(f"📋 Adding template-specific line items to quote...")
