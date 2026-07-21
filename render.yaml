@@ -7,11 +7,13 @@ services:
     startCommand: python3 webhook_handler.py
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.9
+        value: 3.14.6
       - key: PORT
         value: 10000
     envVarsFrom:
       - key: SLACK_WEBHOOK_URL
+        fromSecret: true
+      - key: SLACK_ALERT_WEBHOOK_URL
         fromSecret: true
       - key: GMAIL_USER
         fromSecret: true

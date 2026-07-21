@@ -7,3 +7,9 @@ chat_backups/
 work_logs/
 venv_py39_backup/
 
+# backups / scratch — not for the repo
+*_old.py
+local_backup/
+files.zip
+*.zip
+

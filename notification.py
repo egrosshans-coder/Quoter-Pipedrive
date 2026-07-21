@@ -11,7 +11,7 @@ from email.mime.multipart import MIMEMultipart
 from utils.logger import logger
 from pipedrive import API_TOKEN, BASE_URL
 
-def send_slack_notification(message, channel="#d-quoter-alerts"):
+def send_slack_notification(message, channel="#d-quoter-render-ok", webhook_url=None):
     """
     Send notification to Slack channel.
     
@@ -22,10 +22,10 @@ def send_slack_notification(message, channel="#d-quoter-alerts"):
     Returns:
         bool: True if notification sent successfully, False otherwise
     """
-    webhook_url = os.getenv("SLACK_WEBHOOK_URL")
-    
+    webhook_url = webhook_url or os.getenv("SLACK_WEBHOOK_URL")
+
     if not webhook_url:
-        logger.warning("⚠️ SLACK_WEBHOOK_URL not configured - skipping Slack notification")
+        logger.warning(f"⚠️ Slack webhook URL not configured for {channel} - skipping Slack notification")
         return False
     
     try:
@@ -57,6 +57,20 @@ def send_slack_notification(message, channel="#d-quoter-alerts"):
     except Exception as e:
         logger.error(f"❌ Unexpected error sending Slack notification: {str(e)}")
         return False
+
+def send_slack_alert(message):
+    """
+    Send a FAILURE alert to the Quoter/Render alerts channel
+    (#d-quoter-render-alerts) via SLACK_ALERT_WEBHOOK_URL.
+
+    Silence on the OK channel plus a message here = something stalled.
+    No-ops safely if SLACK_ALERT_WEBHOOK_URL is not configured.
+    """
+    return send_slack_notification(
+        message,
+        channel="#d-quoter-render-alerts",
+        webhook_url=os.getenv("SLACK_ALERT_WEBHOOK_URL"),
+    )
 
 def send_email_notification(subject, message, recipients=None):
     """

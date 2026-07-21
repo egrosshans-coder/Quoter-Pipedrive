@@ -13,7 +13,7 @@ from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 from quoter import create_draft_quote, create_comprehensive_quote_from_pipedrive
 from pipedrive import get_deal_by_id, get_organization_by_id, update_deal_with_quote_info, BASE_URL, API_TOKEN
-from notification import send_quote_created_notification
+from notification import send_quote_created_notification, send_slack_alert
 from utils.logger import logger
 
 load_dotenv()
@@ -699,10 +699,21 @@ def handle_organization_webhook():
             }), 200
         else:
             logger.error(f"❌ Failed to create quote for organization {organization_id}")
+            send_slack_alert(
+                f"🚨 STALL Quoter/Render: Deal {deal_id} · Org {organization_name} (#{organization_id})\n"
+                f"Draft quote build returned no quote_data — Quoter creation failed. "
+                f"Check webhook_handler / Quoter API."
+            )
             return jsonify({"error": "Quote creation failed"}), 500
             
     except Exception as e:
         logger.error(f"❌ Error processing webhook: {e}")
+        send_slack_alert(
+            f"🚨 STALL Quoter/Render: Deal {locals().get('deal_id', 'unknown')} · "
+            f"Org {locals().get('organization_name', 'unknown')} "
+            f"(#{locals().get('organization_id', 'unknown')})\n"
+            f"Exception while processing webhook: {str(e)[:300]}"
+        )
         return jsonify({"error": str(e)}), 500
     finally:
         # Always mark that we've finished processing
