@@ -1,0 +1,90 @@
+{
+  "attachments": null,
+  "billing_address": {
+    "address_line_1": "123 Test St",
+    "address_line_2": null,
+    "address_line_3": null,
+    "city": "Los Angeles",
+    "country_code": "US",
+    "country_name": null,
+    "geo_spatial_coordinates": null,
+    "is_eu": null,
+    "postal_code": "90045",
+    "state_prov_code": "CA",
+    "state_prov_name": null
+  },
+  "client": {
+    "id": null,
+    "name": "zz-Chapter3-CustomNumber-Test"
+  },
+  "comments": null,
+  "contacts": [
+    {
+      "email": "zz-test-chapter3@tlciscreative.com",
+      "first_name": "ZZ",
+      "id": "cont_3I9TjUPMCKt8wm1EGataQMTof0E",
+      "last_name": "Test",
+      "organization": "zz-Chapter3-CustomNumber-Test",
+      "primary": true
+    }
+  ],
+  "content_blocks": {
+    "closing": null,
+    "introductory": null
+  },
+  "cover_page": null,
+  "currency_iso": "USD",
+  "custom_fields": {
+    "quote_acceptance": null,
+    "quote_creation": null
+  },
+  "custom_number": "zz-TEMPLATE-PROBE-20260819-182350",
+  "draft": true,
+  "expired_at": null,
+  "id": "quot_3I9uJGP7vY89JWM9IqRpYTOtcSN",
+  "internal_notes": null,
+  "name": "Balloons",
+  "number": "0",
+  "owner": {
+    "email": "eric@tlciscreative.com",
+    "first_name": "Eric",
+    "id": "user_2zvQahMqDDFSn6jwK0r6IdyNRUl",
+    "last_name": "Grosshans"
+  },
+  "pricing_split_order": "none",
+  "primary": false,
+  "record_created_at": "2026-08-20T01:23:51Z",
+  "record_updated_at": "2026-08-20T01:23:51Z",
+  "revision": null,
+  "sections": null,
+  "shipping_address": null,
+  "template_id": "tmpl_32CqUL7Iloih2Xgx68JvjptGYXy",
+  "totals": {
+    "annual": null,
+    "monthly": {
+      "cost_decimal": null,
+      "discount_decimal": null,
+      "discounted_subtotal_decimal": null,
+      "margin_decimal": null,
+      "subtotal_decimal": null,
+      "tax_total_decimal": null,
+      "total_decimal": "0.00",
+      "upfront_payments": "0"
+    },
+    "one_time": null,
+    "quarterly": null,
+    "semi_annual": null,
+    "shipping_decimal": null,
+    "taxes": null,
+    "upfront": {
+      "cost_decimal": null,
+      "discount_decimal": null,
+      "discounted_subtotal_decimal": null,
+      "margin_decimal": null,
+      "subtotal_decimal": null,
+      "tax_total_decimal": null,
+      "total_decimal": "0.00",
+      "upfront_payments": null
+    }
+  }
+}

@@ -1,0 +1,278 @@
+ScalePad/Quoter recon — READ ONLY — 2026-08-19 18:14:11
+base: https://api.scalepad.com/quoter/v1
+
+========================================================================
+1. ENDPOINT PROBE  (unconfirmed paths — reporting what actually exists)
+========================================================================
+  OK /items                           200  data[200], next_cursor='WyIyIl0=', total_count=297
+  /catalog-items                     ERROR  non-JSON response
+  /products                          ERROR  non-JSON response
+     /line-items                      403  {'errors': [{'key': 'ERR_PERMISSION_DENIED', 'title': 'Forbidden', 'detail': 'User does not have permission fo
+  OK /item-groups                     200  data[1], next_cursor=None, total_count=1
+  OK /item-group-item-assignments     200  data[0], next_cursor=None, total_count=0
+  OK /quote-templates                 200  data[11], next_cursor=None, total_count=11
+  OK /categories                      200  data[200], next_cursor='WyIyIl0=', total_count=313
+
+========================================================================
+2. PAGINATION PROBE on /items  (cursor-based)
+========================================================================
+  baseline: 200 records, total_count=297, next_cursor=present
+  cursor           200  returned=97  advanced=True
+  --> USING cursor param: cursor
+
+========================================================================
+3. ITEMS  (/items)
+========================================================================
+  fetched 297 records via cursor:cursor (2 pages)
+  response meta: {'next_cursor': 'WyIyIl0=', 'total_count': 297}
+  first record keys: ['allow_decimal_quantities', 'category', 'category_id', 'code', 'cost_decimal', 'cost_type', 'description', 'id', 'internal_note', 'manufacturer', 'manufacturer_id', 'name', 'percentage_price_category_ids', 'percentage_price_decimal', 'price_decimal', 'pricing_scheme', 'quantity_help_tip', 'record_created_at', 'record_updated_at', 'recurring', 'recurring_interval', 'restrict_discounting', 'show_option_prices', 'sku', 'supplier', 'supplier_id', 'taxable', 'weight_decimal']
+  sample: {"allow_decimal_quantities": false, "category": "Service", "category_id": "cat_2zvQaczZ8bnIg8S7Gml0ngvvvJq", "code": "MGS", "cost_decimal": "50", "cost_type": "amount", "description": "<p>Horizon Managed Services give you peace of mind knowing that every aspect of your organization's technology will be covered. Priced per seat/user.</p>", "id": "item_2zvQahvtdYRKfPz3av3B5Ife2nm", "internal_note": 
+
+========================================================================
+4. ITEM GROUPS  (/item-groups)
+========================================================================
+  fetched 1 records via cursor:cursor (1 pages)
+  response meta: {'next_cursor': None, 'total_count': 1}
+  first record keys: ['id', 'name', 'record_created_at', 'record_updated_at']
+  sample: {"id": "igrp_3Fgct9Xz5Uwu03SUmOoNP6RmZ9o", "name": "TEST-Balloons", "record_created_at": "2026-06-26T18:59:25Z", "record_updated_at": "2026-06-26T18:59:25Z"}
+
+========================================================================
+5. QUOTE TEMPLATES  (/quote-templates)
+========================================================================
+  fetched 11 records via cursor:cursor (1 pages)
+  response meta: {'next_cursor': None, 'total_count': 11}
+  first record keys: ['id', 'record_created_at', 'record_updated_at', 'slug', 'title']
+  sample: {"id": "tmpl_30O6JTDIbApan1B5gh9hF2w1tfL", "record_created_at": "2025-07-25T23:29:59Z", "record_updated_at": "2025-09-07T19:34:16Z", "slug": "test", "title": "Basic"}
+
+========================================================================
+6. ITEM GROUP ASSIGNMENTS  (per group)
+========================================================================
+  TEST-Balloons                                  igrp_3Fgct9Xz5Uwu03SUmOoNP6RmZ9o  members=0
+
+========================================================================
+7. CONVENTION CHECK — template titles vs. item categories
+========================================================================
+  (CSV export_items_20260724b.csv not found next to script — skipping CSV compare)
+  API catalog: 297 items in 183 distinct category values
+
+  FULL API CATEGORY DISTRIBUTION (needed to write group-membership rules):
+      13  FV
+      12  Latex
+       7  Flame
+       6  Cables
+       6  GlowBalls
+       6  Technician
+       6  Truss
+       5  Transport
+       4  Branding
+       4  HPOD
+       4  HPORT
+       3  Bartender
+       3  Controller-TLC
+       3  Dewar
+       3  Dog
+       3  Fee
+       3  Helium
+       3  Indoor
+       3  Mapping
+       3  MediaServer
+       3  Package
+       3  Programming
+       3  Repair
+       3  Wall-Interactive
+       3  Warranty
+       3  Wristband-TLC
+       2  2-Wheel
+       2  Blowers
+       2  Cannons
+       2  Cart
+       2  Confetti
+       2  Controller-Xylo
+       2  Delivery
+       2  Drop
+       2  FV-Graphics
+       2  Fan
+       2  Fogger
+       2  Handling
+       2  HoloPod
+       2  LLM
+       2  Outdoor
+       2  PWS
+       2  Screens
+       2  Server
+       2  Service
+       2  Show
+       2  System
+       2  Wristband-Xylo
+       1  1-to-3 Splitter
+       1  30Watt
+       1  40Watt
+       1  ACH
+       1  AI-Engage
+       1  Arm
+       1  Array
+       1  Baggage
+       1  Barge
+       1  Behavioural
+       1  Bottle
+       1  Buyout
+       1  Camera
+       1  Character
+       1  Chess
+       1  Confetti-Petals
+       1  Confetti/Streamers
+       1  Consult
+       1  Content
+       1  Cryo-Jet
+       1  DJ
+       1  Damage
+       1  Dancing
+       1  DraftQuote
+       1  Draw
+       1  Effects
+       1  Extinguisher
+       1  FX
+       1  Faux
+       1  Fire
+       1  Fireworks
+       1  Fleet
+       1  Flights
+       1  Floor
+       1  Fluid
+       1  Fly-Pak
+       1  Fog-Bubbles
+       1  Gender
+       1  GlowOrbs
+       1  Granuals
+       1  Graphics
+       1  Grapics Conversion
+       1  Ground
+       1  Hand-Thing
+       1  Handheld-Xylo
+       1  Handler
+       1  Henry
+       1  Hillside
+       1  HoloPortal
+       1  HoloTable
+       1  Hologram
+       1  Hose
+       1  Import
+       1  Inflatable Screen
+       1  Inflatable-Metalic
+       1  Intelligent
+       1  Kinetic
+       1  LED Shapes
+       1  LED-Costumes
+       1  LLF
+       1  LLF-Control
+       1  LLF-Fluid
+       1  Labor
+       1  Labor-FX
+       1  Labor-HP
+       1  Landyard-TLC
+       1  Landyard-Xylo
+       1  Laptop
+       1  Launch-Custom
+       1  Launchpad
+       1  Letters
+       1  Machines
+       1  Makeup
+       1  Meals
+       1  Mesh
+       1  Mirrored
+       1  Mist
+       1  Mist-Curtain
+       1  Monthly Fee
+       1  Moon
+       1  Music
+       1  NSI-Board
+       1  Nitrogen
+       1  Orbs
+       1  Overtime
+       1  Panel
+       1  Panels-Vertical
+       1  Parking
+       1  PerDiem
+       1  Permit
+       1  Pipe&Base
+       1  Pool
+       1  Pop-up
+       1  Postponement
+       1  PowerBank
+       1  Program
+       1  Propane
+       1  Pullaway-Kabuki
+       1  RFIDTech
+       1  Relay-Pack
+       1  Roadcase
+       1  Rooms
+       1  SOW
+       1  Services
+       1  Signage
+       1  Slotmachine
+       1  Soccer
+       1  Software
+       1  Sphere
+       1  Staff
+       1  Storage
+       1  Streamers
+       1  Streamers-Custom
+       1  Studio
+       1  Supervisor
+       1  Syphon
+       1  Technician-Laser
+       1  Technician-Projectionist
+       1  Technician-Wristbands
+       1  Tripod
+       1  Tubes
+       1  Tubes-Kinetic
+       1  Ultra-Violet
+       1  Uplight
+       1  Video
+       1  Video-Globes
+       1  Virtual-Stage
+       1  WB/LAN
+       1  WSF
+       1  Wall
+       1  Wall-Disappearing
+       1  Wall-Flying
+       1  Walle
+       1  Water Modules
+       1  Wrapping
+
+  11 templates found:
+    - Balloons
+    - Basic
+    - CO2/Smoke/Upright Foggers
+    - Confetti/Streamers
+    - Fireworks/pyro/fire
+    - Floating Video
+    - LED Lanyards
+    - LED Wristbands
+    - Low level fog
+    - Robotics
+    - Tank Delivery
+
+  exact title==category : 1
+      Confetti/Streamers                     -> Confetti/Streamers (1 items)
+  partial/substring     : 4
+      Tank Delivery                          -> ['Delivery']
+      Floating Video                         -> ['Video']
+      CO2/Smoke/Upright Foggers              -> ['Fogger']
+      Fireworks/pyro/fire                    -> ['Fire', 'Fireworks']
+  no category match     : 6
+      Basic
+      LED Wristbands
+      LED Lanyards
+      Robotics
+      Low level fog
+      Balloons
+
+  READ THIS: high exact-match count means category-based Item Group
+  population is viable NOW and the template-read blocker is mostly
+  bypassed. High orphan count means templates cut across categories
+  and we genuinely need Jon's answer before automating.
+
+========================================================================
+DONE — raw JSON in ./quoter_recon/, summary in ./quoter_recon/REPORT.txt
+========================================================================

@@ -1,5 +1,13 @@
 # Pipedrive MCP Connection — Technical Manual
 
+> **ARCHIVED — superseded by the official Pipedrive MCP.** As of July 2026, this
+> custom read-only server was retired in favor of Pipedrive's own hosted MCP
+> (`https://mcp.pipedrive.ai/mcp`), which is official, supported, free on the
+> Premium plan, OAuth-authenticated, and supports read + write. The Render
+> `pipedrive-mcp` service has been suspended and the custom connector removed
+> from Claude. This document and the `mcp_server/` code are kept as a reference
+> for the build/deploy/secure pattern, not as a live system.
+
 This manual documents the read-only Pipedrive MCP server that lets Claude pull
 deal context (deals, activities, notes, contacts/orgs, email) to prepare
 next-steps documents. It covers the architecture, the exact steps to recreate

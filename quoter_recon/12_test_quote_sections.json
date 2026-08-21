@@ -1,0 +1,9 @@
+{
+  "errors": [
+    {
+      "key": "ERR_PERMISSION_DENIED",
+      "title": "Forbidden",
+      "detail": "User does not have permission for this action"
+    }
+  ]
+}

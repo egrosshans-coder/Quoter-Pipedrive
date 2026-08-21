@@ -1,0 +1,263 @@
+{
+  "attachments": null,
+  "billing_address": {
+    "address_line_1": "123 Test St",
+    "address_line_2": null,
+    "address_line_3": null,
+    "city": "Los Angeles",
+    "country_code": "US",
+    "country_name": null,
+    "geo_spatial_coordinates": null,
+    "is_eu": null,
+    "postal_code": "90045",
+    "state_prov_code": "CA",
+    "state_prov_name": null
+  },
+  "client": {
+    "id": null,
+    "name": "zz-Chapter3-CustomNumber-Test"
+  },
+  "comments": null,
+  "contacts": [
+    {
+      "email": "zz-test-chapter3@tlciscreative.com",
+      "first_name": "ZZ",
+      "id": "cont_3I9TjUPMCKt8wm1EGataQMTof0E",
+      "last_name": "Test",
+      "organization": "zz-Chapter3-CustomNumber-Test",
+      "primary": true
+    }
+  ],
+  "content_blocks": {
+    "closing": null,
+    "introductory": null
+  },
+  "cover_page": null,
+  "currency_iso": "USD",
+  "custom_fields": {
+    "quote_acceptance": null,
+    "quote_creation": null
+  },
+  "custom_number": "TEST-CH3-2026-08-19",
+  "draft": true,
+  "expired_at": null,
+  "id": "quot_3I9UCyBcqZJ39soTFYS5SodFzlW",
+  "internal_notes": null,
+  "name": "Balloons",
+  "number": "0",
+  "owner": {
+    "email": "eric@tlciscreative.com",
+    "first_name": "Eric",
+    "id": "user_2zvQahMqDDFSn6jwK0r6IdyNRUl",
+    "last_name": "Grosshans"
+  },
+  "pricing_split_order": "none",
+  "primary": false,
+  "record_created_at": "2026-08-19T21:49:14Z",
+  "record_updated_at": "2026-08-19T23:22:15Z",
+  "revision": null,
+  "sections": [
+    {
+      "discount_application": null,
+      "discount_description": null,
+      "discount_input_decimal": null,
+      "discount_input_type": null,
+      "id": "3I9d4lOPLC1mH88I9TntKgwRbUd",
+      "line_items": [
+        {
+          "attachments": null,
+          "bundle": false,
+          "bundle_line_item_id": null,
+          "bundle_publicly_visible": true,
+          "category": {
+            "id": "cat_30LNfgV7gCwhQydirKD1KhNrS00",
+            "name": "Drop",
+            "parent_category": null,
+            "parent_category_id": null
+          },
+          "code": null,
+          "custom_fields": null,
+          "description": null,
+          "discount_input_decimal": null,
+          "discount_input_type": null,
+          "id": "litm_3I9eqhT4TalZ0erijS1TuLQzy5V",
+          "images": null,
+          "manufacturer": null,
+          "name": "Balloon air filler test",
+          "optional": false,
+          "optional_group_id": null,
+          "optional_selected": false,
+          "options": null,
+          "quantity_decimal": "1",
+          "sku": null,
+          "supplier": null,
+          "taxable": false,
+          "totals": {
+            "annual": null,
+            "monthly": {
+              "cost_decimal": "0.00",
+              "discount_decimal": "0.00",
+              "discounted_subtotal_decimal": null,
+              "margin_decimal": "0.00",
+              "subtotal_decimal": "0.00"
+            },
+            "one_time": {
+              "cost_decimal": "0.00",
+              "discount_decimal": "0.00",
+              "discounted_subtotal_decimal": null,
+              "margin_decimal": "0.00",
+              "subtotal_decimal": "0.00"
+            },
+            "quarterly": null,
+            "semi_annual": null,
+            "upfront": {
+              "cost_decimal": "0.00",
+              "discount_decimal": "0.00",
+              "discounted_subtotal_decimal": null,
+              "margin_decimal": "0.00",
+              "subtotal_decimal": "0.00"
+            }
+          },
+          "unit_cost_decimal": null,
+          "unit_margin_decimal": null,
+          "unit_margin_percentage": null,
+          "unit_price_decimal": "0"
+        },
+        {
+          "attachments": null,
+          "bundle": false,
+          "bundle_line_item_id": null,
+          "bundle_publicly_visible": true,
+          "category": {
+            "id": "cat_30LNfgV7gCwhQydirKD1KhNrS00",
+            "name": "Drop",
+            "parent_category": null,
+            "parent_category_id": null
+          },
+          "code": null,
+          "custom_fields": null,
+          "description": null,
+          "discount_input_decimal": null,
+          "discount_input_type": null,
+          "id": "litm_3I9fWN8Uyf0U3ED78eYyERHwxF8",
+          "images": null,
+          "manufacturer": null,
+          "name": "Balloon real-price control",
+          "optional": false,
+          "optional_group_id": null,
+          "optional_selected": false,
+          "options": null,
+          "quantity_decimal": "1",
+          "sku": null,
+          "supplier": null,
+          "taxable": false,
+          "totals": {
+            "annual": null,
+            "monthly": {
+              "cost_decimal": "0.00",
+              "discount_decimal": "0.00",
+              "discounted_subtotal_decimal": null,
+              "margin_decimal": "0.00",
+              "subtotal_decimal": "0.00"
+            },
+            "one_time": {
+              "cost_decimal": "0.00",
+              "discount_decimal": "0.00",
+              "discounted_subtotal_decimal": null,
+              "margin_decimal": "50.00",
+              "subtotal_decimal": "50.00"
+            },
+            "quarterly": null,
+            "semi_annual": null,
+            "upfront": {
+              "cost_decimal": "0.00",
+              "discount_decimal": "0.00",
+              "discounted_subtotal_decimal": null,
+              "margin_decimal": "50.00",
+              "subtotal_decimal": "50.00"
+            }
+          },
+          "unit_cost_decimal": null,
+          "unit_margin_decimal": null,
+          "unit_margin_percentage": "100",
+          "unit_price_decimal": "50"
+        }
+      ],
+      "name": "Balloons",
+      "optional_group_id": null,
+      "optional_selected": false,
+      "totals": {
+        "annual": null,
+        "monthly": {
+          "cost_decimal": "0.00",
+          "discount_decimal": "0.00",
+          "discounted_subtotal_decimal": "0.00",
+          "margin_decimal": "0.00",
+          "subtotal_decimal": "0.00",
+          "tax_total_decimal": null,
+          "total_decimal": null
+        },
+        "one_time": {
+          "cost_decimal": "0.00",
+          "discount_decimal": "0.00",
+          "discounted_subtotal_decimal": "50.00",
+          "margin_decimal": "50.00",
+          "subtotal_decimal": "50.00",
+          "tax_total_decimal": null,
+          "total_decimal": null
+        },
+        "quarterly": null,
+        "semi_annual": null,
+        "taxes": null,
+        "upfront": {
+          "cost_decimal": "0.00",
+          "discount_decimal": "0.00",
+          "discounted_subtotal_decimal": "50.00",
+          "margin_decimal": "50.00",
+          "subtotal_decimal": "50.00",
+          "tax_total_decimal": null,
+          "total_decimal": null
+        }
+      }
+    }
+  ],
+  "shipping_address": null,
+  "template_id": "tmpl_32CqUL7Iloih2Xgx68JvjptGYXy",
+  "totals": {
+    "annual": null,
+    "monthly": {
+      "cost_decimal": null,
+      "discount_decimal": null,
+      "discounted_subtotal_decimal": null,
+      "margin_decimal": null,
+      "subtotal_decimal": null,
+      "tax_total_decimal": null,
+      "total_decimal": "0.00",
+      "upfront_payments": "0"
+    },
+    "one_time": {
+      "cost_decimal": null,
+      "discount_decimal": null,
+      "discounted_subtotal_decimal": "50.00",
+      "margin_decimal": "50.00",
+      "subtotal_decimal": "50.00",
+      "tax_total_decimal": null,
+      "total_decimal": "50.00",
+      "upfront_payments": null
+    },
+    "quarterly": null,
+    "semi_annual": null,
+    "shipping_decimal": null,
+    "taxes": null,
+    "upfront": {
+      "cost_decimal": null,
+      "discount_decimal": null,
+      "discounted_subtotal_decimal": "50.00",
+      "margin_decimal": "50.00",
+      "subtotal_decimal": "50.00",
+      "tax_total_decimal": null,
+      "total_decimal": "50.00",
+      "upfront_payments": null
+    }
+  }
+}

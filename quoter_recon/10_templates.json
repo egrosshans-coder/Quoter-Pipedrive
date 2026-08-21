@@ -1,0 +1,79 @@
+[
+  {
+    "id": "tmpl_30O6JTDIbApan1B5gh9hF2w1tfL",
+    "record_created_at": "2025-07-25T23:29:59Z",
+    "record_updated_at": "2025-09-07T19:34:16Z",
+    "slug": "test",
+    "title": "Basic"
+  },
+  {
+    "id": "tmpl_31vLnIjRObApRldxGd7V3LSuEd8",
+    "record_created_at": "2025-08-28T16:49:24Z",
+    "record_updated_at": "2025-09-14T17:50:55Z",
+    "slug": "quick-quote",
+    "title": "Tank Delivery"
+  },
+  {
+    "id": "tmpl_329ZyWvDiEV9fA41C33QIisOeq1",
+    "record_created_at": "2025-09-02T17:43:23Z",
+    "record_updated_at": "2025-09-14T05:00:02Z",
+    "slug": "led-wristbands",
+    "title": "LED Wristbands"
+  },
+  {
+    "id": "tmpl_329mwOURxx9hmgNuQmfkM4L8Xxw",
+    "record_created_at": "2025-09-02T19:29:59Z",
+    "record_updated_at": "2025-09-14T04:40:37Z",
+    "slug": "led-lanyards",
+    "title": "LED Lanyards"
+  },
+  {
+    "id": "tmpl_329qcsv6mx0upqqLkXFkEZZi92O",
+    "record_created_at": "2025-09-02T20:00:18Z",
+    "record_updated_at": "2025-09-14T05:26:56Z",
+    "slug": "robitics",
+    "title": "Robotics"
+  },
+  {
+    "id": "tmpl_32A0sbTQSxRN0d6K5pHenlaqUlD",
+    "record_created_at": "2025-09-02T21:24:36Z",
+    "record_updated_at": "2025-09-07T19:59:31Z",
+    "slug": "confetti",
+    "title": "Confetti/Streamers"
+  },
+  {
+    "id": "tmpl_32A1eLVDiKYi3PBlIiAv0w1UgLG",
+    "record_created_at": "2025-09-02T21:30:56Z",
+    "record_updated_at": "2025-09-16T15:10:59Z",
+    "slug": "floating-video",
+    "title": "Floating Video"
+  },
+  {
+    "id": "tmpl_32A8f3F2d7dQF7NsDIqCQSVLatF",
+    "record_created_at": "2025-09-02T22:28:35Z",
+    "record_updated_at": "2025-09-14T04:45:18Z",
+    "slug": "co2smokeupright-foggers",
+    "title": "CO2/Smoke/Upright Foggers"
+  },
+  {
+    "id": "tmpl_32ACJvG7U2tHAmiKzxhXXx3Pnns",
+    "record_created_at": "2025-09-02T22:58:41Z",
+    "record_updated_at": "2025-09-14T04:51:55Z",
+    "slug": "fireworkspyro",
+    "title": "Fireworks/pyro/fire"
+  },
+  {
+    "id": "tmpl_32CORYSQ1OgAJVjA5EmY8YfXpCq",
+    "record_created_at": "2025-09-03T17:37:59Z",
+    "record_updated_at": "2025-09-14T05:07:40Z",
+    "slug": "low-level-fog",
+    "title": "Low level fog"
+  },
+  {
+    "id": "tmpl_32CqUL7Iloih2Xgx68JvjptGYXy",
+    "record_created_at": "2025-09-03T21:28:36Z",
+    "record_updated_at": "2026-06-25T20:24:34Z",
+    "slug": "balloons",
+    "title": "Balloons"
+  }
+]
