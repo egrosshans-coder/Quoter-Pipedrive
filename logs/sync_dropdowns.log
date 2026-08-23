@@ -1,0 +1,31 @@
+==================================================================
+sync_dropdowns  2026-08-23 16:24:31 PDT
+==================================================================
+========================================================================
+SYNC templates -> Pipedrive field 90   [APPLY]
+========================================================================
+
+  field   : 'Quote Template' (enum)
+  quoter  : 11 record(s)
+  pipedrive: 12 option(s)
+  state   : 14 known pairing(s)
+
+  ADD    : 0
+  RENAME : 0
+  UNRETIRE: 0
+  ORPHAN : 0
+
+------------------------------------------------------------------------
+APPLYING
+------------------------------------------------------------------------
+
+  state written to pd_option_map_templates.json (14 pairings)
+
+SUMMARY added=0 renamed=0 unretired=0 orphans=0
+
+========================================================================
+DONE. Consumers can resolve option ids at runtime via
+  PipedriveFields().option_map(90)
+so no id->label mapping needs to live in code.
+========================================================================
+exit status: 0

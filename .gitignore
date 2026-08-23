@@ -13,3 +13,5 @@ local_backup/
 files.zip
 *.zip
 
+.~lock.*#
+*.tmp
