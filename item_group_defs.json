@@ -1,0 +1,66 @@
+{
+  "_README": [
+    "Item Group membership, defined as DATA rather than hard-coded in Python.",
+    "",
+    "Each group resolves to a set of catalog items three ways, applied in order:",
+    "  code_prefixes  every item whose `code` starts with one of these. This is",
+    "                 the baseline and it is DERIVABLE -- add a new BAL- item to",
+    "                 the catalog and it joins XRN-Balloons automatically, with",
+    "                 no list to maintain and nothing to drift.",
+    "  include_codes  cross-family items a prefix cannot capture. An exploding",
+    "                 balloon wall needs pyro; a laser show needs a technician.",
+    "                 These are judgement calls and must be stated explicitly.",
+    "  exclude_codes  items matching the prefix that do not belong.",
+    "",
+    "Selecting by code prefix rather than by category is deliberate. The API",
+    "reports only a category's LEAF name and 16 leaf names collide across",
+    "different parents (Chapter 3 2.3.2), so category selection is ambiguous.",
+    "It also sweeps in test fixtures: `Balloons / Latex` holds 11 zz-test items,",
+    "so a category-derived Balloons group would be 20 items, 11 of them junk.",
+    "The ZZZ- prefix excludes them for free.",
+    "",
+    "Prefix discipline is the dependency. A mistyped prefix silently drops an",
+    "item from its group with no error. Known offenders as of 2026-08-23:",
+    "  BAL-FLY        missing the -NNN suffix",
+    "  BAL-HEL-08F    non-numeric suffix",
+    "  BAL-HEL-12F    non-numeric suffix",
+    "  PYRO-FIR-REAL  PYRO- rather than PYR-, so it misses a PYR- filter",
+    "",
+    "Catalog prefixes present 2026-08-23, by count:",
+    "  LED 40, HG 29, ROB 27, SVC 26, PYR 17, LSR 15, PRO 14, TNK 13,",
+    "  SHP 11, ZZZ 11, CNF 9, FOG 9, EQP 9, DRN 8, BAL 8, T&E 8,",
+    "  WTR 7, FIN 6, AI 4, DMX 4, SNO 3, SPH 2"
+  ],
+
+  "groups": {
+    "XRN-Balloons": {
+      "description": "Balloon effects. Feature equipment only; shared blocks live in XSH- and XTE-.",
+      "code_prefixes": ["BAL-"],
+      "include_codes": [],
+      "_include_candidates": [
+        "UNCONFIRMED -- Eric to decide. An exploding/disappearing balloon wall",
+        "is a pyro effect, so it plausibly requires some of:",
+        "  PYR-LIC-TEC   Pyro-Licensed pyrotechnician",
+        "  PYR-PRM-001   Pyro-permit",
+        "  PYR-FIR-EXT   Pyro-Fire extinguishers",
+        "Left out until confirmed. Seeding a licensed pyrotechnician onto every",
+        "balloon quote would be wrong; omitting one where it is legally required",
+        "is worse. This needs a human answer, not a guess."
+      ],
+      "exclude_codes": []
+    }
+  },
+
+  "_planned": {
+    "note": "Sketches only -- not resolved, not built. Prefixes are from the live catalog.",
+    "XRN-FloatingVideo": {"code_prefixes": ["HG-FV"]},
+    "XRN-Robotics":      {"code_prefixes": ["ROB-"]},
+    "XRN-Lasers":        {"code_prefixes": ["LSR-"]},
+    "XRN-Fog":           {"code_prefixes": ["FOG-"]},
+    "XRN-Pyro":          {"code_prefixes": ["PYR-", "PYRO-"]},
+    "XRN-Confetti":      {"code_prefixes": ["CNF-"]},
+    "XSH-Shipping":      {"code_prefixes": ["SHP-"]},
+    "XTE-TravelExpense": {"code_prefixes": ["T&E-"]},
+    "XSV-Services":      {"code_prefixes": ["SVC-"]}
+  }
+}
