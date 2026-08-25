@@ -1,0 +1,159 @@
+name: Dropdown Sync (Quoter -> Pipedrive)
+
+# Keeps two Pipedrive dropdowns in step with Quoter:
+#   field  90  Quote Template  <- Quoter quote templates (presentation)
+#   field 102  Quote Effects   <- Quoter Item Groups     (content)
+#
+# For each: created -> option added; renamed -> option relabelled with its id
+# preserved; deleted -> option relabelled XX-RET-<name>, id preserved.
+# NOTHING IS EVER DELETED. A deal stores the numeric option id, so
+# removing an option orphans the stored value on that deal. Removal stays a human decision.
+#
+# WHY GITHUB ACTIONS AND NOT LOCAL CRON
+# -------------------------------------
+# This ran as a local cron job on the Mac Mini for one day and never fired --
+# cron does not run while the machine is asleep. Scheduled work does not belong on a
+# workstation. This also matches the existing pattern in this repo
+# (smart-template-sync.yml, complete-sync.yml, daily-bundle-verification.yml).
+#
+# WHY THE STATE FILES ARE COMMITTED BACK
+# --------------------------------------
+# pd_option_map_*.json map quoter_id -> pipedrive_option_id. They are what make
+# a rename distinguishable from a delete-plus-create: without them a rename
+# looks like a new option plus an orphan, while every existing deal still
+# points at the old id.
+#
+# Runners are ephemeral, so a file written during a run is lost unless it is
+# committed. The commit step below is therefore not housekeeping -- it is what
+# makes rename detection work at all.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run only - report changes without applying them'
+        required: false
+        default: false
+        type: boolean
+      retire_orphans:
+        description: 'Relabel orphaned options with XX-RET- (never deletes)'
+        required: false
+        default: true
+        type: boolean
+
+  schedule:
+    - cron: '0 13 * * *'   # daily at 6 AM PT (1 PM UTC)
+
+permissions:
+  contents: write          # required to commit the state files back
+
+jobs:
+  sync-dropdowns:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Set up environment variables
+      run: |
+        echo "SCALEPAD_API_KEY=${{ secrets.SCALEPAD_API_KEY }}" >> $GITHUB_ENV
+        echo "PIPEDRIVE_API_TOKEN=${{ secrets.PIPEDRIVE_API_TOKEN }}" >> $GITHUB_ENV
+
+    - name: Verify credentials are present
+      run: |
+        # Fail loudly and early rather than producing a run of 401s. Lengths
+        # only -- never echo the values.
+        if [ -z "$SCALEPAD_API_KEY" ]; then
+          echo "::error::SCALEPAD_API_KEY secret is not set"
+          exit 1
+        fi
+        if [ -z "$PIPEDRIVE_API_TOKEN" ]; then
+          echo "::error::PIPEDRIVE_API_TOKEN secret is not set"
+          exit 1
+        fi
+        echo "SCALEPAD_API_KEY   length ${#SCALEPAD_API_KEY}"
+        echo "PIPEDRIVE_API_TOKEN length ${#PIPEDRIVE_API_TOKEN}"
+        case "$SCALEPAD_API_KEY" in
+          cid_*) echo "::error::SCALEPAD_API_KEY holds a legacy Quoter client_id (cid_ prefix), not a ScalePad v2 key"; exit 1 ;;
+        esac
+
+    - name: Build sync flags
+      id: flags
+      run: |
+        FLAGS=""
+        if [ "${{ inputs.dry_run }}" != "true" ]; then FLAGS="$FLAGS --apply"; fi
+        if [ "${{ inputs.retire_orphans }}" != "false" ]; then FLAGS="$FLAGS --retire-orphans"; fi
+        echo "flags=$FLAGS" >> $GITHUB_OUTPUT
+        echo "using flags:$FLAGS"
+
+    - name: Sync field 90 - Quote Template
+      id: field90
+      run: |
+        python sync_quoter_to_pipedrive.py \
+          --source templates \
+          --field 90 \
+          ${{ steps.flags.outputs.flags }} | tee field90.log
+        exit ${PIPESTATUS[0]}
+
+    - name: Sync field 102 - Quote Effects
+      id: field102
+      # always(): field 102 should still sync if 90 failed. They are
+      # independent dropdowns and a failure in one says nothing about the other.
+      if: always()
+      run: |
+        python sync_quoter_to_pipedrive.py \
+          --source item-groups \
+          --field 102 \
+          ${{ steps.flags.outputs.flags }} | tee field102.log
+        exit ${PIPESTATUS[0]}
+
+    - name: Commit updated state files
+      if: always() && inputs.dry_run != true
+      run: |
+        # See the header: these files are what make rename detection possible.
+        git config user.name  "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        if git diff --quiet -- pd_option_map_templates.json pd_option_map_item_groups.json 2>/dev/null; then
+          echo "state files unchanged - nothing to commit"
+        else
+          git add pd_option_map_templates.json pd_option_map_item_groups.json
+          git commit -m "chore: dropdown sync state $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git push
+          echo "state files committed"
+        fi
+
+    - name: Sync report
+      if: always()
+      run: |
+        {
+          echo "## Dropdown Sync Report"
+          echo ""
+          echo "**Trigger:** ${{ github.event_name }}"
+          echo "**Time:** $(date -u '+%Y-%m-%d %H:%M UTC')"
+          echo "**Mode:** ${{ inputs.dry_run == true && 'DRY RUN' || 'APPLY' }}"
+          echo ""
+          echo "| Field | Dropdown | Result |"
+          echo "| :-: | :-- | :-- |"
+          echo "| 90 | Quote Template | ${{ steps.field90.outcome }} |"
+          echo "| 102 | Quote Effects | ${{ steps.field102.outcome }} |"
+          echo ""
+          for f in field90 field102; do
+            if [ -f "$f.log" ]; then
+              echo "### $f"
+              echo '```'
+              grep -E 'SUMMARY|ADD|RENAME|UNRETIRE|ORPHAN|added |renamed |retired |un-retired ' "$f.log" || echo "(no changes)"
+              echo '```'
+            fi
+          done
+        } >> $GITHUB_STEP_SUMMARY
