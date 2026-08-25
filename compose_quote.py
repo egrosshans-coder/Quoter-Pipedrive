@@ -15,6 +15,22 @@ from Quoter at run time instead of hard-coded in Python.
 
 Business logic lives here, not in scalepad_quotes.py, per D-003.
 
+THREE NAMES, THREE AUDIENCES
+----------------------------
+  group key      SFX-Balloons     maintenance + Render lookup + Pipedrive label
+  section_name   Balloon Effects  what the CLIENT reads on the quote
+  code prefix    BAL-             what determines membership
+
+The first is what the Pipedrive dropdown syncs against, so group name and
+option label must stay identical. The section name is referenced by nothing
+and is supplied at write time, so it is free.
+
+This split exists because Quoter has NO way to hide section headings (Display
+Settings covers pricing table, cost breakdown, margins, discounting,
+one-time/recurring split, shipping, tax and totals -- nothing about section
+names). Whatever a section is called WILL appear on the customer's quote, so
+the internal taxonomy must not leak into it.
+
 HOW A QUOTE IS ASSEMBLED
 ------------------------
   1. POST /quotes with a template_id            (presentation only)
@@ -48,9 +64,11 @@ Usage:
 """
 
 import argparse
+import json
 import os
 import sys
 import time
+from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -91,6 +109,23 @@ def main():
     from scalepad_quotes import ScalePadQuotes
     from scalepad_items import QuoterItemsV2
 
+    # Client-facing section names come from item_group_defs.json, NOT from the
+    # group name. Quoter has no setting to hide section headings (checked
+    # 2026-08-24), so whatever a section is called appears on the customer's
+    # quote. `SFX-Balloons` is right for maintenance and for the Pipedrive
+    # dropdown; `Balloon Effects` is what the client should read.
+    defs_path = Path(os.path.dirname(os.path.abspath(__file__))) / "item_group_defs.json"
+    section_names = {}
+    if defs_path.exists():
+        try:
+            for gname, spec in (json.loads(defs_path.read_text())
+                                .get("groups") or {}).items():
+                if spec.get("section_name"):
+                    section_names[gname] = spec["section_name"]
+        except Exception as e:
+            print(f"  ! could not read {defs_path.name}: {e}")
+            print("    falling back to group names as section headings")
+
     q = ScalePadQuotes()
     items_api = QuoterItemsV2()
 
@@ -125,9 +160,11 @@ def main():
                 continue
             lines.append((it, q.line_item_from_catalog(
                 it, use_catalog_price=a.catalog_price)))
-        plan.append((name, g["id"], lines))
+        section = section_names.get(name, name)
+        plan.append((name, section, g["id"], lines))
 
-        print(f"\n  {name}  ({g['id']})  -> {len(lines)} line item(s)")
+        arrow = f"  -> section {section!r}" if section != name else ""
+        print(f"\n  {name}  ({g['id']}){arrow}  {len(lines)} line item(s)")
         for it, li in sorted(lines, key=lambda x: x[0].get("code") or ""):
             print(f"    {str(it.get('code')):16} "
                   f"{li['name'][:36]:38} qty={li['quantity_decimal']:3} "
@@ -140,7 +177,7 @@ def main():
         print("\n  ABORT: not composing a quote from a broken plan.")
         return
 
-    total_lines = sum(len(l) for _, _, l in plan)
+    total_lines = sum(len(l) for _, _, _, l in plan)
     print(f"\n  plan: {len(plan)} section(s), {total_lines} line item(s)")
 
     if not a.write:
@@ -166,15 +203,50 @@ def main():
     print(f"  quote {qid}  (zz-COMPOSE-{stamp})")
     print(f"  sections at creation: {quote.get('sections')}   <- always null")
 
-    for name, _gid, lines in plan:
-        q.create_sections(qid, name)
-        sec = q.find_section(qid, name)
-        if not sec:
-            print(f"  ! section {name!r} not found after creation; skipping")
-            continue
-        q.add_line_items(qid, sec["id"], [li for _it, li in lines])
-        print(f"  + {name:26} {sec['id']}  {len(lines)} line item(s)")
-        time.sleep(0.2)
+    # Create ALL sections in one call, then fill them one at a time,
+    # RE-READING the section list immediately before each fill.
+    #
+    # Two things force this, both observed live 2026-08-24:
+    #
+    #  1. Interleaving create-then-fill per section fails: creating a second
+    #     section invalidates the first section's id.
+    #  2. More surprisingly, POSTING LINE ITEMS to one section also changes
+    #     the other sections' ids. Filling section 1 leaves section 2's
+    #     previously-read id pointing at nothing -> 404 ERR_NOT_FOUND.
+    #
+    # So a section id is only valid until the next write to the quote. Read it,
+    # use it immediately, discard it.
+    #
+    # Sections are matched to the plan BY POSITION, never by name. Section
+    # names need not be unique -- SFX-Wristbands-Zone and SFX-Wristbands-Pixel
+    # both render as "LED Wristbands" -- so a name lookup would put both
+    # groups' items into whichever section it found first.
+    section_names = [section for _n, section, _g, _l in plan]
+    q.create_sections(qid, section_names)
+    time.sleep(1.0)
+
+    created = q.sections_of(qid)
+    if len(created) != len(plan):
+        print(f"  ! expected {len(plan)} sections, got {len(created)}: "
+              f"{[s.get('name') for s in created]}")
+        print(f"  ABORT. cleanup: draft {qid}, tag zz-COMPOSE-{stamp}")
+        return
+
+    for idx, (name, section, _gid, lines) in enumerate(plan):
+        # add_line_items_retrying re-reads the section id before every attempt
+        # and retries on 404. The API is eventually consistent: a read taken
+        # straight after a write can return ids from a replica that has not
+        # caught up. It only shows up on multi-section quotes, since a single
+        # section never triggers a second write.
+        try:
+            _resp, tries = q.add_line_items_retrying(
+                qid, idx, [li for _it, li in lines], expect_name=section)
+        except Exception as e:
+            print(f"  ! {section:26} FAILED: {str(e)[:160]}")
+            print(f"\n  ABORT. cleanup: draft {qid}, tag zz-COMPOSE-{stamp}")
+            return
+        note = f"   (after {tries} attempts)" if tries > 1 else ""
+        print(f"  + {section:28} {len(lines)} line item(s)   [{name}]{note}")
 
     # --- verify ------------------------------------------------------------
     time.sleep(1.5)

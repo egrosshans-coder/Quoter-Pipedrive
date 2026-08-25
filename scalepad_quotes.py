@@ -50,6 +50,7 @@ both afterwards, which is what makes the seed-at-1 scaffold pattern work
 """
 
 import os
+import time
 
 QUOTER_PREFIX = "/quoter/v1"
 
@@ -188,6 +189,56 @@ class ScalePadQuotes:
             quantity=quantity,
             unit_cost=catalog_item.get("cost_decimal"),
         )
+
+    def add_line_items_retrying(self, quote_id, section_index, items,
+                                expect_name=None, attempts=5, delay=1.5):
+        """Post line items to the section at `section_index`, re-reading the
+        section id before each attempt and retrying on 404.
+
+        WHY THIS EXISTS
+        ---------------
+        Section ids are stable and writes do not regenerate them -- both were
+        tested directly (2026-08-24). But the API is EVENTUALLY CONSISTENT:
+        immediately after a write, a read can return section ids from a replica
+        that has not caught up, and posting to one of those returns
+        404 ERR_NOT_FOUND.
+
+        It only bites on multi-section quotes, because a single-section quote
+        never does a second write. A diagnostic with 1.5s pauses passed every
+        time; the same sequence at 0.5s failed on section two. That is a race,
+        not a schema problem, so the fix is to retry rather than to sleep
+        longer and hope.
+
+        Sections are addressed BY INDEX, not by name: names need not be unique
+        (SFX-Wristbands-Zone and SFX-Wristbands-Pixel both render as "LED
+        Wristbands"), so a name lookup could target the wrong section.
+        `expect_name` is checked as a guard, not used for lookup.
+        """
+        last = None
+        for attempt in range(1, attempts + 1):
+            secs = self.sections_of(quote_id)
+            if section_index >= len(secs):
+                last = (f"section index {section_index} not present "
+                        f"({len(secs)} sections)")
+                time.sleep(delay)
+                continue
+            sec = secs[section_index]
+            if expect_name is not None and \
+               (sec.get("name") or "").strip() != expect_name.strip():
+                raise ValueError(
+                    f"section {section_index} is {sec.get('name')!r}, "
+                    f"expected {expect_name!r} -- ordering is not what the "
+                    f"caller assumed; refusing to write into the wrong section")
+            try:
+                return self.add_line_items(quote_id, sec["id"], items), attempt
+            except Exception as e:
+                if "404" not in str(e) and "ERR_NOT_FOUND" not in str(e):
+                    raise
+                last = str(e)[:120]
+                time.sleep(delay)
+        raise RuntimeError(
+            f"could not write to section {section_index} after {attempts} "
+            f"attempts: {last}")
 
     def add_line_items(self, quote_id, section_id, items):
         """POST a bare array of line items into a section.

@@ -1,66 +1,342 @@
 {
   "_README": [
-    "Item Group membership, defined as DATA rather than hard-coded in Python.",
+    "Item Group definitions. Data, not code.",
     "",
-    "Each group resolves to a set of catalog items three ways, applied in order:",
-    "  code_prefixes  every item whose `code` starts with one of these. This is",
-    "                 the baseline and it is DERIVABLE -- add a new BAL- item to",
-    "                 the catalog and it joins XRN-Balloons automatically, with",
-    "                 no list to maintain and nothing to drift.",
-    "  include_codes  cross-family items a prefix cannot capture. An exploding",
-    "                 balloon wall needs pyro; a laser show needs a technician.",
-    "                 These are judgement calls and must be stated explicitly.",
-    "  exclude_codes  items matching the prefix that do not belong.",
+    "THREE NAMES, THREE AUDIENCES. None has to match the others:",
+    "  group key      SFX-Balloons     maintenance + Render lookup + Pipedrive label",
+    "  section_name   Balloon Effects  what the CLIENT reads on the quote",
+    "  code prefix    BAL-             what determines membership",
     "",
-    "Selecting by code prefix rather than by category is deliberate. The API",
-    "reports only a category's LEAF name and 16 leaf names collide across",
-    "different parents (Chapter 3 2.3.2), so category selection is ambiguous.",
-    "It also sweeps in test fixtures: `Balloons / Latex` holds 11 zz-test items,",
-    "so a category-derived Balloons group would be 20 items, 11 of them junk.",
-    "The ZZZ- prefix excludes them for free.",
+    "Group key and Pipedrive option label MUST stay identical - the sync matches",
+    "on them. The section name is referenced by nothing and is supplied at write",
+    "time, so it is free. It does not need to be unique: SFX-Wristbands-Zone and",
+    "SFX-Wristbands-Pixel both render as 'LED Wristbands', and a quote with both",
+    "selected shows two sections under the same heading, which is correct.",
     "",
-    "Prefix discipline is the dependency. A mistyped prefix silently drops an",
-    "item from its group with no error. Known offenders as of 2026-08-23:",
-    "  BAL-FLY        missing the -NNN suffix",
-    "  BAL-HEL-08F    non-numeric suffix",
-    "  BAL-HEL-12F    non-numeric suffix",
-    "  PYRO-FIR-REAL  PYRO- rather than PYR-, so it misses a PYR- filter",
+    "This split exists because Quoter has NO setting to hide section headings",
+    "(checked 2026-08-24). Whatever a section is called WILL appear on the",
+    "client's quote.",
     "",
-    "Catalog prefixes present 2026-08-23, by count:",
-    "  LED 40, HG 29, ROB 27, SVC 26, PYR 17, LSR 15, PRO 14, TNK 13,",
-    "  SHP 11, ZZZ 11, CNF 9, FOG 9, EQP 9, DRN 8, BAL 8, T&E 8,",
-    "  WTR 7, FIN 6, AI 4, DMX 4, SNO 3, SPH 2"
+    "MEMBERSHIP resolves three ways:",
+    "  code_prefixes  DERIVABLE baseline. Add a BAL- item and it joins",
+    "                 SFX-Balloons by construction. Nothing to maintain.",
+    "  include_codes  cross-family items a prefix cannot capture - specialist",
+    "                 labour, shared controllers, cross-product accessories.",
+    "  exclude_codes  prefix matches that do not belong.",
+    "",
+    "RETIREMENT IS HANDLED BY PREFIX, NOT BY EXCLUSION. The catalog already",
+    "encodes current vs legacy in the code:",
+    "    LED-WBT-*  TLC wristbands, current   LED-WBX-*  Xylobands, legacy",
+    "    LED-LYT-*  TLC lanyard, current      LED-LYX-*  Xylo lanyard, legacy",
+    "    HG-FVV-*   Vdisplay, current         HG-FVH-*   Hypervsn, phasing out",
+    "Groups take only the current prefix, so legacy items stay in the catalog",
+    "for servicing kit in the field but cannot be newly quoted. No exclude list",
+    "to maintain, and nothing silently reappears.",
+    "",
+    "PREFIX DISCIPLINE IS LOAD-BEARING. A mistyped prefix silently drops an item",
+    "with no error. Known offenders 2026-08-24:",
+    "  PYRO-FIR-REAL   PYRO- not PYR- (worked around with a second prefix)",
+    "  T&E-BUY-OUT     no -NNN suffix (still matches T&E-)",
+    "  MGS             Quoter demo item, no prefix",
+    "",
+    "SPECIALIST vs GENERIC LABOUR. SVC- holds both. Specialist labour (robot",
+    "handler, laser technician, pyrotechnician, wristband tech) is included in",
+    "its own SFX- group. Generic labour (setup/strike, second technician,",
+    "overtime) is the shared SVC-General block. This is why SVC-General has no",
+    "code_prefixes - a blanket SVC- rule would put a robot handler on a balloon",
+    "quote."
   ],
-
   "groups": {
-    "XRN-Balloons": {
-      "description": "Balloon effects. Feature equipment only; shared blocks live in XSH- and XTE-.",
-      "code_prefixes": ["BAL-"],
+    "SFX-Balloons": {
+      "section_name": "Balloon Effects",
+      "description": "Balloon effects. Shared blocks live in SVC-General and STE-.",
+      "code_prefixes": [
+        "BAL-"
+      ],
       "include_codes": [],
-      "_include_candidates": [
-        "UNCONFIRMED -- Eric to decide. An exploding/disappearing balloon wall",
-        "is a pyro effect, so it plausibly requires some of:",
-        "  PYR-LIC-TEC   Pyro-Licensed pyrotechnician",
-        "  PYR-PRM-001   Pyro-permit",
-        "  PYR-FIR-EXT   Pyro-Fire extinguishers",
-        "Left out until confirmed. Seeding a licensed pyrotechnician onto every",
-        "balloon quote would be wrong; omitting one where it is legally required",
-        "is worse. This needs a human answer, not a guess."
+      "exclude_codes": []
+    },
+    "SFX-FloatingVideo": {
+      "section_name": "Floating Video",
+      "description": "Holographic fans. HG-FVV = Vdisplay (current), HG-FVH = Hypervsn (being phased out), HG-FV-Graph = manufacturer-neutral graphics packages.",
+      "code_prefixes": [
+        "HG-FVV-",
+        "HG-FV-Graph-"
+      ],
+      "include_codes": [
+        "PRO-CNT-CNV"
+      ],
+      "exclude_codes": [],
+      "_note": "HG-FVH-* (Hypervsn) deliberately EXCLUDED by prefix, not by exclude_codes: the prefix rule simply does not match them. They stay in the catalog for servicing units in the field but cannot be newly quoted. Same pattern as LED-WBX-."
+    },
+    "SFX-HoloPortal": {
+      "section_name": "Holographic Displays",
+      "description": "HoloPod / HoloPortal / Holobox.",
+      "code_prefixes": [
+        "HG-HP-"
+      ],
+      "include_codes": [
+        "SVC-LAB-HP",
+        "SVC-SET-HP",
+        "SVC-HP-SUP",
+        "FIN-WAR-HPOD"
       ],
       "exclude_codes": []
+    },
+    "SFX-Wristbands-Zone": {
+      "section_name": "LED Wristbands",
+      "description": "Zone-based wristbands: 10 zones, group-level control by demographic segment, 433MHz. Pick this AND SFX-Wristbands-Pixel if unsure which the show needs; prune in the quote.",
+      "code_prefixes": [
+        "LED-WBT-2LED-",
+        "LED-WBT-TX158-"
+      ],
+      "include_codes": [
+        "LED-WB-BRAND",
+        "SVC-WBT-TECH",
+        "LED-WBE-LAP",
+        "LED-WBE-LPAD",
+        "SVC-PGM-WB-LY-001",
+        "SVC-PGM-WB-LY-002",
+        "SVC-PGM-WB-LY-003",
+        "SVC-LAB-WBL"
+      ],
+      "exclude_codes": [],
+      "_note": "LED-WBX-* (Xylobands) and LED-LYX-* are the legacy line and are excluded by prefix. WBT = TLC current, WBX = Xylo legacy."
+    },
+    "SFX-Wristbands-Pixel": {
+      "section_name": "LED Wristbands",
+      "description": "Pixel wristbands: individual control, up to 100 groups, Excel-driven with real-time selection. TX305 and TX306 are functionally equivalent; 306 is the higher-cost build used at larger scale.",
+      "code_prefixes": [
+        "LED-WBT-4LED-",
+        "LED-WBT-TX305-",
+        "LED-WBT-TX306-"
+      ],
+      "include_codes": [
+        "LED-WB-BRAND",
+        "SVC-WBT-TECH",
+        "LED-WBE-LAP",
+        "LED-WBE-LPAD",
+        "SVC-PGM-WB-LY-001",
+        "SVC-PGM-WB-LY-002",
+        "SVC-PGM-WB-LY-003",
+        "SVC-LAB-WBL"
+      ],
+      "exclude_codes": []
+    },
+    "SFX-Lanyards": {
+      "section_name": "LED Lanyards",
+      "description": "LED lanyards. TX306 is shared with pixel wristbands.",
+      "code_prefixes": [
+        "LED-LYT-",
+        "LED-LAN-"
+      ],
+      "include_codes": [
+        "LED-WBT-TX306-001",
+        "LED-WBE-LAP",
+        "LED-WBE-LPAD",
+        "SVC-PGM-WB-LY-001",
+        "SVC-PGM-WB-LY-002",
+        "SVC-PGM-WB-LY-003",
+        "SVC-LAB-WBL"
+      ],
+      "exclude_codes": [],
+      "_note": "LED-LYX-001 (Xylo lanyard) is legacy and excluded by prefix."
+    },
+    "SFX-GlowBalls": {
+      "section_name": "LED Glow Balls",
+      "description": "Inflatable LED glow balls, 40/60/90cm. TX305 drives these as well as orbs.",
+      "code_prefixes": [
+        "LED-GLOBAL-",
+        "LED-GLOTX-"
+      ],
+      "include_codes": [
+        "LED-WBT-TX305-001"
+      ],
+      "exclude_codes": [],
+      "_unconfirmed": "Is LED-GLOBAL-* the beach balls? Reads as GLOw BALl and the sizes are inflatable-shaped, but confirm."
+    },
+    "SFX-GlowOrbs": {
+      "section_name": "LED Glow Orbs",
+      "description": "Tabletop glow orbs. Table-scale work; 150 tables has been the largest to date.",
+      "code_prefixes": [
+        "LED-GLOORB-"
+      ],
+      "include_codes": [
+        "LED-WBT-TX305-001"
+      ],
+      "exclude_codes": [],
+      "_unconfirmed": "Does LED-GLOTX-10 (DMX transmitter) serve orbs as well as balls? Currently in SFX-GlowBalls only."
+    },
+    "SFX-Robotics": {
+      "section_name": "Robotics",
+      "description": "Robots plus robot-specific labour.",
+      "code_prefixes": [
+        "ROB-"
+      ],
+      "include_codes": [
+        "SVC-ROB-HDLR",
+        "SVC-ROB-SUP",
+        "SVC-ROB-TECH"
+      ],
+      "exclude_codes": []
+    },
+    "SFX-Lasers": {
+      "section_name": "Laser Effects",
+      "description": "Lasers plus laser technician.",
+      "code_prefixes": [
+        "LSR-"
+      ],
+      "include_codes": [
+        "SVC-LSR-TECH"
+      ],
+      "exclude_codes": []
+    },
+    "SFX-Pyro": {
+      "section_name": "Pyrotechnics",
+      "description": "Pyro, flame and fire effects. Includes the licensed pyrotechnician and permit, which are not optional for most of this.",
+      "code_prefixes": [
+        "PYR-",
+        "PYRO-"
+      ],
+      "include_codes": [
+        "SVC-LAB-FX"
+      ],
+      "exclude_codes": [],
+      "_note": "Two prefixes because PYRO-FIR-REAL is miscoded (PYRO- rather than PYR-). Worth normalising."
+    },
+    "SFX-Confetti": {
+      "section_name": "Confetti & Streamers",
+      "description": "Confetti, streamers, cannons and blowers.",
+      "code_prefixes": [
+        "CNF-"
+      ],
+      "include_codes": [
+        "SVC-LAB-FX"
+      ],
+      "exclude_codes": []
+    },
+    "SFX-Fog": {
+      "section_name": "Atmospherics",
+      "description": "Fog, low-lying fog, foggers, fans and cryo.",
+      "code_prefixes": [
+        "FOG-",
+        "CO2-"
+      ],
+      "include_codes": [
+        "SVC-RPR-CO2"
+      ],
+      "exclude_codes": [],
+      "_unconfirmed": "CO2- is cryo (Cryo Jet, high-pressure lines) rather than fog. Kept together because they are quoted together; split into SFX-Cryo if that is wrong."
+    },
+    "SFX-Tanks": {
+      "section_name": "Gas & Tanks",
+      "description": "CO2, helium and nitrogen tanks, delivery and service.",
+      "code_prefixes": [
+        "TNK-"
+      ],
+      "include_codes": [
+        "SVC-TNK-TEC"
+      ],
+      "exclude_codes": []
+    },
+    "SFX-Projection": {
+      "section_name": "Projection",
+      "description": "Projection, mapping, media servers and content.",
+      "code_prefixes": [
+        "PRO-"
+      ],
+      "include_codes": [
+        "SVC-PROJ-TECH-001"
+      ],
+      "exclude_codes": []
+    },
+    "SFX-Drones": {
+      "section_name": "Drones",
+      "description": "Indoor and outdoor drone shows and activations.",
+      "code_prefixes": [
+        "DRN-"
+      ],
+      "include_codes": [],
+      "exclude_codes": []
+    },
+    "SFX-Water": {
+      "section_name": "Water Effects",
+      "description": "Water screens, dancing water, mist.",
+      "code_prefixes": [
+        "WTR-"
+      ],
+      "include_codes": [],
+      "exclude_codes": []
+    },
+    "SFX-Snow": {
+      "section_name": "Snow Effects",
+      "description": "Snow machines and fluid.",
+      "code_prefixes": [
+        "SNO-"
+      ],
+      "include_codes": [],
+      "exclude_codes": []
+    },
+    "SVC-General": {
+      "section_name": "Services",
+      "description": "Generic labour that is not specific to any one effect. Specialist labour lives inside its own SFX- group instead.",
+      "code_prefixes": [],
+      "include_codes": [
+        "SVC-LAB-001",
+        "SVC-TEC-001",
+        "SVC-TEC-002",
+        "SVC-LAB-OVR",
+        "SVC-STF-001"
+      ],
+      "exclude_codes": [],
+      "_note": "No code_prefixes: SVC- alone would sweep in every specialist technician (robot handler, laser tech, pyrotechnician) and put them on every quote. Membership is explicit."
+    },
+    "STE-All-In": {
+      "section_name": "Shipping, Travel & Expenses",
+      "description": "Freight, airfare, lodging, ground, per diem, meals and parking, itemised and priced into the quote total. The alternative is STE-After-Bill, which is the same scope as a single $0.00 explanatory line instead.",
+      "code_prefixes": [
+        "SHP-",
+        "T&E-"
+      ],
+      "include_codes": [],
+      "exclude_codes": []
+    },
+    "STE-After-Bill": {
+      "section_name": "Shipping, Travel & Expenses",
+      "description": "Same scope as STE-All-In but billed separately after the event. ONE explanatory line item, not the 19 itemised ones.",
+      "code_prefixes": [],
+      "include_codes": [
+        "STE-AFTER-001"
+      ],
+      "exclude_codes": [],
+      "_status": "NOT YET BUILT - the catalog item does not exist. Create it first.",
+      "_catalog_item_needed": {
+        "name": "T&E - Billed After Event",
+        "code": "STE-AFTER-001",
+        "price_decimal": "0.00",
+        "category": "a T&E category",
+        "taxable": false,
+        "description_draft": "Travel and expenses are not included in this quote. Airfare, lodging, meals, per diem, ground transport and shipping will be invoiced at actual cost following the event.",
+        "_wording_note": "This sentence appears on every after-bill quote and functions as a contract term. 'Not included' and 'at actual cost' are the load-bearing phrases. Needs sign-off from whoever owns client-facing language before it ships.",
+        "_why_zero_priced": "A $0.00 line renders correctly across API response, admin preview, webview and PDF (Chapter 3 7.5). Quantity must be 1 - the API rejects quantity 0, though it accepts unit_price 0.",
+        "_why_this_code": "Deliberately NOT T&E-AFTER-001. STE-All-In takes every item with a T&E- prefix, so a T&E- code would sweep the explanatory line onto itemised quotes too. A different prefix keeps the two groups disjoint with no exclude_codes to maintain.",
+        "_check_when_created": "Confirm whether the item DESCRIPTION renders on the client-facing quote or only in the admin view. Previewed quotes so far show name, qty, price and total with no description column. If descriptions do not show, the statement has to live in the item NAME instead."
+      },
+      "_no_code_prefix": "Membership is explicit, like SVC-General. A prefix rule would sweep in the T&E- items this group exists to replace."
     }
   },
-
+  "_unassigned": {
+    "note": "In the catalog but not yet in any group. Decide: own group, folded into an existing one, or deliberately left out.",
+    "HG-SLT-MCH": "Holographic Slot Machine",
+    "HG-TBL-001": "Holographic Table",
+    "HG-VRT-STAGE-001": "Virtual Stage Experiences",
+    "EQP-* (9)": "truss, pipe & base, nitrogen regulator, equipment damage - support kit, plausibly a shared block",
+    "FIN-* (6)": "warranties, ACH details, postponement costs - commercial terms rather than product",
+    "RVL-, BUB-, ELE-, DMX-, STU-, SPH-, AI-, RFID, GPH-, DAT-, QTE-, FX-": "small prefixes, 1-2 items each",
+    "LED remainder (~19)": "walls, tubes, floor, screens, panels, mesh, letters, costumes, signage - candidate SFX-LEDDisplays",
+    "LED-WB-HTX1 / LED-WBE-HTX": "HTX controller deposit and remote. UNCONFIRMED whether HTX retires alongside Xylo. Currently in no group."
+  },
   "_planned": {
-    "note": "Sketches only -- not resolved, not built. Prefixes are from the live catalog.",
-    "XRN-FloatingVideo": {"code_prefixes": ["HG-FV"]},
-    "XRN-Robotics":      {"code_prefixes": ["ROB-"]},
-    "XRN-Lasers":        {"code_prefixes": ["LSR-"]},
-    "XRN-Fog":           {"code_prefixes": ["FOG-"]},
-    "XRN-Pyro":          {"code_prefixes": ["PYR-", "PYRO-"]},
-    "XRN-Confetti":      {"code_prefixes": ["CNF-"]},
-    "XSH-Shipping":      {"code_prefixes": ["SHP-"]},
-    "XTE-TravelExpense": {"code_prefixes": ["T&E-"]},
-    "XSV-Services":      {"code_prefixes": ["SVC-"]}
+    "note": "nothing planned but unbuilt beyond STE-After-Bill, which now sits in groups with _status set"
   }
 }
