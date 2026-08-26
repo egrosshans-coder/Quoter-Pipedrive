@@ -104,6 +104,92 @@ class ScalePadQuotes:
         r = self.client.post(f"{QUOTER_PREFIX}/quotes", data=body)
         return (r or {}).get("data", r)
 
+    # ---- contacts --------------------------------------------------------
+
+    def find_contact(self, email):
+        """Look up a contact by billing_email. Returns the record or None."""
+        import urllib.parse
+        q = urllib.parse.quote(str(email))
+        r = self.client.get(
+            f"{QUOTER_PREFIX}/contacts?filter[billing_email]=eq:{q}") or {}
+        rows = r.get("data") or []
+        return rows[0] if rows else None
+
+    def create_contact(self, email, first_name, last_name,
+                       organization=None, address=None, address2=None,
+                       city=None, region_iso=None, postal_code=None,
+                       country_iso="US", work_phone=None, mobile_phone=None,
+                       title=None, website=None):
+        """Create a contact. REQUIRED BEFORE createQuote.
+
+        `createQuote` RESOLVES a contact from contact.email; it does not create
+        one. An email with no contact record returns 422 ERR_CONTACT_NOT_FOUND.
+        Chapter 3 section 5.1 describes createQuote materialising a
+        "fully-resolved contact" -- true, but only for an email that already
+        exists. Every earlier v2 test used an email created beforehand, which
+        hid the dependency.
+
+        SCHEMA, read off a live record 2026-08-26 rather than guessed:
+
+            billing_email         required
+            billing_first_name    required
+            billing_last_name     required
+            billing_address       required, and a NESTED OBJECT:
+                                    address_line_1, address_line_2,
+                                    address_line_3, city, state_prov_code,
+                                    postal_code, country_code
+            billing_organization  optional
+            billing_work_phone    optional
+            billing_mobile_phone  optional
+            title, website        optional
+            shipping_*            optional, mirrors billing
+
+        THERE ARE NO FLAT ADDRESS FIELDS. billing_city, billing_country_iso,
+        billing_region_iso and billing_postal_code do not exist; sending them
+        returns 400 ERR_REQUEST_FORMAT_INVALID. The write schema mirrors the
+        read schema, as it does for line items (category: {id}) -- so when a
+        shape is unclear, GET a real record rather than guessing. Three
+        guesses cost three round trips here before that was done.
+
+        Note a standalone contact keeps id: null and client: null permanently
+        (section 5.1). The EMAIL is the handle, not the id.
+        """
+        body = {
+            "billing_email": email,
+            "billing_first_name": first_name or "Unknown",
+            "billing_last_name": last_name or "Contact",
+            "billing_address": {
+                "address_line_1": address or "Address not provided",
+                "city": city or None,
+                "state_prov_code": region_iso or None,
+                "postal_code": postal_code or None,
+                "country_code": country_iso or "US",
+            },
+        }
+        if address2:
+            body["billing_address"]["address_line_2"] = address2
+        if organization:
+            body["billing_organization"] = organization
+        if work_phone:
+            body["billing_work_phone"] = work_phone
+        if mobile_phone:
+            body["billing_mobile_phone"] = mobile_phone
+        if title:
+            body["title"] = title
+        if website:
+            body["website"] = website
+        r = self.client.post(f"{QUOTER_PREFIX}/contacts", data=body)
+        return (r or {}).get("data", r)
+
+    def ensure_contact(self, email, first_name=None, last_name=None,
+                       organization=None, **address):
+        """Find the contact, or create it. Returns (record, created_bool)."""
+        found = self.find_contact(email)
+        if found:
+            return found, False
+        return self.create_contact(email, first_name, last_name,
+                                   organization, **address), True
+
     # ---- sections --------------------------------------------------------
 
     def create_sections(self, quote_id, names):
