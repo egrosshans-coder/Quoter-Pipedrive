@@ -17,7 +17,27 @@ echo "📋 Checking current status..."
 git status
 
 # Check if there are changes
+#
+# A clean working tree does NOT mean everything is pushed. The
+# pipedrive-dropdown-sync workflow commits state files to main on its own
+# schedule, so a push can fail on a stale ref and leave a local commit behind
+# with nothing left to commit. Reporting that as "already synced" hides work
+# that never reached GitHub -- observed twice on 2026-08-26.
 if [ -z "$(git status --porcelain)" ]; then
+    git fetch origin main --quiet 2>/dev/null
+    AHEAD=$(git rev-list --count origin/main..HEAD 2>/dev/null || echo "0")
+    if [ "$AHEAD" -gt 0 ] 2>/dev/null; then
+        echo "📤 Nothing to commit, but $AHEAD local commit(s) are not pushed."
+        echo "🔄 Pushing to GitHub..."
+        git push origin main
+        if [ $? -ne 0 ]; then
+            echo "❌ Failed to push to GitHub"
+            echo "💡 If the remote has moved on, run ./retrieve.sh first"
+            exit 1
+        fi
+        echo "   ✅ Pushed $AHEAD commit(s)"
+        exit 0
+    fi
     echo "✅ No changes to commit. Everything is already synced!"
     exit 0
 fi
@@ -90,6 +110,11 @@ try:
         content = f.read()
     lines = content.split('\n')
     for i, line in enumerate(lines, 1):
+        # Skip comment-only lines: counting quote characters inside
+        # prose comments false-positives on every apostrophe, so an
+        # explanatory comment fails a perfectly valid workflow.
+        if line.lstrip().startswith(chr(35)):
+            continue
         if '  ' in line and '\t' in line:
             print(f'Mixed indentation on line {i}')
             sys.exit(1)
