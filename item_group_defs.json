@@ -44,9 +44,28 @@
     "its own SFX- group. Generic labour (setup/strike, second technician,",
     "overtime) is the shared SVC-General block. This is why SVC-General has no",
     "code_prefixes - a blanket SVC- rule would put a robot handler on a balloon",
-    "quote."
+    "quote.",
+    "",
+    "AUTO-APPENDED GROUPS. A group with auto_append: true is added to every",
+    "quote by the composer and is NOT synced to the Pipedrive dropdown --",
+    "sales never sees it and cannot select it twice. position: 'first' puts",
+    "it ahead of the selected groups. Currently only SCO-ScopeOfWork."
   ],
   "groups": {
+    "SCO-ScopeOfWork": {
+      "section_name": "Scope of Work",
+      "description": "The narrative scope of the project. Auto-appended to every quote as the FIRST section; never selected in Pipedrive.",
+      "code_prefixes": [
+        "SCO-"
+      ],
+      "include_codes": [],
+      "exclude_codes": [],
+      "auto_append": true,
+      "position": "first",
+      "_why_automatic": "Every quote should describe what is being sold, so leaving it to a dropdown choice means someone can forget. Auto-appending removes that failure mode and keeps the Quote Effects list shorter. It is also EXCLUDED FROM THE PIPEDRIVE SYNC: an option sales should never pick would only invite a duplicate Scope section.",
+      "_how_it_is_used": "One line item, SCO-WORK-001 'Scope of Project', $0.00, whose DESCRIPTION carries placeholder text the salesperson rewrites per deal. Line item descriptions render client-facing; catalog item descriptions alone do not reach the quote (Chapter 3 12.2, 13.x) -- the composer copies the catalog description onto the line, which is what makes this work.",
+      "_not_priced": "Narrative only. If Scope carried a project total AND the sections carried line prices, the client would see the money twice and the two could disagree after editing."
+    },
     "SFX-Balloons": {
       "section_name": "Balloon Effects",
       "description": "Balloon effects. Shared blocks live in SVC-General and STE-.",

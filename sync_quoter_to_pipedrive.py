@@ -97,8 +97,34 @@ def fetch_quoter(path, label_key):
             break
         seen.add(cursor)
     total = None
-    return [{"id": r.get("id"), "label": (r.get(label_key) or "").strip()}
-            for r in out if r.get("id")]
+    records = [{"id": r.get("id"), "label": (r.get(label_key) or "").strip()}
+               for r in out if r.get("id")]
+
+    # Drop groups the composer adds to every quote automatically. Offering
+    # SCO-ScopeOfWork in the dropdown would let a salesperson select something
+    # that is already there, producing two Scope sections. Marked in
+    # item_group_defs.json with auto_append: true.
+    skip = _auto_append_names()
+    if skip:
+        before = len(records)
+        records = [r for r in records if r["label"] not in skip]
+        if before != len(records):
+            print(f"  excluded {before - len(records)} auto-appended group(s) "
+                  f"from the dropdown: {', '.join(sorted(skip))}")
+    return records
+
+
+def _auto_append_names():
+    """Group names marked auto_append in item_group_defs.json."""
+    import json
+    p = STATE_DIR / "item_group_defs.json"
+    if not p.exists():
+        return set()
+    try:
+        return {g for g, spec in (json.loads(p.read_text()).get("groups") or {}).items()
+                if spec.get("auto_append")}
+    except Exception:
+        return set()
 
 
 # ----------------------------------------------------------------- state ----

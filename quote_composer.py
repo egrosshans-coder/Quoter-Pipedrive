@@ -187,6 +187,22 @@ def create_quote_v2(organization_data, deal_data=None, dry_run=False):
         return None
     logger.info(f"🎛️  Effects: {', '.join(group_names)}")
 
+    # --- auto-appended groups ----------------------------------------------
+    # Some groups belong on EVERY quote and are not offered in Pipedrive at
+    # all -- SCO-ScopeOfWork is the narrative scope, which a salesperson could
+    # otherwise forget to tick. They are prepended (position: "first") so the
+    # scope leads the quote, and de-duplicated in case one is ever selected
+    # as well.
+    auto = _auto_append_groups()
+    for name in reversed([n for n, pos in auto if pos == "first"]):
+        if name not in group_names:
+            group_names.insert(0, name)
+    for name, pos in auto:
+        if pos != "first" and name not in group_names:
+            group_names.append(name)
+    if auto:
+        logger.info(f"➕ Auto-appended: {', '.join(n for n, _p in auto)}")
+
     # --- resolve groups to line items --------------------------------------
     # Section names come from item_group_defs.json, not from the group name:
     # Quoter has no setting to hide section headings, so the internal taxonomy
@@ -257,12 +273,18 @@ def create_quote_v2(organization_data, deal_data=None, dry_run=False):
                      "ScalePadQuotes.create_contact.")
         return None
 
-    custom_number = None
-    if os.getenv("ENABLE_CUSTOM_NUMBER_PATCH", "false").lower() in (
-            "true", "1", "yes"):
-        # v2 sets custom_number AT CREATE, which legacy could not do.
-        from quoter import generate_sequential_quote_number
-        custom_number = generate_sequential_quote_number(contact["deal_id"])
+    # Quote number: ALWAYS set, no flag.
+    #
+    # ENABLE_CUSTOM_NUMBER_PATCH existed because the LEGACY API could not set
+    # a quote number reliably -- the post-publish PUT to custom_number did not
+    # stick, so numbering was left to a human and the flag defaulted off.
+    #
+    # v2 sets custom_number AT CREATE, and it holds. The constraint the flag
+    # guarded against no longer exists, so the flag is gone: every v2 quote is
+    # numbered consistently rather than falling back to Quoter's own
+    # sequential counter (which produced "Quote #46" on the deal-3101 test).
+    custom_number = _quote_number(contact["deal_id"])
+    logger.info(f"🔢 Quote number: {custom_number}")
 
     quote = quotes.create_quote(
         template_id=template_id,
@@ -303,6 +325,59 @@ def create_quote_v2(organization_data, deal_data=None, dry_run=False):
     result["line_items"] = written
     result["groups"] = [n for n, _s, _i in plan]
     return result
+
+
+def _quote_number(deal_id):
+    """TLC quote number: dealID-YYYYMMDD, e.g. "03101-20260826".
+
+    Deal id zero-padded to five digits; date is the creation date in Pacific
+    time. Deterministic -- no account-wide quote scan and no sequence suffix.
+    Sequence-based numbering was rejected because deal id plus creation date
+    already sort correctly and never mutate.
+
+    Quoter-native versioning (parent_quote_id) handles revisions, so a
+    revision keeps its parent number; this is only for the original quote.
+
+    Ported from quoter.generate_sequential_quote_number() rather than imported,
+    so the v2 path carries no dependency on the legacy module.
+    """
+    from datetime import datetime
+    try:
+        padded = f"{int(str(deal_id).strip()):05d}"
+    except (ValueError, TypeError):
+        padded = str(deal_id).strip()
+        logger.warning(f"⚠️ Deal id {deal_id!r} is not numeric; using it "
+                       f"unpadded in the quote number")
+    try:
+        from zoneinfo import ZoneInfo
+        date_str = datetime.now(
+            ZoneInfo("America/Los_Angeles")).strftime("%Y%m%d")
+    except Exception as e:
+        logger.warning(f"⚠️ Could not resolve Pacific timezone ({e}); "
+                       f"using local date")
+        date_str = datetime.now().strftime("%Y%m%d")
+    return f"{padded}-{date_str}"
+
+
+def _auto_append_groups():
+    """[(group_name, position)] for groups marked auto_append in the defs.
+
+    These are added to every quote by the composer and are deliberately NOT
+    synced to the Pipedrive dropdown -- an option sales should never pick
+    would only invite a duplicate section.
+    """
+    import json
+    from pathlib import Path
+    p = Path(os.path.dirname(os.path.abspath(__file__))) / "item_group_defs.json"
+    if not p.exists():
+        return []
+    try:
+        return [(g, spec.get("position", "last"))
+                for g, spec in (json.loads(p.read_text()).get("groups") or {}).items()
+                if spec.get("auto_append")]
+    except Exception as e:
+        logger.warning(f"⚠️ could not read auto-append groups: {e}")
+        return []
 
 
 def _load_section_names():

@@ -264,6 +264,17 @@ class ScalePadQuotes:
 
         Pass use_catalog_price=True for fixed-price items that genuinely do
         not vary by customer.
+
+        DESCRIPTION is copied across. 296 of 297 catalog items carry one and
+        GET /items returns it, but a line item has its OWN description field --
+        the catalog item's description does NOT reach the quote by itself.
+        That was confirmed the hard way on STE-AFTER-001, whose explanatory
+        wording sat in the catalog description and never appeared client-side.
+
+        Note the catalog holds mixed formats: some descriptions are HTML
+        (<p>Air filer for balloons</p>), some are plain text. Passed through
+        unchanged; if the rendered quote shows literal tags, the catalog needs
+        normalising rather than the code.
         """
         price = unit_price
         if use_catalog_price:
@@ -274,6 +285,7 @@ class ScalePadQuotes:
             unit_price=price,
             quantity=quantity,
             unit_cost=catalog_item.get("cost_decimal"),
+            description=catalog_item.get("description"),
         )
 
     def add_line_items_retrying(self, quote_id, section_index, items,
