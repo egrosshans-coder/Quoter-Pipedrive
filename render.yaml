@@ -49,3 +49,5 @@ services:
         fromSecret: true
       - key: QBO_EXPENSE_ACCOUNT_ID
         fromSecret: true
+      - key: SCALEPAD_API_KEY
+        fromSecret: true

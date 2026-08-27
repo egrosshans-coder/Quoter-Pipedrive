@@ -675,8 +675,41 @@ def handle_organization_webhook():
         
         logger.info(f"📍 Address from webhook: address={flat_address!r}, city={flat_city!r}, state={flat_state!r}, postal={flat_postal!r}, country={flat_country!r}")
         
-        # Create comprehensive draft quote using our enhanced function with template selection
-        quote_data = create_comprehensive_quote_from_pipedrive(normalized_org_data, deal_data)
+        # Create the draft quote.
+        #
+        # USE_V2_COMPOSITION switches between the legacy path and the v2
+        # composition path. Default is FALSE, so this changes nothing until the
+        # flag is set in Render -- and reverting is a Render setting rather
+        # than a deploy.
+        use_v2 = os.getenv("USE_V2_COMPOSITION", "false").lower() in (
+            "true", "1", "yes")
+
+        if use_v2:
+            logger.info("🆕 USE_V2_COMPOSITION=true — composing via Item Groups")
+
+            # Re-fetch the deal from the API rather than using the mock
+            # deal_data built above. That mock carries only id, title and the
+            # Quote Template enum; field 102 (Quote Effects) is not in the
+            # webhook payload at all, and the composer needs it.
+            #
+            # The webhook answers WHEN, the API answers WHAT. One extra call
+            # per quote, and it means the webhook payload can shrink later
+            # rather than having to grow.
+            full_deal = get_deal_by_id(deal_id)
+            if not full_deal:
+                logger.error(f"❌ Could not fetch deal {deal_id} for v2 "
+                             f"composition")
+                send_slack_alert(
+                    f"🚨 v2 composition: deal {deal_id} could not be fetched "
+                    f"from Pipedrive. Falling back is NOT automatic — check "
+                    f"the deal exists and the API token is valid.")
+                return jsonify({"error": "Deal not found for v2"}), 404
+
+            from quote_composer import create_quote_v2
+            quote_data = create_quote_v2(normalized_org_data, full_deal)
+        else:
+            quote_data = create_comprehensive_quote_from_pipedrive(
+                normalized_org_data, deal_data)
         
         if quote_data:
             # Mark this organization as processed to prevent duplicates
