@@ -348,9 +348,13 @@ class ScalePadQuotes:
         """
         if isinstance(items, dict):
             items = [items]
+        # 404 is expected here and handled by add_line_items_retrying: a
+        # section id read straight after a write can point at a replica that
+        # has not caught up. Passing it as expected downgrades the log line to
+        # a warning; the exception still raises and the retry still runs.
         r = self.client.post(
             f"{QUOTER_PREFIX}/quotes/{quote_id}/sections/{section_id}/line-items",
-            data=items)
+            data=items, expect_statuses=(404,))
         return (r or {}).get("data", r)
 
     # ---- item groups (read side, for composition) ------------------------

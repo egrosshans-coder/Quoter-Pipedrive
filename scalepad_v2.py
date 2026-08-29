@@ -27,8 +27,25 @@ class ScalePadV2Client:
             "x-api-key": self.api_key,
         })
 
-    def _request(self, method, path, **kwargs):
+    def _request(self, method, path, expect_statuses=None, **kwargs):
+        """Send a request.
+
+        expect_statuses: statuses the CALLER anticipates and handles itself.
+        Those log at WARNING instead of ERROR. The exception is still raised
+        either way, so control flow is unchanged.
+
+        This exists because section reads are eventually consistent: an id read
+        straight after a write can 404 while the replica catches up, and
+        add_line_items_retrying() recovers from it. Logging that recovered
+        condition at ERROR on every multi-section quote buries the failures
+        that actually matter.
+
+        Kept opt-in and narrow on purpose. A blanket "404s are fine" rule would
+        hide a mistyped quote id or a deleted section, which is precisely what
+        this logging is for.
+        """
         url = f"{self.base_url}/{path.lstrip('/')}"
+        expect_statuses = set(expect_statuses or ())
 
         try:
             response = self.session.request(
@@ -46,7 +63,13 @@ class ScalePadV2Client:
             return response.json()
 
         except requests.HTTPError as e:
-            logger.error(f"ScalePad API error {response.status_code}: {response.text}")
+            msg = f"ScalePad API error {response.status_code}: {response.text}"
+            if response.status_code in expect_statuses:
+                # Anticipated by the caller, which handles it. Logged so the
+                # retry is visible, but not as a failure.
+                logger.warning(f"{msg}  (expected; caller will handle)")
+            else:
+                logger.error(msg)
             raise RuntimeError(
                 f"ScalePad API error {response.status_code}: {response.text}"
             ) from e
@@ -55,11 +78,13 @@ class ScalePadV2Client:
             logger.error(f"ScalePad connection error: {e}")
             raise
 
-    def get(self, path, params=None):
-        return self._request("GET", path, params=params)
+    def get(self, path, params=None, expect_statuses=None):
+        return self._request("GET", path, params=params,
+                             expect_statuses=expect_statuses)
 
-    def post(self, path, data=None):
-        return self._request("POST", path, json=data)
+    def post(self, path, data=None, expect_statuses=None):
+        return self._request("POST", path, json=data,
+                             expect_statuses=expect_statuses)
 
     def put(self, path, data=None):
         return self._request("PUT", path, json=data)
