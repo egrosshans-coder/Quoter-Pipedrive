@@ -4,14 +4,12 @@ services:
     env: python
     plan: starter
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn webhook_handler:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    startCommand: python3 webhook_handler.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.14.6
       - key: PORT
         value: 10000
-      - key: USE_V2_COMPOSITION
-        value: true
     envVarsFrom:
       - key: SLACK_WEBHOOK_URL
         fromSecret: true
@@ -52,6 +50,4 @@ services:
       - key: QBO_EXPENSE_ACCOUNT_ID
         fromSecret: true
       - key: SCALEPAD_API_KEY
-        fromSecret: true
-      - key: WEBHOOK_SECRET
         fromSecret: true
