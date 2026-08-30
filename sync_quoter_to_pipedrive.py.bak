@@ -32,23 +32,6 @@ the option id; removing the option orphans that stored value, and the deal's
 history silently loses meaning. Orphans are REPORTED for a human to retire in
 the UI, after checking nothing references them.
 
-ARCHIVED RECORDS
-----------------
-A Quoter template titled YY-<name> is excluded from the dropdown but kept in
-Quoter. Quoter has no archive and deletion is permanent, while the ScalePad API
-may one day expose template line items -- at which point the item-named
-templates become useful again.
-
-Renaming alone is not enough: build_plan() treats a rename as a label change on
-the same option id, so the option would stay selectable. Deleting the option
-alone is not enough either -- an option whose record still exists is re-added on
-the next run. The exclusion has to happen at fetch time, which is what
-ARCHIVE_PREFIX does.
-
-To un-archive: drop the YY- prefix in Quoter. If the option was retired rather
-than deleted, to_unretire reuses the SAME option id and every deal that stored
-it resolves again.
-
 This mirrors the instinct in the older sync_templates_to_pipedrive.py
 ("These won't be automatically removed for safety") — which was right, even
 though that script's endpoint never existed (see pd_fields.py).
@@ -76,34 +59,9 @@ STATE_DIR = Path(os.path.dirname(os.path.abspath(__file__)))
 # already stored it still resolves to a meaningful label.
 RETIRE_PREFIX = "XX-RET-"
 
-# Prefix marking a Quoter record that is KEPT but must not be offered in
-# Pipedrive. Distinct from RETIRE_PREFIX, which marks a Pipedrive OPTION whose
-# Quoter record is gone. Two systems, two meanings:
-#
-#   XX-RET-   Pipedrive option label   retired - record gone, id kept so old
-#                                      deals still resolve to a readable label
-#   YY-       Quoter template title    archived - kept in Quoter, hidden here
-#   zz-/ZZZ-  Quoter items and quotes  test artifact, safe to delete
-#
-# Archived templates stay fully usable for manual quote building in the Quoter
-# UI. They are hidden only from the dropdown that drives automated composition.
-#
-# Why this exists: Quoter has no archive and template deletion is permanent,
-# while ScalePad describes several API limitations as ones that "will likely be
-# updated at some point". Keeping an archived template costs nothing; deleting
-# one costs days of reconstruction if template line items ever become readable.
-ARCHIVE_PREFIX = "YY-"
-
-# Set from --include-archived in main(). Diagnostic only.
-INCLUDE_ARCHIVED = False
-
 
 def is_retired(label):
     return (label or "").startswith(RETIRE_PREFIX)
-
-
-def is_archived(label):
-    return (label or "").upper().startswith(ARCHIVE_PREFIX)
 
 
 def strip_retired(label):
@@ -153,19 +111,6 @@ def fetch_quoter(path, label_key):
         if before != len(records):
             print(f"  excluded {before - len(records)} auto-appended group(s) "
                   f"from the dropdown: {', '.join(sorted(skip))}")
-
-    # Archived records: kept in Quoter, deliberately not offered in Pipedrive.
-    # Their options become orphans on the next run and are retired (id kept),
-    # so un-archiving later reuses the same option id via to_unretire.
-    # Reversing this is a rename in Quoter -- drop the prefix and the record
-    # reappears in the dropdown on the next run.
-    if not INCLUDE_ARCHIVED:
-        archived = [r for r in records if is_archived(r["label"])]
-        if archived:
-            records = [r for r in records if not is_archived(r["label"])]
-            print(f"  excluded {len(archived)} archived record(s) "
-                  f"[{ARCHIVE_PREFIX}]: "
-                  f"{', '.join(sorted(r['label'] for r in archived))}")
     return records
 
 
@@ -289,18 +234,7 @@ def main():
                          "prefix instead of only reporting them. The option id "
                          "is preserved, so deals already storing it still "
                          "resolve. Nothing is ever deleted.")
-    ap.add_argument("--include-archived", action="store_true",
-                    help=f"include records whose name starts with "
-                         f"{ARCHIVE_PREFIX!r}. Diagnostic only -- the scheduled "
-                         f"run must NOT pass this, or archived templates "
-                         f"reappear in the dropdown.")
     a = ap.parse_args()
-
-    global INCLUDE_ARCHIVED
-    INCLUDE_ARCHIVED = a.include_archived
-    if INCLUDE_ARCHIVED:
-        print(f"  !! --include-archived: {ARCHIVE_PREFIX} records WILL be "
-              f"offered in Pipedrive")
 
     cfg = SOURCES[a.source]
     from pd_fields import PipedriveFields, OptionIdDrift
