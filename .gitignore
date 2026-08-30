@@ -16,3 +16,5 @@ files.zip
 .~lock.*#
 *.tmp
 logs/
+backups/
+*.bak

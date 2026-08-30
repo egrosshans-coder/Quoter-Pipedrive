@@ -9,6 +9,7 @@ import os
 import requests
 import time
 import threading
+import hmac
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 from quoter import create_draft_quote
@@ -59,20 +60,66 @@ class WebhookRateLimiter:
 rate_limiter = WebhookRateLimiter(max_concurrent=1, delay_seconds=3)
 
 # Shared-secret gate for inbound webhooks and debug endpoints.
-# Configure Pipedrive + Quoter (and any debug caller) to send the secret as either
-# an "X-Webhook-Token: <secret>" header or a "?token=<secret>" query parameter.
-# Behavior: fail-OPEN when WEBHOOK_SECRET is unset (so existing deployments keep
-# working until the secret is configured on both senders), fail-CLOSED once it is set.
+#
+# Three accepted methods, in order of preference:
+#   1. HTTP Basic Auth  - Pipedrive's automated webhooks support username and
+#                         password fields on the webhook definition but do NOT
+#                         support custom headers. The credential travels in the
+#                         Authorization header and never reaches an access log.
+#   2. X-Webhook-Token  - legacy header. Retained until step 6 of the migration.
+#   3. ?token=          - legacy query param. Puts the secret in EVERY access
+#                         log. Retained until step 6, then removed.
+#
+# WEBHOOK_SECRET_PREV is honoured while it is set, so a rotation has no window
+# in which one side holds the new value and the other still holds the old one.
+# Unset it once rotation is complete.
+#
+# Behavior: fail-OPEN when no secret is configured, fail-CLOSED once one is.
 WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET")
-if not WEBHOOK_SECRET:
+WEBHOOK_SECRET_PREV = os.getenv("WEBHOOK_SECRET_PREV")
+
+_WEBHOOK_SECRETS = [s for s in (WEBHOOK_SECRET, WEBHOOK_SECRET_PREV) if s]
+
+if not _WEBHOOK_SECRETS:
     logger.warning("⚠️ WEBHOOK_SECRET not set - inbound webhook/debug-endpoint auth is DISABLED (fail-open). Set WEBHOOK_SECRET to enable.")
+if WEBHOOK_SECRET_PREV:
+    logger.warning("⚠️ WEBHOOK_SECRET_PREV is set - rotation in progress, the previous secret is still accepted. Unset it when rotation is complete.")
+
+
+def _secret_matches(candidate):
+    """Constant-time comparison against every currently-accepted secret."""
+    if not candidate:
+        return False
+    return any(hmac.compare_digest(candidate, s) for s in _WEBHOOK_SECRETS)
+
 
 def _is_authorized(req):
-    """True if the request carries the shared secret, or if no secret is configured (fail-open)."""
-    if not WEBHOOK_SECRET:
+    """True if the request carries an accepted secret, or if none is configured (fail-open).
+
+    Logs which method succeeded, so the legacy paths can be removed on evidence
+    rather than on the assumption that nothing uses them.
+    """
+    if not _WEBHOOK_SECRETS:
         return True
-    provided = req.headers.get("X-Webhook-Token") or req.args.get("token")
-    return provided == WEBHOOK_SECRET
+
+    auth = req.authorization
+    if auth and auth.type == "basic":
+        if _secret_matches(auth.password):
+            logger.info(f"🔑 webhook auth: basic (user={auth.username})")
+            return True
+        logger.warning(f"🚫 webhook auth: basic rejected (user={auth.username})")
+        return False
+
+    if _secret_matches(req.headers.get("X-Webhook-Token")):
+        logger.info("🔑 webhook auth: header-token")
+        return True
+
+    if _secret_matches(req.args.get("token")):
+        logger.info("🔑 webhook auth: query-token")
+        return True
+
+    logger.warning("🚫 webhook auth: rejected")
+    return False
 
 def update_quote_with_sequential_number(quote_id, deal_id):
     """
